@@ -1,10 +1,11 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { MegaMenu } from './MegaMenu';
 import { DropdownMenu } from './DropdownMenu';
+import { CategoriesCascadingMenu } from './CategoriesCascadingMenu';
 import navigationData from '@/data/navigation.json';
 import navigationGlasses from '@/data/navigation-glasses.json';
 import navigationPlumbingSupplies from '@/data/navigation-plumbing-supplies.json';
@@ -228,8 +229,13 @@ export function DesktopNav() {
             )}
           </Link>
 
-          {/* Mega Menu */}
-          {item.type === 'megamenu' && (item.megaMenu || item.megaCategoryCards) && activeMenu === item.id && (
+          {/* Text-Only Categories Cascading Menu (Real MongoDB Categories & Subcategories) */}
+          {item.id === 'nav-categories' && activeMenu === item.id && (
+            <CategoriesCascadingMenu onClose={() => setActiveMenu(null)} />
+          )}
+
+          {/* Mega Menu (Preserved for non-categories, do not remove) */}
+          {item.id !== 'nav-categories' && item.type === 'megamenu' && (item.megaMenu || item.megaCategoryCards) && activeMenu === item.id && (
             <MegaMenu
               columns={item.megaMenu}
               promoImage={item.megaImage}
@@ -240,7 +246,7 @@ export function DesktopNav() {
             />
           )}
 
-          {/* Dropdown */}
+          {/* Dropdown (Preserved) */}
           {item.type === 'dropdown' && item.children && activeMenu === item.id && (
             <DropdownMenu items={item.children} />
           )}

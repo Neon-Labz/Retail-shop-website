@@ -1,8 +1,11 @@
 [
-  { "id": "cat-1", "name": "Jewelry", "slug": "jewelry", "image": "/fashion/products/products3.png", "description": "Elegant jewelry collection", "productCount": 8 },
-  { "id": "cat-2", "name": "Beauty", "slug": "beauty", "image": "/fashion/products/products6.png", "description": "Beauty essentials", "productCount": 12 },
-  { "id": "cat-3", "name": "Glasses", "slug": "glasses", "image": "/fashion/products/products11.png", "description": "Stylish eyewear", "productCount": 9 },
-  { "id": "cat-4", "name": "Basketball", "slug": "basketball", "image": "/fashion/products/products9.png", "description": "Sports equipment", "productCount": 12 },
-  { "id": "cat-5", "name": "Backpack Fashion", "slug": "backpack-fashion", "image": "/fashion/products/products2.png", "description": "Trendy backpacks", "productCount": 12 },
-  { "id": "cat-6", "name": "Socks", "slug": "socks", "image": "/fashion/products/products13.png", "description": "Comfortable socks", "productCount": 12 }
+  { "id": "cat-1", "name": "Smartphones", "slug": "smartphones", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966954507-a1a32f6c-039f-47ed-b048-da5814f55792.jpg", "description": "Latest flagship smartphones and devices", "productCount": 3 },
+  { "id": "cat-2", "name": "Audio", "slug": "audio", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966952878-bf86ccc9-8a85-4464-9dd7-4ccc18cd9bd3.jpg", "description": "Premium wireless headphones and speakers", "productCount": 3 },
+  { "id": "cat-3", "name": "Television", "slug": "television", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966955598-c5cfe1ec-4be8-4894-a049-752829bb4baa.jpg", "description": "Crystal UHD 4K Smart TVs and home cinema", "productCount": 1 },
+  { "id": "cat-4", "name": "Cookware", "slug": "cookware", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966958756-79b10052-9b26-4a0d-86ac-adf1fedb31c8.jpg", "description": "Stackable non-stick cookware and pots", "productCount": 2 },
+  { "id": "cat-5", "name": "Kitchen Appliances", "slug": "kitchen-appliances", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966956693-21e4ff56-b56f-410e-a935-fbc13f5407fe.jpg", "description": "Air fryers, blenders, and smart appliances", "productCount": 3 },
+  { "id": "cat-6", "name": "Coffee Makers", "slug": "coffee-makers", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966957688-e551b2a0-ccf5-4bfd-b1ae-f9f8b3f3e72b.jpg", "description": "Bean-to-cup espresso and coffee machines", "productCount": 2 },
+  { "id": "cat-7", "name": "Footwear", "slug": "footwear", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966963823-3484f99a-4acb-4543-a98d-ab586e364b41.jpg", "description": "Lifestyle sneakers and running shoes", "productCount": 3 },
+  { "id": "cat-8", "name": "Fitness Trackers", "slug": "fitness-trackers", "image": "https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966965028-371522e0-662b-4c34-a61f-a85048d26b73.jpg", "description": "GPS smartwatches and fitness gear", "productCount": 4 },
+  { "id": "cat-9", "name": "Laptops", "slug": "laptops", "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80", "description": "High performance laptops and computers", "productCount": 2 }
 ]

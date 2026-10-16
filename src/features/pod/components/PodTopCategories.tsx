@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -23,8 +23,7 @@ function IconArrowRightS({ size = 20 }: { size?: number }) {
   return (<svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z" /></svg>);
 }
 
-/* 5 unique categories + repeat first 2 = 7 total, matching Phone Case's
-   exact padding strategy for a reliable loop at every breakpoint. */
+/* Previous demo placeholder categories commented out as requested
 const categories = [
   { id: 'pod-store', label: 'Pod Store', image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp', href: '/shop' },
   { id: 'tshirt', label: 'T-shirt', image: '/pod/shop-by-categories-slider/shop-by-categories-2.webp', href: '/shop?category=Apparel' },
@@ -34,9 +33,88 @@ const categories = [
   { id: 'pod-store-2', label: 'Pod Store', image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp', href: '/shop' },
   { id: 'tshirt-2', label: 'T-shirt', image: '/pod/shop-by-categories-slider/shop-by-categories-2.webp', href: '/shop?category=Apparel' },
 ];
+*/
+
+// Real initial categories matching MongoDB store
+const categories = [
+  {
+    id: 'smartphones',
+    label: 'Smartphones',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966954507-a1a32f6c-039f-47ed-b048-da5814f55792.jpg',
+    href: '/shop?category=Smartphones',
+  },
+  {
+    id: 'audio-sound',
+    label: 'Audio & Sound',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966952878-bf86ccc9-8a85-4464-9dd7-4ccc18cd9bd3.jpg',
+    href: '/shop?category=Audio',
+  },
+  {
+    id: 'television',
+    label: 'Television & 4K',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966955598-c5cfe1ec-4be8-4894-a049-752829bb4baa.jpg',
+    href: '/shop?category=Television',
+  },
+  {
+    id: 'cookware',
+    label: 'Cookware',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966958756-79b10052-9b26-4a0d-86ac-adf1fedb31c8.jpg',
+    href: '/shop?category=Cookware',
+  },
+  {
+    id: 'kitchen-appliances',
+    label: 'Kitchen Appliances',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966956693-21e4ff56-b56f-410e-a935-fbc13f5407fe.jpg',
+    href: '/shop?category=Kitchen%20Appliances',
+  },
+  {
+    id: 'coffee-makers',
+    label: 'Coffee Makers',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966957688-e551b2a0-ccf5-4bfd-b1ae-f9f8b3f3e72b.jpg',
+    href: '/shop?category=Coffee%20Makers',
+  },
+  {
+    id: 'footwear',
+    label: 'Footwear',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966963823-3484f99a-4acb-4543-a98d-ab586e364b41.jpg',
+    href: '/shop?category=Footwear',
+  },
+  {
+    id: 'fitness-gear',
+    label: 'Fitness & Gear',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1791966965028-371522e0-662b-4c34-a61f-a85048d26b73.jpg',
+    href: '/shop?category=Fitness%20Trackers',
+  },
+];
 
 export function PodTopCategories() {
   const swiperRef = useRef<SwiperType | null>(null);
+  const [categoryItems, setCategoryItems] = useState(categories);
+
+  // Fetch live categories from MongoDB
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+          const liveCats = data.categories.map((c: any) => ({
+            id: c.id,
+            label: c.name,
+            image: c.image || '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+            href: `/shop?category=${encodeURIComponent(c.name)}`,
+          }));
+          const padded = liveCats.length < 6 ? [...liveCats, ...liveCats] : liveCats;
+          setCategoryItems(padded);
+        }
+      })
+      .catch((err) => console.error('Error fetching live categories from MongoDB:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="pdcat-section">
@@ -69,16 +147,29 @@ export function PodTopCategories() {
               speed={600}
               style={{ overflow: 'visible' }}
             >
-              {categories.map((cat) => (
-                <SwiperSlide key={cat.id}>
+              {/* Previous static categories mapping commented out as requested
+              categories.map((cat) => (
+              */}
+              {categoryItems.map((cat, idx) => (
+                <SwiperSlide key={`${cat.id}-${idx}`}>
                   <Link href={cat.href} className="pd-cat-item">
                     <div className="pd-cat-circle">
+                      {/* Previous contain objectFit commented out as requested
                       <Image
                         src={cat.image}
                         alt={cat.label}
                         fill
                         className="pd-cat-img"
                         style={{ objectFit: 'contain' }}
+                        sizes="272px"
+                      />
+                      */}
+                      <Image
+                        src={cat.image}
+                        alt={cat.label}
+                        fill
+                        className="pd-cat-img"
+                        style={{ objectFit: 'cover' }}
                         sizes="272px"
                       />
                     </div>

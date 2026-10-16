@@ -13,6 +13,8 @@ const PodBannerList = dynamic(() => import('@/features/pod/components/PodBannerL
 const TestimonialSection = dynamic(() => import('@/features/home/components/TestimonialSection').then(m => ({ default: m.TestimonialSection })));
 const PodInstagram = dynamic(() => import('@/features/pod/components/PodInstagram').then(m => ({ default: m.PodInstagram })));
 const PodTrustBadges = dynamic(() => import('@/features/pod/components/PodTrustBadges').then(m => ({ default: m.PodTrustBadges })));
+const PodRecentlyViewed = dynamic(() => import('@/features/pod/components/PodRecentlyViewed').then(m => ({ default: m.PodRecentlyViewed })));
+const PodRandomRecommendations = dynamic(() => import('@/features/pod/components/PodRandomRecommendations').then(m => ({ default: m.PodRandomRecommendations })));
 
 export const metadata: Metadata = {
   title: 'Ambaz — POD Store',
@@ -29,6 +31,8 @@ export default function PodHomePage() {
       <PodDealBanner />
       <PodNewArrivals />
       <PodTrendingSection />
+      <PodRandomRecommendations />
+      <PodRecentlyViewed />
       <PodMarquee />
       <PodBannerList />
       <div className="pod-home-testimonial">

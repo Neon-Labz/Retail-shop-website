@@ -90,7 +90,17 @@ export function PriceRangeSlider({
 
   return (
     <div>
+      {/* Original price label with $ commented out as requested
       <p style={{ fontSize: '14px', color: mutedColor, marginBottom: '18px' }}>The highest price is ${max.toFixed(2)}</p>
+      */}
+      {/* Previous Rs. price display commented out as requested
+      <p style={{ fontSize: '14px', color: mutedColor, marginBottom: '18px' }}>
+        The highest price is Rs. {max.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </p>
+      */}
+      <p style={{ fontSize: '14px', color: mutedColor, marginBottom: '18px' }}>
+        The highest price is LKR {max.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </p>
 
       {/* Slider container */}
       <div style={{ position: 'relative', height: '4px', margin: '28px 0 22px' }}>
@@ -139,8 +149,18 @@ export function PriceRangeSlider({
         />
       </div>
 
+      {/* Original price range with $ commented out as requested
       <p style={{ fontSize: '14px', fontWeight: 600, color: textColor }}>
         Price: <span style={{ fontWeight: 400, color: mutedColor }}>${local[0]} – ${local[1]}</span>
+      </p>
+      */}
+      {/* Previous Rs. price range commented out as requested
+      <p style={{ fontSize: '14px', fontWeight: 600, color: textColor }}>
+        Price: <span style={{ fontWeight: 400, color: mutedColor }}>Rs. {local[0].toLocaleString('en-US')} – Rs. {local[1].toLocaleString('en-US')}</span>
+      </p>
+      */}
+      <p style={{ fontSize: '14px', fontWeight: 600, color: textColor }}>
+        Price: <span style={{ fontWeight: 400, color: mutedColor }}>LKR {local[0].toLocaleString('en-US')} – LKR {local[1].toLocaleString('en-US')}</span>
       </p>
     </div>
   );

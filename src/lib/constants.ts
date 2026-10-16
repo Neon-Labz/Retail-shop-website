@@ -9,7 +9,7 @@ export const MAX_COMPARE_ITEMS = 4;
 
 export const SORT_OPTIONS = [
   { label: 'Featured', value: 'featured' },
-  { label: 'Best selling', value: 'best-selling' },
+  // { label: 'Best selling', value: 'best-selling' }, // Removed/commented out as requested
   { label: 'Alphabetically, A-Z', value: 'name-asc' },
   { label: 'Alphabetically, Z-A', value: 'name-desc' },
   { label: 'Price, low to high', value: 'price-asc' },
@@ -66,7 +66,7 @@ export const FOOTER_LINKS = {
   company: [
     { label: 'Wishlist', href: '/wishlist' },
     { label: 'My account', href: '/login' },
-    { label: 'Product compare', href: '/compare' },
+    // { label: 'Product compare', href: '/compare' }, // Removed/commented out as requested
     { label: 'Cart', href: '/cart' },
     { label: 'About us', href: '/pages/about' },
   ],

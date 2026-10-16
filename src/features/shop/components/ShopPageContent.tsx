@@ -146,6 +146,61 @@ function FilterCheckbox({ label, count, checked, onChange }: { label: string; co
   );
 }
 
+/* ── Custom Radio ── */
+
+function FilterRadio({ label, count, checked, onChange }: { label: string; count?: number; checked: boolean; onChange: () => void }) {
+  const theme = useContext(ShopThemeCtx);
+  return (
+    <label
+      className="filter-radio-row"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        cursor: 'pointer',
+        padding: '6px 0',
+        fontSize: '14px',
+        color: checked ? theme.textColor : theme.mutedColor,
+        fontWeight: checked ? 600 : 400,
+        transition: 'color 200ms ease',
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        onChange();
+      }}
+    >
+      <span
+        className="filter-rb"
+        style={{
+          width: '20px',
+          height: '20px',
+          borderRadius: '50%',
+          flexShrink: 0,
+          border: checked ? `2px solid ${theme.accentColor}` : `2px solid ${theme.borderColor}`,
+          backgroundColor: theme.inputBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 200ms ease',
+        }}
+      >
+        {checked && (
+          <span
+            style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: theme.accentColor,
+            }}
+          />
+        )}
+      </span>
+      <span>{label}</span>
+      {count !== undefined && <span style={{ color: theme.borderColor, marginLeft: 'auto', fontSize: '15px' }}>{count}</span>}
+    </label>
+  );
+}
+
 /* ── Filter Sidebar ── */
 
 /* ── Active Filter Tag ── */
@@ -173,7 +228,8 @@ function FilterTag({ label, onRemove }: { label: string; onRemove: () => void })
 
 /* ── Filter Sidebar ── */
 
-function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, onPriceChange, onRemoveAll }: {
+/* Original FilterSidebar commented out as requested
+function FilterSidebarOriginal({ filters, selectedFilters, onFilterChange, priceRange, onPriceChange, onRemoveAll }: {
   filters: FiltersData | undefined;
   selectedFilters: Record<string, string>;
   onFilterChange: (key: string, value: string) => void;
@@ -182,32 +238,77 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
   onRemoveAll: () => void;
 }) {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [showMoreBrand, setShowMoreBrand] = useState(false);
-  const [showMoreColor, setShowMoreColor] = useState(false);
-  const [showMoreSize, setShowMoreSize] = useState(false);
+  const theme = useContext(ShopThemeCtx);
+  if (!filters) return null;
+  return null;
+}
+*/
+
+function FilterSidebar({
+  filters,
+  selectedFilters,
+  onFilterChange,
+  onBatchFilterChange,
+  priceRange,
+  onPriceChange,
+  onRemoveAll,
+}: {
+  filters: FiltersData | undefined;
+  selectedFilters: Record<string, string>;
+  onFilterChange: (key: string, value: string) => void;
+  onBatchFilterChange?: (updates: Record<string, string>) => void;
+  priceRange: [number, number];
+  onPriceChange: (range: [number, number]) => void;
+  onRemoveAll: () => void;
+}) {
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
   const theme = useContext(ShopThemeCtx);
 
   if (!filters) return null;
 
-  const hasActiveFilters = Object.values(selectedFilters).some(v => v !== '') || priceRange[0] > filters.priceRange.min || priceRange[1] < filters.priceRange.max;
+  const hasActiveFilters =
+    Object.values(selectedFilters).some((v) => v !== '') ||
+    priceRange[0] > filters.priceRange.min ||
+    priceRange[1] < filters.priceRange.max;
+
+  // Active selected subcategories array from comma-separated string
+  const activeSubcategories = selectedFilters.subcategory
+    ? selectedFilters.subcategory
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   const activeFilterTags: { label: string; key: string }[] = [];
   if (priceRange[0] > filters.priceRange.min || priceRange[1] < filters.priceRange.max) {
-    activeFilterTags.push({ label: `$${priceRange[0].toFixed(2)} –$${priceRange[1].toFixed(2)}`, key: 'price' });
+    activeFilterTags.push({
+      label: `LKR ${priceRange[0].toLocaleString('en-US')} – LKR ${priceRange[1].toLocaleString('en-US')}`,
+      key: 'price',
+    });
   }
-  if (selectedFilters.availability) activeFilterTags.push({ label: `Availability: ${selectedFilters.availability}`, key: 'availability' });
-  if (selectedFilters.brand) activeFilterTags.push({ label: `More filters: ${selectedFilters.brand}`, key: 'brand' });
-  if (selectedFilters.color) activeFilterTags.push({ label: `Color: ${selectedFilters.color}`, key: 'color' });
-  if (selectedFilters.size) activeFilterTags.push({ label: `Size: ${selectedFilters.size}`, key: 'size' });
-  if (selectedFilters.category) activeFilterTags.push({ label: `Category: ${selectedFilters.category}`, key: 'category' });
+  if (selectedFilters.availability) {
+    activeFilterTags.push({ label: `Availability: ${selectedFilters.availability}`, key: 'availability' });
+  }
+  if (selectedFilters.category) {
+    activeFilterTags.push({ label: `Category: ${selectedFilters.category}`, key: 'category' });
+  }
+  activeSubcategories.forEach((sub) => {
+    activeFilterTags.push({ label: `Subcategory: ${sub}`, key: `sub:${sub}` });
+  });
 
   return (
     <div style={{ backgroundColor: theme.sidebarBg, borderRadius: '8px', padding: '28px', overflow: 'hidden' }}>
       {/* Header with Remove all */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <h3 className="filter-group-title" style={{ fontSize: '20px', fontWeight: 700, color: theme.textColor, margin: 0 }}>Filter:</h3>
+        <h3 className="filter-group-title" style={{ fontSize: '20px', fontWeight: 700, color: theme.textColor, margin: 0 }}>
+          Filter:
+        </h3>
         {hasActiveFilters && (
-          <button className="filter-remove-all" onClick={onRemoveAll} style={{ fontSize: '14px', color: '#F15B41', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+          <button
+            className="filter-remove-all"
+            onClick={onRemoveAll}
+            style={{ fontSize: '14px', color: '#F15B41', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+          >
             Remove all
           </button>
         )}
@@ -221,8 +322,22 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
               key={tag.key}
               label={tag.label}
               onRemove={() => {
-                if (tag.key === 'price') onPriceChange([filters.priceRange.min, filters.priceRange.max]);
-                else onFilterChange(tag.key, '');
+                if (tag.key === 'price') {
+                  onPriceChange([filters.priceRange.min, filters.priceRange.max]);
+                } else if (tag.key === 'category') {
+                  // Removing category also clears subcategories
+                  if (onBatchFilterChange) onBatchFilterChange({ category: '', subcategory: '' });
+                  else {
+                    onFilterChange('category', '');
+                    onFilterChange('subcategory', '');
+                  }
+                } else if (tag.key.startsWith('sub:')) {
+                  const subToRemove = tag.key.slice(4);
+                  const remaining = activeSubcategories.filter((s) => s !== subToRemove);
+                  onFilterChange('subcategory', remaining.join(','));
+                } else {
+                  onFilterChange(tag.key, '');
+                }
               }}
             />
           ))}
@@ -230,8 +345,18 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
       )}
 
       <FilterGroup title="Availability">
-        <FilterCheckbox label="In stock" count={filters.categories.reduce((s, c) => s + c.count, 0)} checked={selectedFilters.availability === 'in-stock'} onChange={() => onFilterChange('availability', selectedFilters.availability === 'in-stock' ? '' : 'in-stock')} />
-        <FilterCheckbox label="Out of stock" count={0} checked={selectedFilters.availability === 'out-of-stock'} onChange={() => onFilterChange('availability', selectedFilters.availability === 'out-of-stock' ? '' : 'out-of-stock')} />
+        <FilterCheckbox
+          label="In stock"
+          count={filters.categories.reduce((s, c) => s + c.count, 0)}
+          checked={selectedFilters.availability === 'in-stock'}
+          onChange={() => onFilterChange('availability', selectedFilters.availability === 'in-stock' ? '' : 'in-stock')}
+        />
+        <FilterCheckbox
+          label="Out of stock"
+          count={0}
+          checked={selectedFilters.availability === 'out-of-stock'}
+          onChange={() => onFilterChange('availability', selectedFilters.availability === 'out-of-stock' ? '' : 'out-of-stock')}
+        />
       </FilterGroup>
 
       <FilterGroup title="Price">
@@ -247,16 +372,125 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
       </FilterGroup>
 
       <FilterGroup title="More filters">
-        {(showMoreFilters ? filters.brands : filters.brands.slice(0, 10)).map((b) => (
-          <FilterCheckbox key={`mf-${b.name}`} label={b.name} count={b.count} checked={selectedFilters.brand === b.name} onChange={() => onFilterChange('brand', selectedFilters.brand === b.name ? '' : b.name)} />
-        ))}
-        {filters.brands.length > 10 && (
-          <button onClick={() => setShowMoreFilters(!showMoreFilters)} className="filter-show-more" style={{ fontSize: '14px', color: theme.textColor, background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px', fontWeight: 500 }}>
-            {showMoreFilters ? '- Show less' : '+ Show more'}
-          </button>
+        {/* Dynamic MongoDB Categories filter (Radio Group: Single Selection) */}
+        {filters.categories && filters.categories.length > 0 && (
+          <div style={{ marginBottom: selectedFilters.category ? '20px' : '0' }}>
+            <p
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: theme.textColor,
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Categories
+            </p>
+            {filters.categories.map((c) => {
+              const isSelected = selectedFilters.category === c.name;
+              return (
+                <FilterRadio
+                  key={`cat-${c.name}`}
+                  label={c.name}
+                  count={c.count}
+                  checked={isSelected}
+                  onChange={() => {
+                    if (isSelected) {
+                      // Clicking currently selected category unselects it and clears subcategory
+                      if (onBatchFilterChange) onBatchFilterChange({ category: '', subcategory: '' });
+                      else {
+                        onFilterChange('category', '');
+                        onFilterChange('subcategory', '');
+                      }
+                    } else {
+                      // Selecting a new category sets category and resets subcategories
+                      if (onBatchFilterChange) onBatchFilterChange({ category: c.name, subcategory: '' });
+                      else {
+                        onFilterChange('category', c.name);
+                        onFilterChange('subcategory', '');
+                      }
+                    }
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Dynamic MongoDB Subcategories filter (Visible ONLY when a category is selected) */}
+        {selectedFilters.category && (
+          <div style={{ paddingTop: '16px', borderTop: `1px dashed ${theme.borderColor}` }}>
+            <p
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: theme.textColor,
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Subcategories ({selectedFilters.category})
+            </p>
+            {(() => {
+              // Retrieve specific subcategories for the selected category from MongoDB filters
+              const categorySubs = filters.categorySubcategories?.[selectedFilters.category] || [];
+
+              if (categorySubs.length === 0) {
+                return (
+                  <p style={{ fontSize: '13px', color: theme.mutedColor, fontStyle: 'italic', margin: '6px 0' }}>
+                    No subcategories available.
+                  </p>
+                );
+              }
+
+              const visibleSubs = showMoreFilters ? categorySubs : categorySubs.slice(0, 8);
+
+              return (
+                <>
+                  {visibleSubs.map((sub) => {
+                    const isChecked = activeSubcategories.includes(sub.name);
+                    return (
+                      <FilterCheckbox
+                        key={`sub-${sub.name}`}
+                        label={sub.name}
+                        count={sub.count}
+                        checked={isChecked}
+                        onChange={() => {
+                          const updated = isChecked
+                            ? activeSubcategories.filter((s) => s !== sub.name)
+                            : [...activeSubcategories, sub.name];
+                          onFilterChange('subcategory', updated.join(','));
+                        }}
+                      />
+                    );
+                  })}
+                  {categorySubs.length > 8 && (
+                    <button
+                      onClick={() => setShowMoreFilters(!showMoreFilters)}
+                      className="filter-show-more"
+                      style={{
+                        fontSize: '14px',
+                        color: theme.textColor,
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        marginTop: '8px',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {showMoreFilters ? '- Show less' : '+ Show more'}
+                    </button>
+                  )}
+                </>
+              );
+            })()}
+          </div>
         )}
       </FilterGroup>
 
+      {/* Brand filter commented out as requested
       <FilterGroup title="Brand">
         {(showMoreBrand ? filters.brands : filters.brands.slice(0, 10)).map((b) => (
           <FilterCheckbox key={`br-${b.name}`} label={b.name} count={b.count} checked={selectedFilters.brand === b.name} onChange={() => onFilterChange('brand', selectedFilters.brand === b.name ? '' : b.name)} />
@@ -267,7 +501,9 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
           </button>
         )}
       </FilterGroup>
+      */}
 
+      {/* Color filter commented out as requested
       <FilterGroup title="Color">
         {(showMoreColor ? filters.colors : filters.colors.slice(0, 8)).map((c) => (
           <FilterCheckbox key={c.name} label={c.name} count={c.count} checked={selectedFilters.color === c.name} onChange={() => onFilterChange('color', selectedFilters.color === c.name ? '' : c.name)} />
@@ -278,7 +514,9 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
           </button>
         )}
       </FilterGroup>
+      */}
 
+      {/* Size filter commented out as requested
       <FilterGroup title="Size">
         {(showMoreSize ? filters.sizes : filters.sizes.slice(0, 8)).map((s) => (
           <FilterCheckbox key={s.name} label={s.name} count={s.count} checked={selectedFilters.size === s.name} onChange={() => onFilterChange('size', selectedFilters.size === s.name ? '' : s.name)} />
@@ -289,6 +527,7 @@ function FilterSidebar({ filters, selectedFilters, onFilterChange, priceRange, o
           </button>
         )}
       </FilterGroup>
+      */}
     </div>
   );
 }
@@ -458,6 +697,7 @@ export function ShopPageContent({
   const currentPage = parseInt(searchParams.get('page') || '1');
   const sort = searchParams.get('sort') || 'featured';
   const category = searchParams.get('category') || '';
+  const subcategory = searchParams.get('subcategory') || '';
   const collection = searchParams.get('collection') || '';
   const brand = searchParams.get('brand') || '';
   const color = searchParams.get('color') || '';
@@ -479,6 +719,7 @@ export function ShopPageContent({
     limit: PRODUCTS_PER_PAGE,
     sort,
     category: category || undefined,
+    subcategory: subcategory || undefined,
     collection: collection || undefined,
     brand: brand || undefined,
     color: color || undefined,
@@ -629,12 +870,22 @@ export function ShopPageContent({
 
         {/* Main content: Filter + Products */}
         <div className="shop-main-row" style={{ display: 'flex', gap: '40px', paddingBottom: '60px' }}>
-          {/* Sidebar — hidden at <=749px (replaced by mobile drawer) */}
           <div className="shop-sidebar" style={{ width: '290px', flexShrink: 0 }}>
+            {/* Original FilterSidebar call commented out as requested
             <FilterSidebar
               filters={data?.filters}
               selectedFilters={{ category, brand, color, size, availability }}
               onFilterChange={handleFilterChange}
+              priceRange={[minPrice, displayMaxPrice]}
+              onPriceChange={handlePriceChange}
+              onRemoveAll={() => {}}
+            />
+            */}
+            <FilterSidebar
+              filters={data?.filters}
+              selectedFilters={{ category, subcategory, brand, color, size, availability }}
+              onFilterChange={handleFilterChange}
+              onBatchFilterChange={updateParams}
               priceRange={[minPrice, displayMaxPrice]}
               onPriceChange={handlePriceChange}
               onRemoveAll={() => {
@@ -714,7 +965,7 @@ export function ShopPageContent({
         open={mobileFilterOpen}
         onClose={() => setMobileFilterOpen(false)}
         filters={data?.filters}
-        selected={{ availability, brand, color, size, category, sort }}
+        selected={{ availability, brand, color, size, category, subcategory, sort }}
         priceRange={[minPrice, displayMaxPrice]}
         productCount={data?.pagination?.totalProducts ?? 0}
         theme={{ accentColor: theme.accentColor, mutedColor: theme.mutedColor, textColor: theme.textColor }}
@@ -725,6 +976,7 @@ export function ShopPageContent({
             color: payload.color,
             size: payload.size,
             category: payload.category,
+            subcategory: payload.subcategory,
             sort: payload.sort === 'featured' ? '' : payload.sort,
             minPrice: payload.minPrice > 0 ? String(payload.minPrice) : '',
             maxPrice: payload.maxPrice < (data?.filters?.priceRange.max ?? payload.maxPrice) ? String(payload.maxPrice) : '',

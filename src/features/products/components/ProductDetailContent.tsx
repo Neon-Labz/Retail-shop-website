@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -152,12 +152,23 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
           >
             {images.map((img, i) => (
               <button key={img.id} onClick={() => handleThumbClick(i)} className="pdp-thumb-btn" style={{
-                position: 'relative', width: '100%', aspectRatio: '3 / 4',
+                position: 'relative', width: '100%',
+                /* Previous 3:4 aspect ratio commented out as requested
+                aspectRatio: '3 / 4',
+                */
+                aspectRatio: '1 / 1',
                 overflow: 'hidden', flexShrink: 0,
                 border: activeIndex === i ? '2px solid #222' : '2px solid transparent',
-                cursor: 'pointer', backgroundColor: '#f5f5f5', padding: 0,
+                cursor: 'pointer', backgroundColor: '#fff', padding: 0,
+                borderRadius: '4px',
                 transition: 'border-color 200ms ease',
               }}>
+                {/* Previous cover objectFit commented out as requested
+                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 100px, 90px" />
+                */}
+                {/* Previous contain objectFit commented out as requested
+                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'contain', padding: '4px' }} sizes="(max-width: 749px) 100px, 90px" />
+                */}
                 <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 100px, 90px" />
               </button>
             ))}
@@ -182,10 +193,12 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
           onMouseLeave={() => setZooming(false)}
           onMouseMove={handleMouseMove}
           className="pdp-main-image-wrap"
-          style={{ position: 'relative', width: '100%', backgroundColor: '#f5f5f5', overflow: 'hidden', cursor: zooming ? 'crosshair' : 'default' }}
+          style={{ position: 'relative', width: '100%', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #f0f0f0', overflow: 'hidden', cursor: zooming ? 'crosshair' : 'default' }}
         >
-          {/* Invisible spacer to establish 3:4 aspect ratio (collapses to 0 ≤749) */}
+          {/* Previous 3:4 aspect ratio spacer commented out as requested
           <div className="pdp-main-image-spacer" style={{ width: '100%', paddingBottom: '133.33%' }} />
+          */}
+          <div className="pdp-main-image-spacer" style={{ width: '100%', paddingBottom: '100%' }} />
 
           {/* Swiper fills spacer via absolute positioning */}
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
@@ -203,10 +216,17 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
             >
               {images.map((img, idx) => (
                 <SwiperSlide key={img.id} style={{ width: '100%', height: '100%' }}>
+                  {/* Previous contain objectFit with padding commented out as requested
                   <img
                     src={img.src} alt={img.alt}
                     onClick={() => openLightbox(idx)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', cursor: 'pointer' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '20px', display: 'block', cursor: 'pointer' }}
+                  />
+                  */}
+                  <img
+                    src={img.src} alt={img.alt}
+                    onClick={() => openLightbox(idx)}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', cursor: 'pointer' }}
                   />
                 </SwiperSlide>
               ))}
@@ -578,11 +598,32 @@ export function ProductDetailContent({
   const footerObserverRef = useRef<IntersectionObserver | null>(null);
 
   const product = data?.product;
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
 
   useEffect(() => {
     if (product) {
       setSelectedColor(product.colors[0]?.name || '');
       setSelectedSize(product.sizes[0] || '');
+
+      // Record product view in server-side MongoDB history
+      if (product.id && product.id.length === 24) {
+        fetch('/api/recommendations/recently-viewed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: product.id }),
+        }).catch(() => {});
+      }
+
+      // Fetch customer's recently viewed products
+      fetch('/api/recommendations/recently-viewed?limit=5')
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.success && Array.isArray(res.products)) {
+            const others = res.products.filter((p: Product) => p.id !== product.id);
+            setRecentlyViewed(others.slice(0, 4));
+          }
+        })
+        .catch(() => {});
     }
   }, [product]);
 
@@ -771,6 +812,7 @@ export function ProductDetailContent({
                   )}
                   {wishlistLoading ? 'Loading...' : inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </button>
+                {/* Add to Compare button removed/commented out as requested
                 <button
                   onClick={handleCompareClick}
                   disabled={compareLoading}
@@ -789,6 +831,7 @@ export function ProductDetailContent({
                   )}
                   {compareLoading ? 'Loading...' : inCompare ? 'Remove from Compare' : 'Add to Compare'}
                 </button>
+                */}
               </div>
 
               {/* Share */}
@@ -1031,9 +1074,12 @@ export function ProductDetailContent({
       {/* ── Recently Viewed ── */}
       <div className="container-main pdp-recently-section">
         <h2 style={{ fontSize: 'clamp(22px, 2.4vw, 28px)', fontWeight: 600, color: '#222', textAlign: 'center', marginBottom: 'clamp(22px, 2.4vw, 30px)' }}>Recently viewed product</h2>
-        {relatedData && (
+        {(recentlyViewed.length > 0 || relatedData) && (
           <div className="pdp-recently-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(14px, 1.8vw, 24px)' }}>
-            {relatedData.products.slice(0, 4).map((p, i) => (
+            {(recentlyViewed.length > 0
+              ? recentlyViewed
+              : (relatedData?.products.filter(p => p.id !== product?.id).slice(0, 4) || [])
+            ).map((p, i) => (
               cardVariant === 'grocery' ? (
                 <GroceryProductCard key={p.id} product={p} index={i} hrefBase={productHrefBase} />
               ) : (

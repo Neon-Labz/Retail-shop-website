@@ -30,7 +30,10 @@ export function PodFeaturedProducts() {
           {isLoading
             ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : products.map((product, i) => (
+                /* Previous fixed imageHeight 350px commented out as requested
                 <HomeProductCard key={product.id} product={product} index={i} imageHeight="350px" />
+                */
+                <HomeProductCard key={product.id} product={product} index={i} />
               ))
           }
         </div>
@@ -52,18 +55,21 @@ export function PodFeaturedProducts() {
           .pdfp-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
         }
 
-        /* 350x350 product-image boxes: capped/centered square, image
-           contained (never stretched or cropped) inside it. The shared
-           HomeProductCard's own ≤749px media query overrides the height
-           back to a fluid clamp, so this only governs tablet/desktop. */
+        /* Clean square frame with edge-to-edge cover fit (no gaps) */
         .pdfp-grid .fc-card > a:first-child {
-          max-width: 350px;
           width: 100%;
+          aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
         }
         .pdfp-grid .fc-card > a:first-child img {
+          /* Previous contain/padding commented out as requested
           object-fit: contain !important;
-          background-color: #f5f5f5;
+          background-color: #fff;
+          padding: 8px;
+          */
+          object-fit: cover !important;
+          background-color: #fff;
+          padding: 0 !important;
         }
 
         .pdfp-shop-now {

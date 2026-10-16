@@ -181,7 +181,7 @@ export function CartDrawer() {
         {items.length > 0 && <div style={{ padding: '16px 24px', borderBottom: '1px solid #f0f0f0' }}>
           <p style={{ fontSize: '15px', color: '#555', marginBottom: '10px' }}>
             {shippingRemaining > 0
-              ? <>{formatPrice(shippingRemaining)} USD away from Free Standard Shipping.</>
+              ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
               : <span style={{ color: '#22c55e', fontWeight: 600 }}>You qualify for Free Standard Shipping!</span>
             }
           </p>
@@ -312,7 +312,7 @@ export function CartDrawer() {
             <div style={{ padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span style={{ fontSize: '26px', fontWeight: 700, color: '#222' }}>Subtotal</span>
-                <span style={{ fontSize: '20px', fontWeight: 600, color: '#222' }}>{formatPrice(subtotal)} USD</span>
+                <span style={{ fontSize: '20px', fontWeight: 600, color: '#222' }}>{formatPrice(subtotal)}</span>
               </div>
               <p style={{ fontSize: '15px', color: '#777', marginBottom: '18px' }}>Taxes and shipping calculated at checkout</p>
 

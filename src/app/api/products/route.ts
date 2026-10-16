@@ -1,164 +1,475 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import { connectDB } from '@/lib/db';
+import ProductModel from '@/models/Product';
+import { formatMongoProduct } from '@/lib/formatProduct';
 import productsData from '@/data/products.json';
 import type { Product } from '@/types/product';
+import type { FilterCounts } from '@/types/common';
 
-const allProducts: Product[] = productsData as Product[];
+const fallbackProducts: Product[] = productsData as Product[];
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
+  try {
+    const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '12');
-  const category = searchParams.get('category');
-  const collection = searchParams.get('collection');
-  const brand = searchParams.get('brand');
-  const color = searchParams.get('color');
-  const size = searchParams.get('size');
-  const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
-  const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
-  const sort = searchParams.get('sort') || 'featured';
-  const availability = searchParams.get('availability');
-  const query = searchParams.get('q');
+    // 1. Parsing query parameters
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const limit = Math.max(1, parseInt(searchParams.get('limit') || '12'));
+    const query = (searchParams.get('q') || searchParams.get('search') || '').trim();
+    const category = searchParams.get('category');
+    const subcategory = searchParams.get('subcategory') || searchParams.get('subCategory');
+    const status = searchParams.get('status');
+    const brand = searchParams.get('brand');
+    const availability = searchParams.get('availability') || searchParams.get('inStock');
+    const sort = searchParams.get('sort') || 'newest';
+    const minPrice = searchParams.get('minPrice') || searchParams.get('min_price')
+      ? parseFloat((searchParams.get('minPrice') || searchParams.get('min_price'))!)
+      : undefined;
+    const maxPrice = searchParams.get('maxPrice') || searchParams.get('max_price')
+      ? parseFloat((searchParams.get('maxPrice') || searchParams.get('max_price'))!)
+      : undefined;
+    const isFeaturedParam = searchParams.get('featured') || searchParams.get('isFeatured');
 
-  let filtered = [...allProducts];
+    // 2. Try MongoDB Query
+    try {
+      const conn = await connectDB();
+      const db = conn.connection.db;
 
-  // Search
-  if (query) {
-    const q = query.toLowerCase();
-    filtered = filtered.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.tags.some((t) => t.toLowerCase().includes(q)) ||
-        p.category.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q)
-    );
-  }
+      const filter: Record<string, any> = {};
+      const andConditions: any[] = [];
 
-  // Filter by category
-  if (category) {
-    filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
-  }
+      // Status filter (defaults to active unless specified or searching all)
+      if (status && status !== 'all') {
+        filter.status = status as 'active' | 'draft' | 'archived';
+      } else if (!status) {
+        filter.status = { $ne: 'archived' };
+      }
 
-  // Filter by collection slug
-  if (collection) {
-    filtered = filtered.filter((p) => p.collections?.includes(collection) ?? false);
-  }
+      // Featured filter
+      if (isFeaturedParam === 'true') {
+        filter.isFeatured = true;
+      }
 
-  // Filter by brand
-  if (brand) {
-    filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
-  }
+      // Search across name, SKU, slug, description, subcategory
+      if (query) {
+        const searchRegex = new RegExp(query, 'i');
+        andConditions.push({
+          $or: [
+            { name: { $regex: searchRegex } },
+            { sku: { $regex: searchRegex } },
+            { slug: { $regex: searchRegex } },
+            { description: { $regex: searchRegex } },
+            { subcategory: { $regex: searchRegex } },
+          ],
+        });
+      }
 
-  // Filter by color
-  if (color) {
-    filtered = filtered.filter((p) =>
-      p.colors.some((c) => c.name.toLowerCase() === color.toLowerCase())
-    );
-  }
+      // Subcategory filter (supports single or comma-separated subcategories)
+      if (subcategory && subcategory !== 'all') {
+        const subList = subcategory.split(',').map((s) => s.trim()).filter(Boolean);
+        if (subList.length === 1) {
+          andConditions.push({
+            subcategory: { $regex: new RegExp(`^${subList[0]}$`, 'i') },
+          });
+        } else if (subList.length > 1) {
+          andConditions.push({
+            $or: subList.map((s) => ({ subcategory: { $regex: new RegExp(`^${s}$`, 'i') } })),
+          });
+        }
+      }
 
-  // Filter by size
-  if (size) {
-    filtered = filtered.filter((p) =>
-      p.sizes.some((s) => s.toLowerCase() === size.toLowerCase())
-    );
-  }
+      // Category filter (handles ObjectId or category name)
+      if (category && category !== 'all') {
+        if (mongoose.Types.ObjectId.isValid(category)) {
+          andConditions.push({ category: new mongoose.Types.ObjectId(category) });
+        } else {
+          /* Original regex-only subcategory matching commented out
+          andConditions.push({
+            $or: [
+              { subcategory: { $regex: new RegExp(category, 'i') } },
+            ],
+          });
+          */
+          let matchedCatIds: mongoose.Types.ObjectId[] = [];
+          if (db) {
+            const matchedCats = await db
+              .collection('categories')
+              .find({ name: { $regex: new RegExp(category, 'i') } })
+              .toArray();
+            matchedCatIds = matchedCats.map((c) => new mongoose.Types.ObjectId(c._id.toString()));
+          }
+          const orList: any[] = [
+            { subcategory: { $regex: new RegExp(category, 'i') } },
+          ];
+          if (matchedCatIds.length > 0) {
+            orList.push({ category: { $in: matchedCatIds } });
+          }
+          andConditions.push({ $or: orList });
+        }
+      }
 
-  // Filter by price range
-  if (minPrice !== undefined) {
-    filtered = filtered.filter((p) => p.price >= minPrice);
-  }
-  if (maxPrice !== undefined) {
-    filtered = filtered.filter((p) => p.price <= maxPrice);
-  }
+      // Brand filter
+      if (brand && brand !== 'all') {
+        andConditions.push({ subcategory: { $regex: new RegExp(brand, 'i') } });
+      }
 
-  // Filter by availability
-  if (availability) {
-    filtered = filtered.filter((p) => p.availability === availability);
-  }
+      // Price range filter (accurately checks effective price: salePrice if present, else regular price)
+      if (minPrice !== undefined && !isNaN(minPrice)) {
+        andConditions.push({
+          $or: [
+            { salePrice: { $gte: minPrice, $ne: null } },
+            {
+              $and: [
+                { $or: [{ salePrice: null }, { salePrice: 0 }, { salePrice: { $exists: false } }] },
+                { price: { $gte: minPrice } },
+              ],
+            },
+          ],
+        });
+      }
 
-  // Build filter counts from the FULL dataset (before pagination)
-  const categories = buildFilterCounts(allProducts, 'category');
-  const brands = buildFilterCounts(allProducts, 'brand');
-  const colors = buildColorCounts(allProducts);
-  const sizes = buildSizeCounts(allProducts);
-  const prices = allProducts.map((p) => p.price);
-  const priceRange = { min: Math.min(...prices), max: Math.max(...prices) };
+      if (maxPrice !== undefined && !isNaN(maxPrice)) {
+        andConditions.push({
+          $or: [
+            { salePrice: { $lte: maxPrice, $ne: null } },
+            {
+              $and: [
+                { $or: [{ salePrice: null }, { salePrice: 0 }, { salePrice: { $exists: false } }] },
+                { price: { $lte: maxPrice } },
+              ],
+            },
+          ],
+        });
+      }
 
-  // Sort
-  switch (sort) {
-    case 'price-asc':
-      filtered.sort((a, b) => a.price - b.price);
-      break;
-    case 'price-desc':
-      filtered.sort((a, b) => b.price - a.price);
-      break;
-    case 'name-asc':
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    case 'name-desc':
-      filtered.sort((a, b) => b.name.localeCompare(a.name));
-      break;
-    case 'newest':
-    case 'date-asc':
-      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      break;
-    case 'best-selling':
-      filtered.sort((a, b) => b.reviewCount - a.reviewCount);
-      break;
-    default:
-      break;
-  }
+      // Stock availability filter
+      if (availability) {
+        const avail = availability.toLowerCase();
+        if (avail === 'in-stock' || avail === 'in_stock' || avail === 'true') {
+          andConditions.push({ stock: { $gt: 0 } });
+        } else if (avail === 'out-of-stock' || avail === 'out_of_stock' || avail === 'false') {
+          andConditions.push({
+            $or: [{ stock: { $lte: 0 } }, { stock: null }, { stock: { $exists: false } }],
+          });
+        }
+      }
 
-  // Paginate
-  const totalProducts = filtered.length;
-  const totalPages = Math.ceil(totalProducts / limit);
-  const startIndex = (page - 1) * limit;
-  const paginated = filtered.slice(startIndex, startIndex + limit);
+      if (andConditions.length > 0) {
+        filter.$and = andConditions;
+      }
 
-  return NextResponse.json({
-    products: paginated,
-    pagination: {
-      currentPage: page,
-      totalPages,
-      totalProducts,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
-    },
-    filters: {
-      categories,
-      brands,
-      colors,
-      sizes,
-      priceRange,
-    },
-  });
-}
+      // Sorting - supported sorting options
+      let sortQuery: Record<string, 1 | -1> = { createdAt: -1 };
+      switch (sort) {
+        case 'featured':
+          sortQuery = { isFeatured: -1, createdAt: -1 };
+          break;
+        case 'name-asc':
+        case 'title-asc':
+        case 'alphabetical-asc':
+          sortQuery = { name: 1 };
+          break;
+        case 'name-desc':
+        case 'title-desc':
+        case 'alphabetical-desc':
+          sortQuery = { name: -1 };
+          break;
+        case 'price-asc':
+        case 'price-low-to-high':
+          sortQuery = { price: 1 };
+          break;
+        case 'price-desc':
+        case 'price-high-to-low':
+          sortQuery = { price: -1 };
+          break;
+        case 'date-asc':
+        case 'oldest':
+          sortQuery = { createdAt: 1 };
+          break;
+        /*
+        // Best selling option removed/commented out as requested
+        case 'best-selling':
+          sortQuery = { totalSold: -1 };
+          break;
+        */
+        case 'rating':
+        case 'popular':
+          sortQuery = { totalSold: -1 };
+          break;
+        case 'newest':
+        case 'date-desc':
+        default:
+          sortQuery = { createdAt: -1 };
+          break;
+      }
 
-function buildFilterCounts(products: Product[], field: keyof Product) {
-  const counts: Record<string, number> = {};
-  products.forEach((p) => {
-    const value = p[field] as string;
-    counts[value] = (counts[value] || 0) + 1;
-  });
-  return Object.entries(counts).map(([name, count]) => ({ name, count }));
-}
+      // Pagination & Execution
+      const totalProducts = await ProductModel.countDocuments(filter);
 
-function buildColorCounts(products: Product[]) {
-  const counts: Record<string, number> = {};
-  products.forEach((p) => {
-    p.colors.forEach((c) => {
-      counts[c.name] = (counts[c.name] || 0) + 1;
+      if (totalProducts > 0 || (query || category || subcategory || status || minPrice !== undefined || maxPrice !== undefined || availability)) {
+        const totalPages = Math.ceil(totalProducts / limit) || 1;
+        const skip = (page - 1) * limit;
+
+        const mongoDocs = await ProductModel.find(filter)
+          .sort(sortQuery)
+          .skip(skip)
+          .limit(limit)
+          .lean();
+
+        const formattedProducts = mongoDocs.map(formatMongoProduct);
+
+        /* Original facet calculation commented out
+        const allMatchingForFacets = await ProductModel.find(
+          status ? { status: status as 'active' | 'draft' | 'archived' } : { status: { $ne: 'archived' as const } },
+          'subcategory price salePrice stock'
+        ).lean();
+
+        const subcategoriesMap = new Map<string, number>();
+        let minFound = Infinity;
+        let maxFound = 0;
+        let inStockCount = 0;
+        let outOfStockCount = 0;
+
+        allMatchingForFacets.forEach((doc) => {
+          const sub = doc.subcategory || 'General';
+          subcategoriesMap.set(sub, (subcategoriesMap.get(sub) ?? 0) + 1);
+
+          const effectivePrice = doc.salePrice && doc.salePrice > 0 ? doc.salePrice : doc.price;
+          if (effectivePrice < minFound) minFound = effectivePrice;
+          if (effectivePrice > maxFound) maxFound = effectivePrice;
+
+          if ((doc.stock ?? 0) > 0) {
+            inStockCount++;
+          } else {
+            outOfStockCount++;
+          }
+        });
+
+        const subcategoriesList: FilterCounts[] = Array.from(subcategoriesMap.entries()).map(([name, count]) => ({
+          name,
+          count,
+        }));
+        */
+
+        // Compute available filter facets for frontend from MongoDB (categories, subcategories, price range, stock counts)
+        const allMatchingForFacets = await ProductModel.find(
+          status ? { status: status as 'active' | 'draft' | 'archived' } : { status: { $ne: 'archived' as const } },
+          'category subcategory price salePrice stock'
+        ).lean();
+
+        // Query real categories from MongoDB categories collection
+        const mongoCats = db ? await db.collection('categories').find({}).toArray() : [];
+        const catIdToName = new Map<string, string>();
+        const categoriesCountMap = new Map<string, number>();
+        const categorySubcategoriesMap = new Map<string, Map<string, number>>();
+
+        mongoCats.forEach((c) => {
+          catIdToName.set(c._id.toString(), c.name);
+          categoriesCountMap.set(c.name, 0);
+          categorySubcategoriesMap.set(c.name, new Map<string, number>());
+        });
+
+        const subcategoriesMap = new Map<string, number>();
+        let minFound = Infinity;
+        let maxFound = 0;
+        let inStockCount = 0;
+        let outOfStockCount = 0;
+
+        allMatchingForFacets.forEach((doc) => {
+          // Category count
+          const catIdStr = doc.category ? doc.category.toString() : '';
+          const catName = catIdToName.get(catIdStr);
+          if (catName) {
+            categoriesCountMap.set(catName, (categoriesCountMap.get(catName) ?? 0) + 1);
+            if (doc.subcategory) {
+              const subMap = categorySubcategoriesMap.get(catName);
+              if (subMap) {
+                subMap.set(doc.subcategory, (subMap.get(doc.subcategory) ?? 0) + 1);
+              }
+            }
+          }
+
+          // Subcategory count
+          const sub = doc.subcategory || 'General';
+          subcategoriesMap.set(sub, (subcategoriesMap.get(sub) ?? 0) + 1);
+
+          const effectivePrice = doc.salePrice && doc.salePrice > 0 ? doc.salePrice : doc.price;
+          if (effectivePrice < minFound) minFound = effectivePrice;
+          if (effectivePrice > maxFound) maxFound = effectivePrice;
+
+          if ((doc.stock ?? 0) > 0) {
+            inStockCount++;
+          } else {
+            outOfStockCount++;
+          }
+        });
+
+        const categoriesList: FilterCounts[] = Array.from(categoriesCountMap.entries())
+          .filter(([_, count]) => count > 0)
+          .map(([name, count]) => ({
+            name,
+            count,
+          }));
+
+        const subcategoriesList: FilterCounts[] = Array.from(subcategoriesMap.entries()).map(([name, count]) => ({
+          name,
+          count,
+        }));
+
+        const categorySubcategoriesRecord: Record<string, FilterCounts[]> = {};
+        categorySubcategoriesMap.forEach((subMap, catName) => {
+          categorySubcategoriesRecord[catName] = Array.from(subMap.entries()).map(([name, count]) => ({
+            name,
+            count,
+          }));
+        });
+
+        return NextResponse.json({
+          products: formattedProducts,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalProducts,
+            hasNext: page < totalPages,
+            hasPrev: page > 1,
+            limit,
+          },
+          filters: {
+            categories: categoriesList,
+            subcategories: subcategoriesList,
+            categorySubcategories: categorySubcategoriesRecord,
+            brands: subcategoriesList,
+            colors: [],
+            sizes: [],
+            availability: {
+              inStock: inStockCount,
+              outOfStock: outOfStockCount,
+            },
+            priceRange: {
+              min: minFound === Infinity ? 0 : minFound,
+              max: maxFound,
+            },
+          },
+        });
+      }
+    } catch (dbErr) {
+      console.warn('MongoDB query warning in /api/products, falling back to mock:', dbErr);
+    }
+
+    // 3. Fallback to Mock Data if DB is empty or disconnected
+    let filtered = [...fallbackProducts];
+
+    if (query) {
+      const q = query.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          p.slug.toLowerCase().includes(q) ||
+          p.tags.some((t) => t.toLowerCase().includes(q)) ||
+          p.category.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q)
+      );
+    }
+
+    if (subcategory && subcategory !== 'all') {
+      const subList = subcategory.toLowerCase().split(',').map((s) => s.trim());
+      filtered = filtered.filter((p) =>
+        subList.some((s) => p.category.toLowerCase() === s || p.tags.some((t) => t.toLowerCase() === s))
+      );
+    }
+
+    if (category && category !== 'all') {
+      filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
+    }
+
+    if (brand && brand !== 'all') {
+      filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
+    }
+
+    if (minPrice !== undefined && !isNaN(minPrice)) filtered = filtered.filter((p) => p.price >= minPrice);
+    if (maxPrice !== undefined && !isNaN(maxPrice)) filtered = filtered.filter((p) => p.price <= maxPrice);
+
+    if (availability) {
+      const avail = availability.toLowerCase();
+      if (avail === 'in-stock' || avail === 'in_stock' || avail === 'true') {
+        filtered = filtered.filter((p) => p.availability === 'in-stock');
+      } else if (avail === 'out-of-stock' || avail === 'out_of_stock' || avail === 'false') {
+        filtered = filtered.filter((p) => p.availability === 'out-of-stock');
+      }
+    }
+
+    switch (sort) {
+      case 'featured':
+        filtered.sort((a, b) => ((b.badge === 'new' || (b as any).isFeatured) ? 1 : 0) - ((a.badge === 'new' || (a as any).isFeatured) ? 1 : 0));
+        break;
+      case 'name-asc':
+      case 'title-asc':
+      case 'alphabetical-asc':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+      case 'title-desc':
+      case 'alphabetical-desc':
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'price-asc':
+      case 'price-low-to-high':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+      case 'price-high-to-low':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'date-asc':
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+      /*
+      // Best selling option removed/commented out as requested
+      case 'best-selling':
+        filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        break;
+      */
+      case 'rating':
+      case 'popular':
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'newest':
+      case 'date-desc':
+      default:
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+
+    const totalProducts = filtered.length;
+    const totalPages = Math.ceil(totalProducts / limit) || 1;
+    const startIndex = (page - 1) * limit;
+    const paginated = filtered.slice(startIndex, startIndex + limit);
+
+    return NextResponse.json({
+      products: paginated,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalProducts,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+        limit,
+      },
+      filters: {
+        subcategories: [],
+        categories: [],
+        brands: [],
+        colors: [],
+        sizes: [],
+        availability: { inStock: 0, outOfStock: 0 },
+        priceRange: { min: 0, max: 1000 },
+      },
     });
-  });
-  return Object.entries(counts).map(([name, count]) => ({ name, count }));
-}
-
-function buildSizeCounts(products: Product[]) {
-  const counts: Record<string, number> = {};
-  products.forEach((p) => {
-    p.sizes.forEach((s) => {
-      counts[s] = (counts[s] || 0) + 1;
-    });
-  });
-  return Object.entries(counts).map(([name, count]) => ({ name, count }));
+  } catch (error) {
+    console.error('Error in /api/products GET:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }

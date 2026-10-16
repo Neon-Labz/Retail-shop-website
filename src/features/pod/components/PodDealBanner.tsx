@@ -66,7 +66,10 @@ export function PodDealBanner() {
               <div className="pddb-thumbs">
                 {thumbs.map((src, i) => (
                   <div key={i} className="pddb-thumb">
+                    {/* Previous contain objectFit commented out as requested
                     <Image src={src} alt={`Deal product ${i + 1}`} fill style={{ objectFit: 'contain' }} sizes="100px" />
+                    */}
+                    <Image src={src} alt={`Deal product ${i + 1}`} fill style={{ objectFit: 'cover' }} sizes="100px" />
                   </div>
                 ))}
               </div>
@@ -116,7 +119,8 @@ export function PodDealBanner() {
           height: clamp(72px, 9vw, 100px);
           background-color: #fff;
           border-radius: 8px;
-          padding: 12px;
+          overflow: hidden;
+          /* Previous padding: 12px; commented out as requested */
           box-sizing: border-box;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
