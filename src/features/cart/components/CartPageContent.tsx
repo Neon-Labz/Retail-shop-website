@@ -367,7 +367,7 @@ export function CartPageContent() {
 
               <p className="cp-ship-msg">
                 {shippingRemaining > 0
-                  ? <>{formatPrice(shippingRemaining)} USD away from Free Standard Shipping.</>
+                  ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
                   : 'You qualify for free standard shipping!'
                 }
               </p>
@@ -392,7 +392,7 @@ export function CartPageContent() {
                 )}
                 <div className="cp-total-row cp-total-bold">
                   <span>Total</span>
-                  <span>{formatPrice(total)} USD</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
 

@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '@/lib/db';
+import ProductModel from '@/models/Product';
+import { formatMongoProduct } from '@/lib/formatProduct';
 import { podProducts } from '@/data/pod-products';
 import type { Product } from '@/types/product';
 import type { FilterCounts } from '@/types/common';
@@ -35,60 +38,152 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '12');
   const category = searchParams.get('category');
+  const subcategory = searchParams.get('subcategory') || searchParams.get('subCategory');
   const brand = searchParams.get('brand');
   const color = searchParams.get('color');
   const size = searchParams.get('size');
-  const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
-  const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
+  const minPrice = searchParams.get('minPrice') || searchParams.get('min_price')
+    ? parseFloat((searchParams.get('minPrice') || searchParams.get('min_price'))!)
+    : undefined;
+  const maxPrice = searchParams.get('maxPrice') || searchParams.get('max_price')
+    ? parseFloat((searchParams.get('maxPrice') || searchParams.get('max_price'))!)
+    : undefined;
   const sort = searchParams.get('sort') || 'featured';
-  const availability = searchParams.get('availability');
-  const query = searchParams.get('q');
+  const availability = searchParams.get('availability') || searchParams.get('inStock');
+  const query = (searchParams.get('q') || searchParams.get('search') || '').trim();
 
-  let filtered = [...podProducts];
+  let allPodProducts = [...podProducts];
+  try {
+    await connectDB();
+    const mongoDocs = await ProductModel.find({ status: { $ne: 'archived' } }).lean();
+    if (mongoDocs && mongoDocs.length > 0) {
+      const formatted = mongoDocs.map(formatMongoProduct);
+      // Place MongoDB products first
+      allPodProducts = [...formatted, ...podProducts];
+    }
+  } catch (err) {
+    console.warn('MongoDB query warning in /api/pod-products:', err);
+  }
 
+  let filtered = [...allPodProducts];
+
+  // Search filter
   if (query) {
     const q = query.toLowerCase();
     filtered = filtered.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q) ||
         p.tags.some((t) => t.toLowerCase().includes(q)) ||
         p.category.toLowerCase().includes(q) ||
         p.brand.toLowerCase().includes(q)
     );
   }
-  if (category) filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
-  if (brand) filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
-  if (color) filtered = filtered.filter((p) => p.colors.some((c) => c.name.toLowerCase() === color.toLowerCase()));
-  if (size) filtered = filtered.filter((p) => p.sizes.some((s) => s.toLowerCase() === size.toLowerCase()));
-  if (minPrice !== undefined) filtered = filtered.filter((p) => p.price >= minPrice);
-  if (maxPrice !== undefined) filtered = filtered.filter((p) => p.price <= maxPrice);
-  if (availability) filtered = filtered.filter((p) => p.availability === availability);
 
-  const categories = buildFilterCounts(podProducts, 'category');
-  const brands = buildFilterCounts(podProducts, 'brand');
-  const colors = buildColorCounts(podProducts);
-  const sizes = buildSizeCounts(podProducts);
+  // Subcategory filter
+  if (subcategory && subcategory !== 'all') {
+    const subList = subcategory.toLowerCase().split(',').map((s) => s.trim());
+    filtered = filtered.filter((p) =>
+      subList.some(
+        (s) =>
+          p.category.toLowerCase() === s ||
+          p.brand.toLowerCase() === s ||
+          p.tags.some((t) => t.toLowerCase() === s)
+      )
+    );
+  }
 
-  const prices = podProducts.map((p) => p.price);
-  const priceRange = {
-    min: Math.min(...prices, 0),
-    max: Math.max(...prices, 100),
-  };
+  // Category filter
+  if (category && category !== 'all') {
+    filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
+  }
+
+  // Brand filter
+  if (brand && brand !== 'all') {
+    filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
+  }
+
+  // Color filter
+  if (color) {
+    filtered = filtered.filter((p) => p.colors.some((c) => c.name.toLowerCase() === color.toLowerCase()));
+  }
+
+  // Size filter
+  if (size) {
+    filtered = filtered.filter((p) => p.sizes.some((s) => s.toLowerCase() === size.toLowerCase()));
+  }
+
+  // Price filter
+  if (minPrice !== undefined && !isNaN(minPrice)) {
+    filtered = filtered.filter((p) => p.price >= minPrice);
+  }
+  if (maxPrice !== undefined && !isNaN(maxPrice)) {
+    filtered = filtered.filter((p) => p.price <= maxPrice);
+  }
+
+  // Availability filter
+  if (availability) {
+    const avail = availability.toLowerCase();
+    if (avail === 'in-stock' || avail === 'in_stock' || avail === 'true') {
+      filtered = filtered.filter((p) => p.availability === 'in-stock');
+    } else if (avail === 'out-of-stock' || avail === 'out_of_stock' || avail === 'false') {
+      filtered = filtered.filter((p) => p.availability === 'out-of-stock');
+    }
+  }
+
+  const categories = buildFilterCounts(allPodProducts, 'category');
+  const brands = buildFilterCounts(allPodProducts, 'brand');
+  const colors = buildColorCounts(allPodProducts);
+  const sizes = buildSizeCounts(allPodProducts);
 
   switch (sort) {
-    case 'price-asc': filtered.sort((a, b) => a.price - b.price); break;
-    case 'price-desc': filtered.sort((a, b) => b.price - a.price); break;
-    case 'newest': filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); break;
-    case 'best-selling': filtered.sort((a, b) => b.reviewCount - a.reviewCount); break;
-    case 'name-asc': filtered.sort((a, b) => a.name.localeCompare(b.name)); break;
-    case 'name-desc': filtered.sort((a, b) => b.name.localeCompare(a.name)); break;
-    default: break;
+    case 'featured':
+      filtered.sort((a, b) => ((b.badge === 'new' || (b as any).isFeatured) ? 1 : 0) - ((a.badge === 'new' || (a as any).isFeatured) ? 1 : 0));
+      break;
+    case 'name-asc':
+    case 'title-asc':
+    case 'alphabetical-asc':
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case 'name-desc':
+    case 'title-desc':
+    case 'alphabetical-desc':
+      filtered.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case 'price-asc':
+    case 'price-low-to-high':
+      filtered.sort((a, b) => a.price - b.price);
+      break;
+    case 'price-desc':
+    case 'price-high-to-low':
+      filtered.sort((a, b) => b.price - a.price);
+      break;
+    case 'date-asc':
+    case 'oldest':
+      filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      break;
+    /*
+    // Best selling option removed/commented out as requested
+    case 'best-selling':
+      filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+      break;
+    */
+    case 'rating':
+    case 'popular':
+      filtered.sort((a, b) => b.rating - a.rating);
+      break;
+    case 'newest':
+    case 'date-desc':
+    default:
+      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      break;
   }
 
   const totalProducts = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalProducts / limit));
-  const start = (page - 1) * limit;
-  const paginated = filtered.slice(start, start + limit);
+  const totalPages = Math.ceil(totalProducts / limit);
+  const startIndex = (page - 1) * limit;
+  const paginated = filtered.slice(startIndex, startIndex + limit);
 
   return NextResponse.json({
     products: paginated,
@@ -104,7 +199,10 @@ export async function GET(request: NextRequest) {
       brands,
       colors,
       sizes,
-      priceRange,
+      priceRange: {
+        min: allPodProducts.length ? Math.min(...allPodProducts.map((p) => p.price)) : 0,
+        max: allPodProducts.length ? Math.max(...allPodProducts.map((p) => p.price)) : 0,
+      },
     },
   });
 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -81,19 +81,43 @@ export function ProductCard({ product, className }: ProductCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image container */}
+      {/* Previous 3:4 aspect ratio commented out as requested
       <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] overflow-hidden rounded-[var(--radius-md)] bg-bg-light mb-[1.2rem]">
+      */}
+      {/* Previous contain with padding commented out as requested
+      <Link href={`/products/${product.slug}`} className="block relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-white border border-[#f0f0f0] p-3 mb-[1.2rem]">
+      */}
+      <Link href={`/products/${product.slug}`} className="block relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-white border border-[#f0f0f0] mb-[1.2rem]">
+        {/* Previous contain objectFit commented out as requested
         <Image
           src={primaryImage}
           alt={product.name}
           fill
-          className={cn('object-cover transition-opacity duration-500', isHovered ? 'opacity-0' : 'opacity-100')}
+          className={cn('object-contain p-2 transition-opacity duration-500', isHovered ? 'opacity-0' : 'opacity-100')}
           sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
         />
+        */}
+        <Image
+          src={primaryImage}
+          alt={product.name}
+          fill
+          className={cn('object-cover object-center transition-opacity duration-500', isHovered ? 'opacity-0' : 'opacity-100')}
+          sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
+        />
+        {/* Previous contain objectFit commented out as requested
         <Image
           src={secondaryImage}
           alt={`${product.name} alternate`}
           fill
-          className={cn('object-cover transition-opacity duration-500', isHovered ? 'opacity-100' : 'opacity-0')}
+          className={cn('object-contain p-2 transition-opacity duration-500', isHovered ? 'opacity-100' : 'opacity-0')}
+          sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
+        />
+        */}
+        <Image
+          src={secondaryImage}
+          alt={`${product.name} alternate`}
+          fill
+          className={cn('object-cover object-center transition-opacity duration-500', isHovered ? 'opacity-100' : 'opacity-0')}
           sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
         />
 
@@ -131,6 +155,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           >
             ♥
           </button>
+          {/* Add to compare button removed/commented out as requested
           <button
             onClick={handleCompare}
             className="w-[3.4rem] h-[3.4rem] bg-white rounded-full shadow-md flex items-center justify-center text-[1.4rem] hover:bg-dark hover:text-white transition-colors"
@@ -138,6 +163,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           >
             ⇄
           </button>
+          */}
           <button
             onClick={handleQuickView}
             className="w-[3.4rem] h-[3.4rem] bg-white rounded-full shadow-md flex items-center justify-center text-[1.4rem] hover:bg-dark hover:text-white transition-colors"

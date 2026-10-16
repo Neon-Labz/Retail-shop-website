@@ -95,6 +95,44 @@ function FilterCheckbox({ label, count, checked, onChange }: { label: string; co
   );
 }
 
+function FilterRadio({ label, count, checked, onChange }: { label: string; count: number; checked: boolean; onChange: () => void }) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={checked}
+      onClick={onChange}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 0', cursor: 'pointer', fontSize: '15px', color: '#222',
+        background: 'none', border: 'none', textAlign: 'left',
+      }}
+    >
+      <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span
+          style={{
+            width: '20px', height: '20px', border: `1.5px solid ${checked ? '#222' : '#c5c5c5'}`,
+            borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: '#fff', transition: 'all 180ms ease',
+            flexShrink: 0,
+          }}
+        >
+          {checked && (
+            <span
+              style={{
+                width: '10px', height: '10px', borderRadius: '50%',
+                backgroundColor: '#222',
+              }}
+            />
+          )}
+        </span>
+        <span style={{ fontWeight: checked ? 600 : 400 }}>{label}</span>
+      </span>
+      <span style={{ fontSize: '15px', color: '#555' }}>{count}</span>
+    </button>
+  );
+}
+
 /* ── Types ── */
 
 type SubKey = 'availability' | 'price' | 'brand' | 'color' | 'size' | 'category';
@@ -105,6 +143,7 @@ interface PendingState {
   color: string;
   size: string;
   category: string;
+  subcategory: string;
   sort: string;
   priceRange: [number, number];
 }
@@ -115,6 +154,7 @@ export interface MobileFilterApplyPayload {
   color: string;
   size: string;
   category: string;
+  subcategory: string;
   sort: string;
   minPrice: number;
   maxPrice: number;
@@ -130,6 +170,7 @@ interface MobileFilterDrawerProps {
     color: string;
     size: string;
     category: string;
+    subcategory?: string;
     sort: string;
   };
   priceRange: [number, number];
@@ -161,6 +202,7 @@ export function MobileFilterDrawer({
     color: selected.color,
     size: selected.size,
     category: selected.category,
+    subcategory: selected.subcategory || '',
     sort: selected.sort,
     priceRange,
   });
@@ -185,6 +227,7 @@ export function MobileFilterDrawer({
         color: selectedRef.current.color,
         size: selectedRef.current.size,
         category: selectedRef.current.category,
+        subcategory: selectedRef.current.subcategory || '',
         sort: selectedRef.current.sort,
         priceRange: priceRangeRef.current,
       });
@@ -206,6 +249,7 @@ export function MobileFilterDrawer({
       color: pending.color,
       size: pending.size,
       category: pending.category,
+      subcategory: pending.subcategory,
       sort: pending.sort,
       minPrice: pending.priceRange[0],
       maxPrice: pending.priceRange[1],
@@ -220,6 +264,7 @@ export function MobileFilterDrawer({
       color: '',
       size: '',
       category: '',
+      subcategory: '',
       sort: 'featured',
       priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100],
     });
@@ -239,10 +284,12 @@ export function MobileFilterDrawer({
   const rows: { key: SubKey; label: string }[] = [
     { key: 'availability', label: 'Availability' },
     { key: 'price', label: 'Price' },
+    { key: 'category', label: 'Category' },
+    /* Brand, Color, Size rows commented out as requested
     { key: 'size', label: 'Size' },
     { key: 'brand', label: 'Brand' },
-    { key: 'category', label: 'Category' },
     { key: 'color', label: 'Color' },
+    */
   ];
 
   const activeSortLabel = SORT_OPTIONS.find((o) => o.value === pending.sort)?.label ?? 'Featured';
@@ -461,6 +508,7 @@ export function MobileFilterDrawer({
                   />
                 )}
 
+                {/* Brand subview commented out as requested
                 {filters && view === 'brand' && (
                   <div>
                     {filters.brands.map((b) => (
@@ -474,7 +522,9 @@ export function MobileFilterDrawer({
                     ))}
                   </div>
                 )}
+                */}
 
+                {/* Original category FilterCheckbox view commented out as requested
                 {filters && view === 'category' && (
                   <div>
                     {filters.categories.map((c) => (
@@ -488,7 +538,76 @@ export function MobileFilterDrawer({
                     ))}
                   </div>
                 )}
+                */}
 
+                {filters && view === 'category' && (
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Categories
+                    </p>
+                    {filters.categories.map((c) => {
+                      const isSelected = pending.category === c.name;
+                      return (
+                        <FilterRadio
+                          key={c.name}
+                          label={c.name}
+                          count={c.count}
+                          checked={isSelected}
+                          onChange={() => {
+                            if (isSelected) {
+                              setPending((p) => ({ ...p, category: '', subcategory: '' }));
+                            } else {
+                              setPending((p) => ({ ...p, category: c.name, subcategory: '' }));
+                            }
+                          }}
+                        />
+                      );
+                    })}
+
+                    {/* Subcategories (Dynamic: visible ONLY when a category is selected) */}
+                    {pending.category && (
+                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed #e0e0e0' }}>
+                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Subcategories ({pending.category})
+                        </p>
+                        {(() => {
+                          const categorySubs = filters.categorySubcategories?.[pending.category] || [];
+                          const activeSubs = pending.subcategory
+                            ? pending.subcategory.split(',').map((s) => s.trim()).filter(Boolean)
+                            : [];
+
+                          if (categorySubs.length === 0) {
+                            return (
+                              <p style={{ fontSize: '13px', color: '#666', fontStyle: 'italic', margin: '4px 0' }}>
+                                No subcategories available.
+                              </p>
+                            );
+                          }
+
+                          return categorySubs.map((sub) => {
+                            const isChecked = activeSubs.includes(sub.name);
+                            return (
+                              <FilterCheckbox
+                                key={`mob-sub-${sub.name}`}
+                                label={sub.name}
+                                count={sub.count}
+                                checked={isChecked}
+                                onChange={() => {
+                                  const updated = isChecked
+                                    ? activeSubs.filter((s) => s !== sub.name)
+                                    : [...activeSubs, sub.name];
+                                  setPending((p) => ({ ...p, subcategory: updated.join(',') }));
+                                }}
+                              />
+                            );
+                          });
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Color subview commented out as requested
                 {filters && view === 'color' && (
                   <div>
                     {filters.colors.map((c) => (
@@ -502,7 +621,9 @@ export function MobileFilterDrawer({
                     ))}
                   </div>
                 )}
+                */}
 
+                {/* Size subview commented out as requested
                 {filters && view === 'size' && (
                   <div>
                     {filters.sizes.length === 0 ? (
@@ -518,6 +639,7 @@ export function MobileFilterDrawer({
                     ))}
                   </div>
                 )}
+                */}
               </div>
 
               {/* Footer (sub) */}
