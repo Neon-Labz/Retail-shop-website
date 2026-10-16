@@ -5,8 +5,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
-const ACCENT = '#c96742';
-const DARK = '#111111';
 
 function IconMail() {
   return (
@@ -117,21 +115,25 @@ export function LoginPageContent() {
   };
 
   return (
-    <div className="li-page-wrapper">
-      <div className="li-main-container">
-        <div className="li-card">
+    <div className="bg-slate-50 h-[calc(100vh-68px)] max-h-[calc(100vh-68px)] flex items-center justify-center w-full overflow-hidden px-4 box-border">
+      <div className="w-full max-w-full flex justify-center items-center box-border">
+        <div className="w-full max-w-[440px] mx-auto bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04),0_10px_20px_-5px_rgba(0,0,0,0.06)] box-border">
           {/* Header */}
-          <div className="li-header">
-            <span className="li-badge">WELCOME BACK</span>
-            <h1 className="li-title">Log in to your account</h1>
-            <p className="li-subtitle">
+          <div className="text-center mb-5 sm:mb-6">
+            <span className="inline-block bg-[#fdf3ef] text-[#c96742] text-[1.1rem] font-bold tracking-wider px-3.5 py-1 rounded-full mb-2 uppercase">
+              WELCOME BACK
+            </span>
+            <h1 className="text-2xl sm:text-[2.15rem] font-bold text-slate-900 tracking-tight mb-1.5 leading-tight">
+              Log in to your account
+            </h1>
+            <p className="text-sm sm:text-[1.25rem] text-slate-500 leading-normal m-0">
               Enter your credentials to manage your orders.
             </p>
           </div>
 
           {error && (
-            <div className="li-alert-error" role="alert">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-[1.25rem] mb-4 flex items-center gap-3 leading-snug" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -140,14 +142,14 @@ export function LoginPageContent() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="li-form" noValidate>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
             {/* Email Field */}
-            <div className="li-field-wrap">
-              <label className="li-label" htmlFor="login-email">
-                Email Address <span className="li-req">*</span>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="login-email">
+                Email Address <span className="text-red-500">*</span>
               </label>
-              <div className="li-input-box">
-                <span className="li-input-icon">
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none">
                   <IconMail />
                 </span>
                 <input
@@ -158,24 +160,24 @@ export function LoginPageContent() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="li-input"
+                  className="w-full h-11 sm:h-12 pl-11 pr-4 bg-white border border-slate-300 rounded-xl text-sm sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
             {/* Password Field */}
-            <div className="li-field-wrap">
-              <div className="li-label-row">
-                <label className="li-label" htmlFor="login-password">
-                  Password <span className="li-req">*</span>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex justify-between items-center">
+                <label className="text-sm sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="login-password">
+                  Password <span className="text-red-500">*</span>
                 </label>
-                <Link href="/reset-password" className="li-forgot-link">
+                <Link href="/reset-password" className="text-xs sm:text-[1.2rem] text-[#c96742] font-medium hover:underline transition-colors">
                   Forgot password?
                 </Link>
               </div>
-              <div className="li-input-box">
-                <span className="li-input-icon">
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none">
                   <IconLock />
                 </span>
                 <input
@@ -186,12 +188,12 @@ export function LoginPageContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="li-input li-input-pw"
+                  className="w-full h-11 sm:h-12 pl-11 pr-12 bg-white border border-slate-300 rounded-xl text-sm sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="li-eye-btn"
+                  className="absolute right-3 p-1.5 text-slate-400 hover:text-slate-700 rounded transition-colors disabled:cursor-not-allowed cursor-pointer"
                   onClick={() => setShowPassword((s) => !s)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   disabled={isLoading}
@@ -202,13 +204,13 @@ export function LoginPageContent() {
             </div>
 
             {/* Remember Me */}
-            <div className="li-remember-row">
-              <label className="li-checkbox-label">
+            <div className="flex items-center -mt-0.5">
+              <label className="inline-flex items-center gap-2 text-xs sm:text-[1.25rem] text-slate-600 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="li-checkbox"
+                  className="w-4 h-4 accent-[#c96742] rounded cursor-pointer"
                 />
                 <span>Remember me on this browser</span>
               </label>
@@ -217,12 +219,12 @@ export function LoginPageContent() {
             {/* Submit button */}
             <button
               type="submit"
-              className="li-submit-btn"
+              className="w-full h-11 sm:h-12 bg-[#111111] hover:bg-[#2a2a2a] text-white text-sm sm:text-[1.45rem] font-semibold rounded-xl tracking-wide flex items-center justify-center transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               disabled={isLoading}
             >
               {isLoading ? (
-                <span className="li-btn-loading">
-                  <span className="li-spinner" />
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Logging in...
                 </span>
               ) : (
@@ -231,359 +233,20 @@ export function LoginPageContent() {
             </button>
 
             {/* Register below login button */}
-            <div className="li-divider">
-              <span className="li-divider-line" />
-              <span className="li-divider-text">Don&apos;t have an account?</span>
-              <span className="li-divider-line" />
+            <div className="flex items-center gap-3 my-0.5">
+              <span className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs sm:text-[1.15rem] text-slate-500 font-medium">Don&apos;t have an account?</span>
+              <span className="flex-1 h-px bg-slate-200" />
             </div>
 
-            <Link href="/register" className="li-register-btn">
+            <Link href="/register" className="inline-flex items-center justify-center gap-2 w-full h-11 sm:h-12 bg-white text-slate-900 border border-slate-300 rounded-xl text-sm sm:text-[1.35rem] font-semibold hover:border-[#c96742] hover:text-[#c96742] hover:bg-[#fff9f6] transition-all duration-150 shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 no-underline cursor-pointer">
               <span>Register an Account</span>
               <IconArrowRight />
             </Link>
           </form>
         </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: liStyles }} />
     </div>
   );
 }
 
-const liStyles = `
-  /* ── Lock window scroll completely ── */
-  html:has(.li-page-wrapper),
-  body:has(.li-page-wrapper) {
-    overflow: hidden !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-  }
-
-  .li-page-wrapper {
-    background-color: #f8fafc;
-    height: calc(100vh - 68px);
-    max-height: calc(100vh - 68px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    overflow: hidden;
-    padding: 0 1.6rem;
-    box-sizing: border-box;
-  }
-
-  /* ── Main Container: Perfectly Centered ── */
-  .li-main-container {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-  }
-
-  /* ── Card Container: Elegantly proportioned fixed container ── */
-  .li-card {
-    width: 100%;
-    max-width: 440px;
-    margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1.2rem;
-    padding: 3.2rem 3rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 10px 20px -5px rgba(0, 0, 0, 0.06);
-    box-sizing: border-box;
-  }
-
-  /* ── Form Header ── */
-  .li-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  .li-badge {
-    display: inline-block;
-    background: #fdf3ef;
-    color: ${ACCENT};
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 0.25rem 0.9rem;
-    border-radius: 2rem;
-    margin-bottom: 0.8rem;
-  }
-  .li-title {
-    font-size: 2.15rem;
-    font-weight: 700;
-    color: #0f172a;
-    letter-spacing: -0.01em;
-    margin: 0 0 0.5rem;
-    line-height: 1.25;
-  }
-  .li-subtitle {
-    font-size: 1.25rem;
-    color: #64748b;
-    line-height: 1.45;
-    margin: 0;
-  }
-
-  /* ── Form Controls ── */
-  .li-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-  }
-  .li-field-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .li-label-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .li-label {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
-  .li-req {
-    color: #ef4444;
-  }
-  .li-forgot-link {
-    font-size: 1.2rem;
-    color: ${ACCENT};
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .li-forgot-link:hover {
-    text-decoration: underline;
-  }
-
-  /* ── Input Box & Icon ── */
-  .li-input-box {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  .li-input-icon {
-    position: absolute;
-    left: 1.2rem;
-    color: #94a3b8;
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-  }
-  .li-input {
-    width: 100%;
-    height: 4.4rem;
-    padding: 0 1.4rem 0 3.8rem;
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 0.75rem;
-    font-size: 1.35rem;
-    color: #0f172a;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.18s, box-shadow 0.18s;
-  }
-  .li-input:-webkit-autofill,
-  .li-input:-webkit-autofill:hover, 
-  .li-input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
-    -webkit-text-fill-color: #0f172a !important;
-  }
-  .li-input:focus {
-    border-color: ${ACCENT};
-    box-shadow: 0 0 0 3px rgba(201, 103, 66, 0.15);
-  }
-  .li-input::placeholder {
-    color: #94a3b8;
-  }
-  .li-input:disabled {
-    background-color: #f8fafc;
-    cursor: not-allowed;
-  }
-  .li-input-pw {
-    padding-right: 4.2rem;
-  }
-  .li-eye-btn {
-    position: absolute;
-    right: 0.9rem;
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 0.5rem;
-    border-radius: 0.4rem;
-    transition: color 0.15s;
-  }
-  .li-eye-btn:hover {
-    color: #334155;
-  }
-
-  /* ── Remember Me Checkbox ── */
-  .li-remember-row {
-    display: flex;
-    align-items: center;
-    margin-top: -0.2rem;
-  }
-  .li-checkbox-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-    font-size: 1.25rem;
-    color: #475569;
-    cursor: pointer;
-    user-select: none;
-  }
-  .li-checkbox {
-    width: 1.5rem;
-    height: 1.5rem;
-    accent-color: ${ACCENT};
-    cursor: pointer;
-  }
-
-  /* ── Submit Button ── */
-  .li-submit-btn {
-    width: 100%;
-    height: 4.6rem;
-    background: ${DARK};
-    color: #ffffff;
-    font-size: 1.45rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.75rem;
-    cursor: pointer;
-    font-family: inherit;
-    letter-spacing: 0.01em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
-    margin-top: 0.1rem;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  }
-  .li-submit-btn:hover:not(:disabled) {
-    background: #2a2a2a;
-    transform: translateY(-1px);
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14);
-  }
-  .li-submit-btn:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  .li-submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .li-btn-loading {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  .li-spinner {
-    width: 1.6rem;
-    height: 1.6rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: liSpin 0.7s linear infinite;
-  }
-  @keyframes liSpin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* ── Divider ── */
-  .li-divider {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-    margin: 0.35rem 0;
-  }
-  .li-divider-line {
-    flex: 1;
-    height: 1px;
-    background-color: #e2e8f0;
-  }
-  .li-divider-text {
-    font-size: 1.15rem;
-    color: #64748b;
-    font-weight: 500;
-  }
-
-  /* ── Register Button CTA ── */
-  .li-register-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.7rem;
-    width: 100%;
-    height: 4.4rem;
-    background: #ffffff;
-    color: #0f172a !important;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 0.75rem;
-    font-size: 1.35rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  }
-  .li-register-btn:hover {
-    border-color: ${ACCENT};
-    color: ${ACCENT} !important;
-    background-color: #fff9f6;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(201, 103, 66, 0.1);
-  }
-
-  /* ── Alert Error ── */
-  .li-alert-error {
-    background-color: #fef2f2;
-    border: 1px solid #fee2e2;
-    color: #991b1b;
-    padding: 0.8rem 1.1rem;
-    border-radius: 0.75rem;
-    font-size: 1.25rem;
-    margin-bottom: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    line-height: 1.4;
-  }
-
-  /* ── Security Trust Footer ── */
-  .li-secure-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: #94a3b8;
-    font-size: 1.15rem;
-    margin-top: 0.2rem;
-  }
-
-  /* ── Responsive ── */
-  @media (max-height: 680px) {
-    .li-card {
-      padding: 1.6rem 2.2rem;
-    }
-    .li-header {
-      margin-bottom: 1rem;
-    }
-    .li-form {
-      gap: 0.9rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .li-card {
-      padding: 2rem 1.6rem;
-      border-radius: 1rem;
-    }
-  }
-`;

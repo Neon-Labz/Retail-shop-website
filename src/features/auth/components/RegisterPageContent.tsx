@@ -5,8 +5,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
-const ACCENT = '#c96742';
-const DARK = '#111111';
 
 function EyeIcon() {
   return (
@@ -142,20 +140,24 @@ export function RegisterPageContent() {
   };
 
   return (
-    <div className="rg-page-wrapper">
-      <div className="rg-main-container">
-        <div className="rg-card">
-          <div className="rg-header">
-            <span className="rg-badge">JOIN US</span>
-            <h1 className="rg-title">Create your account</h1>
-            <p className="rg-subtitle">
+    <div className="bg-slate-50 h-[calc(100vh-68px)] max-h-[calc(100vh-68px)] flex items-center justify-center w-full overflow-hidden px-4 box-border">
+      <div className="w-full max-w-full flex justify-center items-center box-border">
+        <div className="w-full max-w-[500px] mx-auto bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04),0_10px_20px_-5px_rgba(0,0,0,0.06)] box-border">
+          <div className="text-center mb-4 sm:mb-5">
+            <span className="inline-block bg-[#fdf3ef] text-[#c96742] text-[1.05rem] font-bold tracking-wider px-3 py-0.5 rounded-full mb-1.5 uppercase">
+              JOIN US
+            </span>
+            <h1 className="text-xl sm:text-[2.1rem] font-bold text-slate-900 tracking-tight mb-1 leading-tight">
+              Create your account
+            </h1>
+            <p className="text-xs sm:text-[1.2rem] text-slate-500 leading-normal m-0">
               Sign up today for early sale access, order tracking, and faster checkout.
             </p>
           </div>
 
           {error && (
-            <div className="rg-alert rg-alert-error" role="alert">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div className="bg-red-50 border border-red-200 text-red-800 px-3.5 py-2.5 rounded-xl text-[1.2rem] mb-3 flex items-center gap-2.5 leading-snug" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -165,23 +167,23 @@ export function RegisterPageContent() {
           )}
 
           {success && (
-            <div className="rg-alert rg-alert-success" role="alert">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div className="bg-green-50 border border-green-200 text-green-800 px-3.5 py-2.5 rounded-xl text-[1.2rem] mb-3 flex items-center gap-2.5 leading-snug" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               <span>{success}</span>
             </div>
           )}
 
-          <form className="rg-form" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-3 sm:gap-3.5" onSubmit={handleSubmit}>
             {/* Row 1: First + Last Name */}
-            <div className="rg-row-2">
-              <div className="rg-field-wrap">
-                <label className="rg-label" htmlFor="reg-first-name">
-                  First Name <span className="rg-req">*</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-first-name">
+                  First Name <span className="text-red-500">*</span>
                 </label>
-                <div className="rg-input-box">
-                  <span className="rg-input-icon"><IconUser /></span>
+                <div className="relative flex items-center w-full">
+                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconUser /></span>
                   <input
                     id="reg-first-name"
                     type="text"
@@ -189,25 +191,25 @@ export function RegisterPageContent() {
                     placeholder="First name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="rg-input"
+                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              <div className="rg-field-wrap">
-                <label className="rg-label" htmlFor="reg-last-name">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-last-name">
                   Last Name
                 </label>
-                <div className="rg-input-box">
-                  <span className="rg-input-icon"><IconUser /></span>
+                <div className="relative flex items-center w-full">
+                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconUser /></span>
                   <input
                     id="reg-last-name"
                     type="text"
                     placeholder="Last name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="rg-input"
+                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
@@ -215,13 +217,13 @@ export function RegisterPageContent() {
             </div>
 
             {/* Row 2: Email + Phone */}
-            <div className="rg-row-2">
-              <div className="rg-field-wrap">
-                <label className="rg-label" htmlFor="reg-email">
-                  Email Address <span className="rg-req">*</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-email">
+                  Email Address <span className="text-red-500">*</span>
                 </label>
-                <div className="rg-input-box">
-                  <span className="rg-input-icon"><IconMail /></span>
+                <div className="relative flex items-center w-full">
+                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconMail /></span>
                   <input
                     id="reg-email"
                     type="email"
@@ -229,18 +231,18 @@ export function RegisterPageContent() {
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="rg-input"
+                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              <div className="rg-field-wrap">
-                <label className="rg-label" htmlFor="reg-phone">
-                  Phone Number <span className="rg-req">*</span>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-phone">
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
-                <div className="rg-input-box">
-                  <span className="rg-input-icon"><IconPhone /></span>
+                <div className="relative flex items-center w-full">
+                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconPhone /></span>
                   <input
                     id="reg-phone"
                     type="tel"
@@ -248,7 +250,7 @@ export function RegisterPageContent() {
                     placeholder="+94 77 123 4567"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="rg-input"
+                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
@@ -256,12 +258,12 @@ export function RegisterPageContent() {
             </div>
 
             {/* Row 3: Password */}
-            <div className="rg-field-wrap">
-              <label className="rg-label" htmlFor="reg-password">
-                Password <span className="rg-req">*</span>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-password">
+                Password <span className="text-red-500">*</span>
               </label>
-              <div className="rg-input-box">
-                <span className="rg-input-icon"><IconLock /></span>
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconLock /></span>
                 <input
                   id="reg-password"
                   type={showPassword ? 'text' : 'password'}
@@ -270,12 +272,12 @@ export function RegisterPageContent() {
                   placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="rg-input rg-input-pw"
+                  className="w-full h-10 sm:h-11 pl-11 pr-11 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="rg-eye-btn"
+                  className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-700 rounded transition-colors disabled:cursor-not-allowed cursor-pointer"
                   onClick={() => setShowPassword((s) => !s)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   disabled={isLoading}
@@ -286,19 +288,19 @@ export function RegisterPageContent() {
             </div>
 
             {/* Terms checkbox */}
-            <div className="rg-terms-row">
-              <label className="rg-checkbox-label">
+            <div className="flex items-center -mt-0.5">
+              <label className="inline-flex items-center gap-2 text-xs sm:text-[1.2rem] text-slate-600 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="rg-checkbox"
+                  className="w-4 h-4 accent-[#c96742] rounded cursor-pointer"
                 />
                 <span>
                   I agree to the{' '}
-                  <Link href="/pages/privacy-policy" className="rg-link">Privacy Policy</Link>
+                  <Link href="/pages/privacy-policy" className="text-[#c96742] underline underline-offset-2 hover:text-[#a84e2c]">Privacy Policy</Link>
                   {' '}and{' '}
-                  <Link href="/pages/terms-of-service" className="rg-link">Terms</Link>
+                  <Link href="/pages/terms-of-service" className="text-[#c96742] underline underline-offset-2 hover:text-[#a84e2c]">Terms</Link>
                 </span>
               </label>
             </div>
@@ -306,12 +308,12 @@ export function RegisterPageContent() {
             {/* Submit */}
             <button
               type="submit"
-              className="rg-submit-btn"
+              className="w-full h-11 sm:h-12 bg-[#111111] hover:bg-[#2a2a2a] text-white text-sm sm:text-[1.4rem] font-semibold rounded-xl tracking-wide flex items-center justify-center transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-0.5"
               disabled={isLoading}
             >
               {isLoading ? (
-                <span className="rg-btn-loading">
-                  <span className="rg-spinner" />
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Creating account...
                 </span>
               ) : (
@@ -320,324 +322,15 @@ export function RegisterPageContent() {
             </button>
           </form>
 
-          <div className="rg-footer-login">
+          <div className="mt-3 pt-3 border-t border-slate-100 text-center text-xs sm:text-[1.3rem] text-slate-500 flex items-center justify-center gap-2">
             <span>Already have an account?</span>
-            <Link href="/login" className="rg-login-link">
+            <Link href="/login" className="text-[#c96742] font-semibold hover:underline no-underline transition-colors">
               Log in here →
             </Link>
           </div>
         </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: rgStyles }} />
     </div>
   );
 }
 
-const rgStyles = `
-  /* ── Lock window scroll completely ── */
-  html:has(.rg-page-wrapper),
-  body:has(.rg-page-wrapper) {
-    overflow: hidden !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-  }
-
-  .rg-page-wrapper {
-    background-color: #f8fafc;
-    height: calc(100vh - 68px);
-    max-height: calc(100vh - 68px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    overflow: hidden;
-    padding: 0 1.6rem;
-    box-sizing: border-box;
-  }
-
-  /* ── Main Container: Perfectly Centered ── */
-  .rg-main-container {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-  }
-
-  /* ── Main Card ── */
-  .rg-card {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1.2rem;
-    padding: 2.8rem 3.2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 10px 20px -5px rgba(0, 0, 0, 0.06);
-    box-sizing: border-box;
-  }
-
-  .rg-header {
-    text-align: center;
-    margin-bottom: 1.8rem;
-  }
-  .rg-badge {
-    display: inline-block;
-    background: #fdf3ef;
-    color: ${ACCENT};
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 0.2rem 0.85rem;
-    border-radius: 2rem;
-    margin-bottom: 0.6rem;
-  }
-  .rg-title {
-    font-size: 2.15rem;
-    font-weight: 700;
-    color: #0f172a;
-    letter-spacing: -0.01em;
-    margin: 0 0 0.4rem;
-    line-height: 1.25;
-  }
-  .rg-subtitle {
-    font-size: 1.25rem;
-    color: #64748b;
-    line-height: 1.45;
-    margin: 0;
-  }
-
-  /* ── Alerts ── */
-  .rg-alert {
-    padding: 0.8rem 1.1rem;
-    border-radius: 0.75rem;
-    font-size: 1.25rem;
-    margin-bottom: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    line-height: 1.4;
-  }
-  .rg-alert-error {
-    background-color: #fef2f2;
-    border: 1px solid #fee2e2;
-    color: #991b1b;
-  }
-  .rg-alert-success {
-    background-color: #f0fdf4;
-    border: 1px solid #dcfce7;
-    color: #166534;
-  }
-
-  /* ── Form Controls ── */
-  .rg-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-  }
-  .rg-row-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.2rem;
-  }
-  .rg-field-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .rg-label {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
-  .rg-req {
-    color: #ef4444;
-  }
-
-  .rg-input-box {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  .rg-input-icon {
-    position: absolute;
-    left: 1.2rem;
-    color: #94a3b8;
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-  }
-  .rg-input {
-    width: 100%;
-    height: 4.2rem;
-    padding: 0 1.2rem 0 3.6rem;
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 0.75rem;
-    font-size: 1.35rem;
-    color: #0f172a;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.18s, box-shadow 0.18s;
-  }
-  .rg-input:-webkit-autofill,
-  .rg-input:-webkit-autofill:hover, 
-  .rg-input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
-    -webkit-text-fill-color: #0f172a !important;
-  }
-  .rg-input:focus {
-    border-color: ${ACCENT};
-    box-shadow: 0 0 0 3px rgba(201, 103, 66, 0.15);
-  }
-  .rg-input::placeholder {
-    color: #94a3b8;
-  }
-  .rg-input:disabled {
-    background-color: #f8fafc;
-    cursor: not-allowed;
-  }
-  .rg-input-pw {
-    padding-right: 4rem;
-  }
-  .rg-eye-btn {
-    position: absolute;
-    right: 0.9rem;
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 0.5rem;
-    border-radius: 0.4rem;
-    transition: color 0.15s;
-  }
-  .rg-eye-btn:hover {
-    color: #334155;
-  }
-
-  /* ── Terms Checkbox ── */
-  .rg-terms-row {
-    display: flex;
-    align-items: center;
-    margin-top: -0.2rem;
-  }
-  .rg-checkbox-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-    font-size: 1.2rem;
-    color: #475569;
-    cursor: pointer;
-    user-select: none;
-  }
-  .rg-checkbox {
-    width: 1.5rem;
-    height: 1.5rem;
-    accent-color: ${ACCENT};
-    cursor: pointer;
-  }
-  .rg-link {
-    color: ${ACCENT};
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .rg-link:hover {
-    color: #a84e2c;
-  }
-
-  /* ── Submit Button ── */
-  .rg-submit-btn {
-    width: 100%;
-    height: 4.5rem;
-    background: ${DARK};
-    color: #ffffff;
-    font-size: 1.45rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.75rem;
-    cursor: pointer;
-    font-family: inherit;
-    letter-spacing: 0.01em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
-    margin-top: 0.2rem;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  }
-  .rg-submit-btn:hover:not(:disabled) {
-    background: #2a2a2a;
-    transform: translateY(-1px);
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14);
-  }
-  .rg-submit-btn:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  .rg-submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .rg-btn-loading {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  .rg-spinner {
-    width: 1.6rem;
-    height: 1.6rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: rgSpin 0.7s linear infinite;
-  }
-  @keyframes rgSpin { to { transform: rotate(360deg); } }
-
-  /* ── Footer Link ── */
-  .rg-footer-login {
-    margin-top: 1.6rem;
-    padding-top: 1.3rem;
-    border-top: 1px solid #f1f5f9;
-    text-align: center;
-    font-size: 1.3rem;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.7rem;
-  }
-  .rg-login-link {
-    color: ${ACCENT};
-    font-weight: 600;
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .rg-login-link:hover { text-decoration: underline; }
-
-  @media (max-height: 720px) {
-    .rg-card {
-      padding: 1.8rem 2.4rem;
-    }
-    .rg-header {
-      margin-bottom: 1.2rem;
-    }
-    .rg-form {
-      gap: 0.9rem;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .rg-row-2 {
-      grid-template-columns: 1fr;
-      gap: 1.2rem;
-    }
-    .rg-card {
-      padding: 2.2rem 1.8rem;
-      border-radius: 1rem;
-    }
-  }
-`;

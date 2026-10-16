@@ -4,6 +4,7 @@ import { connectDB } from '@/lib/db';
 import { User, ICustomerAddress } from '@/models/User';
 import { Order } from '@/models/Order';
 import { verifyToken } from '@/lib/auth';
+import { generateNextOrderNumber } from '@/lib/orderNumber';
 
 export async function POST(request: NextRequest) {
   try {
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
       subtotal: (Number(item.price) || 0) * (Number(item.quantity) || 1),
     }));
 
-    const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderNumber = await generateNextOrderNumber();
 
     const order = await Order.create({
       orderNumber,

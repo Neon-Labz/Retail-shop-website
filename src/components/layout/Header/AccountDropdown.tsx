@@ -111,8 +111,7 @@ export function AccountDropdown({
   return (
     <div
       ref={dropdownRef}
-      className={`account-dropdown-wrap ${className}`}
-      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+      className={`relative inline-flex items-center ${className}`}
     >
       {/* Account Icon Button */}
       <button
@@ -121,251 +120,101 @@ export function AccountDropdown({
         aria-label="Account menu"
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className="account-btn"
-        style={{
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: iconColor,
-          cursor: 'pointer',
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          transition: 'color 150ms ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = hoverColor;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = iconColor;
-        }}
+        className="relative flex items-center justify-center bg-transparent border-0 p-0 cursor-pointer transition-colors duration-150 text-[#222222] hover:text-[#F15B41]"
+        style={iconColor !== '#222' ? { color: iconColor } : undefined}
       >
         <IconUser />
         {isAuthenticated && (
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-2px',
-              right: '-2px',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: '#10b981',
-              border: '1.5px solid #fff',
-            }}
-          />
+          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border-[1.5px] border-white" />
         )}
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="account-menu"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 12px)',
-            right: 0,
-            width: '220px',
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #f0f0f0',
-            zIndex: 9999,
-            overflow: 'hidden',
-            animation: 'accountFadeIn 150ms ease-out',
-          }}
+          className="absolute top-[calc(100%+12px)] right-0 w-[220px] bg-white rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-gray-100 z-50 overflow-hidden"
         >
           {isAuthenticated ? (
             /* ── Logged In: Profile + Logout ── */
             <>
-              <div
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#fafafa',
-                  borderBottom: '1px solid #f0f0f0',
-                }}
-              >
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    color: '#111827',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+              <div className="px-4 py-3 bg-[#fafafa] border-b border-gray-100">
+                <p className="m-0 text-[13px] font-semibold text-gray-900 truncate">
                   {displayName}
                 </p>
-                <p
-                  style={{
-                    margin: '2px 0 0',
-                    fontSize: '12px',
-                    color: '#6b7280',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <p className="mt-0.5 text-xs text-gray-500 truncate">
                   {user?.email}
                 </p>
               </div>
 
-              <div style={{ padding: '6px 0' }}>
+              <div className="py-1.5">
                 {/* 1. Profile */}
                 <Link
                   href="/profile"
                   onClick={() => setIsOpen(false)}
-                  className="account-menu-item"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    color: '#374151',
-                    textDecoration: 'none',
-                    transition: 'background 150ms ease, color 150ms ease',
-                  }}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
                 >
-                  <span style={{ color: '#6b7280', display: 'flex' }}>
+                  <span className="text-gray-500 flex shrink-0">
                     <IconProfile />
                   </span>
-                  Profile
+                  <span>Profile</span>
                 </Link>
 
                 {/* 2. Logout */}
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="account-menu-item account-logout-item"
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    color: '#ef4444',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'inherit',
-                    transition: 'background 150ms ease',
-                  }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 text-left bg-transparent border-0 cursor-pointer"
                 >
-                  <span style={{ color: '#ef4444', display: 'flex' }}>
+                  <span className="text-red-500 flex shrink-0">
                     <IconLogout />
                   </span>
-                  Logout
+                  <span>Logout</span>
                 </button>
               </div>
             </>
           ) : (
             /* ── Not Logged In: Login + Register ── */
             <>
-              <div
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#fafafa',
-                  borderBottom: '1px solid #f0f0f0',
-                }}
-              >
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    color: '#111827',
-                  }}
-                >
+              <div className="px-4 py-3 bg-[#fafafa] border-b border-gray-100">
+                <p className="m-0 text-[13px] font-semibold text-gray-900">
                   Welcome
                 </p>
-                <p
-                  style={{
-                    margin: '2px 0 0',
-                    fontSize: '12px',
-                    color: '#6b7280',
-                  }}
-                >
+                <p className="mt-0.5 text-xs text-gray-500">
                   Manage account & orders
                 </p>
               </div>
 
-              <div style={{ padding: '6px 0' }}>
+              <div className="py-1.5">
                 {/* 1. Login */}
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="account-menu-item"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    color: '#374151',
-                    textDecoration: 'none',
-                    transition: 'background 150ms ease, color 150ms ease',
-                  }}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
                 >
-                  <span style={{ color: '#6b7280', display: 'flex' }}>
+                  <span className="text-gray-500 flex shrink-0">
                     <IconLogin />
                   </span>
-                  Login
+                  <span>Login</span>
                 </Link>
 
                 {/* 2. Register */}
                 <Link
                   href="/register"
                   onClick={() => setIsOpen(false)}
-                  className="account-menu-item"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    color: '#374151',
-                    textDecoration: 'none',
-                    transition: 'background 150ms ease, color 150ms ease',
-                  }}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
                 >
-                  <span style={{ color: '#6b7280', display: 'flex' }}>
+                  <span className="text-gray-500 flex shrink-0">
                     <IconRegister />
                   </span>
-                  Register
+                  <span>Register</span>
                 </Link>
               </div>
             </>
           )}
         </div>
       )}
-
-      <style jsx global>{`
-        @keyframes accountFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-6px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .account-menu-item:hover {
-          background-color: #f3f4f6 !important;
-          color: #111827 !important;
-        }
-        .account-logout-item:hover {
-          background-color: #fef2f2 !important;
-          color: #dc2626 !important;
-        }
-      `}</style>
     </div>
   );
 }
+
 export default AccountDropdown;
