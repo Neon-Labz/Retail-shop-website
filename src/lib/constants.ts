@@ -1,5 +1,5 @@
-export const SITE_NAME = 'Ambaz';
-export const SITE_DESCRIPTION = 'Premium fashion ecommerce store — Shop the latest trends in clothing, accessories, and more.';
+export const SITE_NAME = 'RKF';
+export const SITE_DESCRIPTION = 'RKF - Shop the latest products with fast delivery.';
 export const SITE_URL = 'https://ambaz-nextjs-project.vercel.app';
 
 export const FREE_SHIPPING_THRESHOLD = 150;
@@ -66,7 +66,7 @@ export const FOOTER_LINKS = {
   company: [
     { label: 'Wishlist', href: '/wishlist' },
     { label: 'My account', href: '/login' },
-    // { label: 'Product compare', href: '/compare' }, // Removed/commented out as requested
+    // { label: 'Product compare', href: '/compare' },
     { label: 'Cart', href: '/cart' },
     { label: 'About us', href: '/pages/about' },
   ],

@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isPetFoodSlug, isPetFoodProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 function IconSearch({ size = 22 }: { size?: number }) {
   return (
@@ -130,16 +131,7 @@ export function PetFoodHeaderActions() {
       >
         <IconSearch />
       </button>
-      <Link
-        href="/login"
-        className="pet-food-action-desktop"
-        style={{ ...iconBtnStyle, textDecoration: 'none' }}
-        aria-label="Account"
-        onMouseEnter={hoverIn}
-        onMouseLeave={hoverOut}
-      >
-        <IconUser />
-      </Link>
+      <AccountDropdown className="pet-food-action-desktop" />
       <Link
         href="/pet-food/compare"
         className="pet-food-action-desktop"

@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isPlantGardenSlug, isPlantGardenProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 const ACCENT = '#3a7d44';
 
@@ -113,15 +114,7 @@ export function PlantGardenHeaderActions() {
       >
         <IconSearch />
       </button>
-      <Link
-        href="/login"
-        style={{ ...iconBtnStyle, textDecoration: 'none' }}
-        aria-label="Account"
-        onMouseEnter={hoverIn}
-        onMouseLeave={hoverOut}
-      >
-        <IconUser />
-      </Link>
+      <AccountDropdown hoverColor={ACCENT} />
       <Link
         href="/plant-garden/wishlist"
         style={{ ...iconBtnStyle, textDecoration: 'none' }}

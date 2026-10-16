@@ -121,6 +121,11 @@ function PaymentIcons() {
 /* ── Footer Component ── */
 export function Footer() {
   const pathname = usePathname();
+
+  if (pathname === '/login' || pathname === '/register') {
+    return null;
+  }
+
   const isPizza = pathname?.startsWith('/pizza') || pathname?.startsWith('/home/pizza-shop');
   const isRtlDemo = pathname?.startsWith('/home/rtl-demo-shop');
   const isMegastore = pathname?.startsWith('/megastore') || pathname?.startsWith('/home/megastore-shop');

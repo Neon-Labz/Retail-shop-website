@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isElegantFashionSlug, isElegantFashionProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 const ACCENT = '#1a2b5e';
 
@@ -82,9 +83,7 @@ export function ElegantFashionHeaderActions() {
       <button onClick={openSearch} style={iconBtnStyle} aria-label="Open search" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconSearch />
       </button>
-      <Link href="/login" className="ef-ha-hide-mobile" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-        <IconUser />
-      </Link>
+      <AccountDropdown className="ef-ha-hide-mobile" hoverColor={ACCENT} />
       <Link className="ef-ha-hide-mobile" href="/wishlist" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconHeart />
         {efWishlistItems.length > 0 && <CountBadge count={efWishlistItems.length} />}
