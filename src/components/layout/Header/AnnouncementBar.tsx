@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useClickOutside } from '@/hooks/useClickOutside';
 
 /* ──────────────────────────────────
@@ -256,6 +257,12 @@ interface AnnouncementBarProps {
 }
 
 export function AnnouncementBar({ backgroundColor = '#000', announcements: announcementsProp, height = '40px', textColor = '#fff', autoplay = false }: AnnouncementBarProps = {}) {
+  const pathname = usePathname();
+
+  if (pathname === '/login' || pathname === '/register') {
+    return null;
+  }
+
   const announcements = announcementsProp ?? defaultAnnouncements;
   const { current, direction, goNext, goPrev } = useSlider(announcements.length, autoplay);
   const [currencyOpen, setCurrencyOpen] = useState(false);

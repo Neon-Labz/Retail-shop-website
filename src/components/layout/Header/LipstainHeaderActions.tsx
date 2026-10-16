@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { isLipstainSlug, isLipstainProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 const ACCENT = '#c9173c';
 
@@ -68,9 +69,7 @@ export function LipstainHeaderActions() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '18px', justifySelf: 'end' }}>
-      <Link href="/login" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-        <IconUser />
-      </Link>
+      <AccountDropdown hoverColor={ACCENT} />
       <Link href="/wishlist" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconHeart />
         <CountBadge count={lsWishlistItems.length} />

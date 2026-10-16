@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isCarAccessoriesSlug, isCarAccessoriesProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 function IconSearch({ size = 22 }: { size?: number }) {
   return (
@@ -129,16 +130,7 @@ export function CarAccessoriesHeaderActions() {
       >
         <IconSearch />
       </button>
-      <Link
-        href="/login"
-        className="ca-action-desktop"
-        style={{ ...iconBtnStyle, textDecoration: 'none' }}
-        aria-label="Account"
-        onMouseEnter={hoverIn}
-        onMouseLeave={hoverOut}
-      >
-        <IconUser />
-      </Link>
+      <AccountDropdown className="ca-action-desktop" hoverColor="#f59e0b" />
       <Link
         href="/car-accessories/compare"
         className="ca-action-desktop"

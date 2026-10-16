@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isNutritionSlug, isNutritionProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 function IconSearch({ size = 22 }: { size?: number }) {
   return (
@@ -99,9 +100,7 @@ export function NutritionHeaderActions() {
       <button onClick={openSearchDrawer} style={iconBtnStyle} aria-label="Search" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconSearch />
       </button>
-      <Link href="/login" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-        <IconUser />
-      </Link>
+      <AccountDropdown />
       <Link href="/nutrition/wishlist" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconHeart />
         <CountBadge count={nutWishlistItems.length} />

@@ -5,6 +5,7 @@ import { useUIStore } from '@/store/uiStore';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { getStorefrontOfSlug } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 function IconSearch() {
   return (
@@ -71,9 +72,7 @@ export function BoutiqueFashionHeaderActions() {
         <button onClick={openSearch} style={iconBtnStyle} aria-label="Open search" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
           <IconSearch />
         </button>
-        <Link href="/login" className="bfha-hide-mobile" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-          <IconUser />
-        </Link>
+        <AccountDropdown className="bfha-hide-mobile" />
         <Link href="/boutique-fashion/wishlist" className="bfha-hide-mobile" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
           <IconHeart />
           <CountBadge count={bfWishlist.length} />
