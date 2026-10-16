@@ -132,26 +132,26 @@ export function AccountDropdown({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="absolute top-[calc(100%+12px)] right-0 w-[220px] bg-white rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-gray-100 z-50 overflow-hidden"
+          className="absolute top-[calc(100%+1.2rem)] right-0 w-[22rem] bg-white rounded-[0.8rem] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-gray-100 z-50 overflow-hidden"
         >
           {isAuthenticated ? (
             /* ── Logged In: Profile + Logout ── */
             <>
-              <div className="px-4 py-3 bg-[#fafafa] border-b border-gray-100">
-                <p className="m-0 text-[13px] font-semibold text-gray-900 truncate">
+              <div className="px-[1.6rem] py-[1.2rem] bg-[#fafafa] border-b border-gray-100">
+                <p className="m-0 text-[1.3rem] font-semibold text-gray-900 truncate">
                   {displayName}
                 </p>
-                <p className="mt-0.5 text-xs text-gray-500 truncate">
+                <p className="mt-[0.2rem] text-[1.2rem] text-gray-500 truncate">
                   {user?.email}
                 </p>
               </div>
 
-              <div className="py-1.5">
+              <div className="py-[0.6rem]">
                 {/* 1. Profile */}
                 <Link
                   href="/profile"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
+                  className="flex items-center gap-[1rem] px-[1.6rem] py-[1rem] text-[1.4rem] text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
                 >
                   <span className="text-gray-500 flex shrink-0">
                     <IconProfile />
@@ -163,7 +163,7 @@ export function AccountDropdown({
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 text-left bg-transparent border-0 cursor-pointer"
+                  className="w-full flex items-center gap-[1rem] px-[1.6rem] py-[1rem] text-[1.4rem] text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 text-left bg-transparent border-0 cursor-pointer"
                 >
                   <span className="text-red-500 flex shrink-0">
                     <IconLogout />
@@ -175,21 +175,21 @@ export function AccountDropdown({
           ) : (
             /* ── Not Logged In: Login + Register ── */
             <>
-              <div className="px-4 py-3 bg-[#fafafa] border-b border-gray-100">
-                <p className="m-0 text-[13px] font-semibold text-gray-900">
+              <div className="px-[1.6rem] py-[1.2rem] bg-[#fafafa] border-b border-gray-100">
+                <p className="m-0 text-[1.3rem] font-semibold text-gray-900">
                   Welcome
                 </p>
-                <p className="mt-0.5 text-xs text-gray-500">
+                <p className="mt-[0.2rem] text-[1.2rem] text-gray-500">
                   Manage account & orders
                 </p>
               </div>
 
-              <div className="py-1.5">
+              <div className="py-[0.6rem]">
                 {/* 1. Login */}
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
+                  className="flex items-center gap-[1rem] px-[1.6rem] py-[1rem] text-[1.4rem] text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
                 >
                   <span className="text-gray-500 flex shrink-0">
                     <IconLogin />
@@ -201,7 +201,7 @@ export function AccountDropdown({
                 <Link
                   href="/register"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
+                  className="flex items-center gap-[1rem] px-[1.6rem] py-[1rem] text-[1.4rem] text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150 no-underline"
                 >
                   <span className="text-gray-500 flex shrink-0">
                     <IconRegister />

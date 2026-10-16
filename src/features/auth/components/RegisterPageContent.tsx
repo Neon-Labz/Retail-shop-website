@@ -140,23 +140,23 @@ export function RegisterPageContent() {
   };
 
   return (
-    <div className="bg-slate-50 h-[calc(100vh-68px)] max-h-[calc(100vh-68px)] flex items-center justify-center w-full overflow-hidden px-4 box-border">
+    <div className="bg-slate-50 min-h-[calc(100vh-68px)] max-h-[calc(100vh-68px)] flex items-center justify-center w-full overflow-hidden px-[1.6rem] box-border">
       <div className="w-full max-w-full flex justify-center items-center box-border">
-        <div className="w-full max-w-[500px] mx-auto bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04),0_10px_20px_-5px_rgba(0,0,0,0.06)] box-border">
-          <div className="text-center mb-4 sm:mb-5">
-            <span className="inline-block bg-[#fdf3ef] text-[#c96742] text-[1.05rem] font-bold tracking-wider px-3 py-0.5 rounded-full mb-1.5 uppercase">
+        <div className="w-full max-w-[500px] mx-auto bg-white border border-slate-200 rounded-[1.2rem] p-[2.2rem_1.8rem] sm:p-[2.8rem_3.2rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04),0_10px_20px_-5px_rgba(0,0,0,0.06)] box-border">
+          <div className="text-center mb-[1.6rem]">
+            <span className="inline-block bg-[#fdf3ef] text-[#c96742] text-[1.05rem] font-bold tracking-[0.06em] px-[0.85rem] py-[0.2rem] rounded-[2rem] mb-[0.6rem] uppercase">
               JOIN US
             </span>
-            <h1 className="text-xl sm:text-[2.1rem] font-bold text-slate-900 tracking-tight mb-1 leading-tight">
+            <h1 className="text-[2.15rem] font-bold text-[#0f172a] tracking-[-0.01em] mb-[0.4rem] leading-[1.25]">
               Create your account
             </h1>
-            <p className="text-xs sm:text-[1.2rem] text-slate-500 leading-normal m-0">
+            <p className="text-[1.25rem] text-[#64748b] leading-[1.45] m-0">
               Sign up today for early sale access, order tracking, and faster checkout.
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-3.5 py-2.5 rounded-xl text-[1.2rem] mb-3 flex items-center gap-2.5 leading-snug" role="alert">
+            <div className="bg-[#fef2f2] border border-[#fee2e2] text-[#991b1b] p-[0.8rem_1.1rem] rounded-[0.75rem] text-[1.25rem] mb-[1.2rem] flex items-center gap-[0.8rem] leading-[1.4]" role="alert">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
@@ -167,7 +167,7 @@ export function RegisterPageContent() {
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-800 px-3.5 py-2.5 rounded-xl text-[1.2rem] mb-3 flex items-center gap-2.5 leading-snug" role="alert">
+            <div className="bg-[#f0fdf4] border border-[#dcfce7] text-[#166534] p-[0.8rem_1.1rem] rounded-[0.75rem] text-[1.25rem] mb-[1.2rem] flex items-center gap-[0.8rem] leading-[1.4]" role="alert">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
@@ -175,15 +175,15 @@ export function RegisterPageContent() {
             </div>
           )}
 
-          <form className="flex flex-col gap-3 sm:gap-3.5" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-[1.2rem]" onSubmit={handleSubmit}>
             {/* Row 1: First + Last Name */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-first-name">
-                  First Name <span className="text-red-500">*</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[1.2rem]">
+              <div className="flex flex-col gap-[0.4rem]">
+                <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="reg-first-name">
+                  First Name <span className="text-[#ef4444]">*</span>
                 </label>
                 <div className="relative flex items-center w-full">
-                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconUser /></span>
+                  <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none"><IconUser /></span>
                   <input
                     id="reg-first-name"
                     type="text"
@@ -191,25 +191,25 @@ export function RegisterPageContent() {
                     placeholder="First name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                    className="w-full h-[4.2rem] pl-[3.6rem] pr-[1.2rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-last-name">
+              <div className="flex flex-col gap-[0.4rem]">
+                <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="reg-last-name">
                   Last Name
                 </label>
                 <div className="relative flex items-center w-full">
-                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconUser /></span>
+                  <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none"><IconUser /></span>
                   <input
                     id="reg-last-name"
                     type="text"
                     placeholder="Last name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                    className="w-full h-[4.2rem] pl-[3.6rem] pr-[1.2rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
@@ -217,13 +217,13 @@ export function RegisterPageContent() {
             </div>
 
             {/* Row 2: Email + Phone */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-email">
-                  Email Address <span className="text-red-500">*</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[1.2rem]">
+              <div className="flex flex-col gap-[0.4rem]">
+                <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="reg-email">
+                  Email Address <span className="text-[#ef4444]">*</span>
                 </label>
                 <div className="relative flex items-center w-full">
-                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconMail /></span>
+                  <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none"><IconMail /></span>
                   <input
                     id="reg-email"
                     type="email"
@@ -231,18 +231,18 @@ export function RegisterPageContent() {
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                    className="w-full h-[4.2rem] pl-[3.6rem] pr-[1.2rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-phone">
-                  Phone Number <span className="text-red-500">*</span>
+              <div className="flex flex-col gap-[0.4rem]">
+                <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="reg-phone">
+                  Phone Number <span className="text-[#ef4444]">*</span>
                 </label>
                 <div className="relative flex items-center w-full">
-                  <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconPhone /></span>
+                  <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none"><IconPhone /></span>
                   <input
                     id="reg-phone"
                     type="tel"
@@ -250,7 +250,7 @@ export function RegisterPageContent() {
                     placeholder="+94 77 123 4567"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full h-10 sm:h-11 pl-11 pr-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                    className="w-full h-[4.2rem] pl-[3.6rem] pr-[1.2rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
                     disabled={isLoading}
                   />
                 </div>
@@ -258,12 +258,12 @@ export function RegisterPageContent() {
             </div>
 
             {/* Row 3: Password */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs sm:text-[1.25rem] font-semibold text-slate-800" htmlFor="reg-password">
-                Password <span className="text-red-500">*</span>
+            <div className="flex flex-col gap-[0.4rem]">
+              <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="reg-password">
+                Password <span className="text-[#ef4444]">*</span>
               </label>
               <div className="relative flex items-center w-full">
-                <span className="absolute left-3.5 text-slate-400 flex items-center pointer-events-none"><IconLock /></span>
+                <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none"><IconLock /></span>
                 <input
                   id="reg-password"
                   type={showPassword ? 'text' : 'password'}
@@ -272,12 +272,12 @@ export function RegisterPageContent() {
                   placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-10 sm:h-11 pl-11 pr-11 bg-white border border-slate-300 rounded-xl text-xs sm:text-[1.35rem] text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                  className="w-full h-[4.2rem] pl-[3.6rem] pr-[4rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-700 rounded transition-colors disabled:cursor-not-allowed cursor-pointer"
+                  className="absolute right-[0.9rem] p-[0.5rem] text-[#94a3b8] hover:text-[#334155] rounded-[0.4rem] transition-colors disabled:cursor-not-allowed cursor-pointer flex items-center"
                   onClick={() => setShowPassword((s) => !s)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   disabled={isLoading}
@@ -288,13 +288,13 @@ export function RegisterPageContent() {
             </div>
 
             {/* Terms checkbox */}
-            <div className="flex items-center -mt-0.5">
-              <label className="inline-flex items-center gap-2 text-xs sm:text-[1.2rem] text-slate-600 cursor-pointer select-none">
+            <div className="flex items-center -mt-[0.2rem]">
+              <label className="inline-flex items-center gap-[0.7rem] text-[1.2rem] text-[#475569] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="w-4 h-4 accent-[#c96742] rounded cursor-pointer"
+                  className="w-[1.5rem] h-[1.5rem] accent-[#c96742] cursor-pointer shrink-0"
                 />
                 <span>
                   I agree to the{' '}
@@ -308,12 +308,12 @@ export function RegisterPageContent() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full h-11 sm:h-12 bg-[#111111] hover:bg-[#2a2a2a] text-white text-sm sm:text-[1.4rem] font-semibold rounded-xl tracking-wide flex items-center justify-center transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-0.5"
+              className="w-full h-[4.5rem] bg-[#111111] hover:bg-[#2a2a2a] text-white text-[1.45rem] font-semibold rounded-[0.75rem] tracking-[0.01em] flex items-center justify-center transition-all duration-150 shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_5px_12px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-[0.2rem]"
               disabled={isLoading}
             >
               {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="flex items-center gap-[0.8rem]">
+                  <span className="w-[1.6rem] h-[1.6rem] border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Creating account...
                 </span>
               ) : (
@@ -322,7 +322,7 @@ export function RegisterPageContent() {
             </button>
           </form>
 
-          <div className="mt-3 pt-3 border-t border-slate-100 text-center text-xs sm:text-[1.3rem] text-slate-500 flex items-center justify-center gap-2">
+          <div className="mt-[1.6rem] pt-[1.3rem] border-t border-slate-100 text-center text-[1.3rem] text-[#64748b] flex items-center justify-center gap-[0.7rem]">
             <span>Already have an account?</span>
             <Link href="/login" className="text-[#c96742] font-semibold hover:underline no-underline transition-colors">
               Log in here →
