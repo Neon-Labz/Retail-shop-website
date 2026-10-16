@@ -1,0 +1,61 @@
+import mongoose, { Schema, Document, Model } from 'mongoose';
+
+export interface ISpecification {
+  key: string;
+  value: string;
+}
+
+export interface IProductDocument extends Document {
+  name: string;
+  slug: string;
+  description?: string;
+  category?: mongoose.Types.ObjectId | string;
+  subcategory?: string;
+  price: number;
+  salePrice?: number | null;
+  sku?: string;
+  images: string[];
+  imageKeys?: string[];
+  specifications?: ISpecification[];
+  stock: number;
+  lowStockThreshold?: number;
+  status: 'active' | 'draft' | 'archived';
+  isFeatured?: boolean;
+  totalSold?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ProductSchema = new Schema<IProductDocument>(
+  {
+    name: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    description: { type: String, default: '' },
+    category: { type: Schema.Types.ObjectId, ref: 'Category' },
+    subcategory: { type: String, default: '' },
+    price: { type: Number, required: true },
+    salePrice: { type: Number, default: null },
+    sku: { type: String, default: '' },
+    images: { type: [String], default: [] },
+    imageKeys: { type: [String], default: [] },
+    specifications: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+    stock: { type: Number, default: 0 },
+    lowStockThreshold: { type: Number, default: 5 },
+    status: { type: String, enum: ['active', 'draft', 'archived'], default: 'active' },
+    isFeatured: { type: Boolean, default: false },
+    totalSold: { type: Number, default: 0 },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const Product: Model<IProductDocument> =
+  mongoose.models.Product || mongoose.model<IProductDocument>('Product', ProductSchema);
+
+export default Product;

@@ -94,7 +94,7 @@ export function CartDrawer() {
         {items.length > 0 && <div style={{ padding: '16px 24px', borderBottom: '1px solid #f0f0f0' }}>
           <p style={{ fontSize: '15px', color: '#555', marginBottom: '10px' }}>
             {shippingRemaining > 0
-              ? <>{formatPrice(shippingRemaining)} USD away from Free Standard Shipping.</>
+              ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
               : <span style={{ color: '#22c55e', fontWeight: 600 }}>You qualify for Free Standard Shipping!</span>
             }
           </p>

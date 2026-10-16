@@ -155,8 +155,12 @@ export function HomeProductCard({
   const inWishlist = isInWishlist(product.id);
   const defaultImg1 = product.images[0]?.src || '';
   const defaultImg2 = product.images[1]?.src || defaultImg1;
+  /* Previous default index-based overlays commented out as requested
   const hasCountdown = showCountdown ?? index === 0;
   const hasScrollText = showScrollText ?? index === 2;
+  */
+  const hasCountdown = showCountdown ?? false;
+  const hasScrollText = showScrollText ?? false;
   const productHref = `${hrefBase}/${product.slug}`;
 
   // Build unique color images for smooth transitions
@@ -184,20 +188,105 @@ export function HomeProductCard({
         style={{
           display: 'block',
           position: 'relative',
+          /* Previous 3:4 aspect ratio commented out
           ...(imageHeight ? { height: imageHeight } : { aspectRatio: '3 / 4' }),
+          */
+          ...(imageHeight ? { height: imageHeight } : { aspectRatio: '1 / 1' }),
           overflow: 'hidden',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '4px',
+          backgroundColor: '#fff',
+          borderRadius: '8px',
+          border: '1px solid #f0f0f0',
           marginBottom: '14px',
         }}
       >
         {/* Default image */}
-        <Image src={defaultImg1} alt={product.name} fill style={{ objectFit: 'cover', transition: 'opacity 400ms ease', opacity: (hovered && !hoveredColor) || activeColorImage ? 0 : 1 }} sizes="(max-width: 749px) 50vw, 25vw" />
+        {/* Previous contain objectFit with padding commented out as requested
+        <Image
+          src={defaultImg1}
+          alt={product.name}
+          fill
+          style={{
+            objectFit: 'contain',
+            padding: '12px',
+            transition: 'opacity 400ms ease',
+            opacity: (hovered && !hoveredColor) || activeColorImage ? 0 : 1,
+          }}
+          sizes="(max-width: 749px) 50vw, 25vw"
+        />
+        */}
+        <Image
+          src={defaultImg1}
+          alt={product.name}
+          fill
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center',
+            transition: 'opacity 400ms ease',
+            opacity: (hovered && !hoveredColor) || activeColorImage ? 0 : 1,
+          }}
+          sizes="(max-width: 749px) 50vw, 25vw"
+        />
+
         {/* Hover image (when no color selected) */}
-        <Image src={defaultImg2} alt={`${product.name} hover`} fill style={{ objectFit: 'cover', transition: 'opacity 400ms ease', opacity: hovered && !hoveredColor ? 1 : 0 }} sizes="(max-width: 749px) 50vw, 25vw" />
+        {/* Previous contain objectFit with padding commented out as requested
+        <Image
+          src={defaultImg2}
+          alt={`${product.name} hover`}
+          fill
+          style={{
+            objectFit: 'contain',
+            padding: '12px',
+            transition: 'opacity 400ms ease',
+            opacity: hovered && !hoveredColor ? 1 : 0,
+          }}
+          sizes="(max-width: 749px) 50vw, 25vw"
+        />
+        */}
+        <Image
+          src={defaultImg2}
+          alt={`${product.name} hover`}
+          fill
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center',
+            transition: 'opacity 400ms ease',
+            opacity: hovered && !hoveredColor ? 1 : 0,
+          }}
+          sizes="(max-width: 749px) 50vw, 25vw"
+        />
+
         {/* Color variant images — each stacked, instant switch */}
         {Object.entries(colorImages).map(([colorName, imgSrc]) => (
-          <Image key={colorName} src={imgSrc} alt={`${product.name} ${colorName}`} fill style={{ objectFit: 'cover', transition: 'opacity 150ms ease', opacity: hoveredColor === colorName ? 1 : 0, zIndex: hoveredColor === colorName ? 2 : 1 }} sizes="(max-width: 749px) 50vw, 25vw" />
+          /* Previous contain objectFit with padding commented out as requested
+          <Image
+            key={colorName}
+            src={imgSrc}
+            alt={`${product.name} ${colorName}`}
+            fill
+            style={{
+              objectFit: 'contain',
+              padding: '12px',
+              transition: 'opacity 150ms ease',
+              opacity: hoveredColor === colorName ? 1 : 0,
+              zIndex: hoveredColor === colorName ? 2 : 1,
+            }}
+            sizes="(max-width: 749px) 50vw, 25vw"
+          />
+          */
+          <Image
+            key={colorName}
+            src={imgSrc}
+            alt={`${product.name} ${colorName}`}
+            fill
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center',
+              transition: 'opacity 150ms ease',
+              opacity: hoveredColor === colorName ? 1 : 0,
+              zIndex: hoveredColor === colorName ? 2 : 1,
+            }}
+            sizes="(max-width: 749px) 50vw, 25vw"
+          />
         ))}
 
         {product.badge && (

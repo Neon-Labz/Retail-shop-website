@@ -142,10 +142,23 @@ function ProductGallery({
             style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: mainHeight > 0 ? `${mainHeight}px` : '700px', overflowY: 'auto' }}>
             {images.map((img, i) => (
               <button key={img.id} onClick={() => handleThumbClick(i)} className="pdp-thumb-btn" style={{
-                position: 'relative', width: '100%', aspectRatio: '3 / 4', overflow: 'hidden', flexShrink: 0,
+                position: 'relative', width: '100%',
+                /* Previous 3:4 aspect ratio commented out as requested
+                aspectRatio: '3 / 4',
+                */
+                aspectRatio: '1 / 1',
+                overflow: 'hidden', flexShrink: 0,
                 border: activeIndex === i ? '2px solid #222' : '2px solid transparent',
-                cursor: 'pointer', backgroundColor: '#f5f5f5', padding: 0, transition: 'border-color 200ms ease',
+                cursor: 'pointer', backgroundColor: '#fff', padding: 0,
+                borderRadius: '4px',
+                transition: 'border-color 200ms ease',
               }}>
+                {/* Previous cover objectFit commented out as requested
+                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 100px, 90px" />
+                */}
+                {/* Previous contain objectFit commented out as requested
+                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'contain', padding: '4px' }} sizes="(max-width: 749px) 100px, 90px" />
+                */}
                 <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 100px, 90px" />
               </button>
             ))}
@@ -159,8 +172,11 @@ function ProductGallery({
       <div className="pdp-main-col">
         <div ref={mainWrapRef} onMouseEnter={() => wideEnough && setZooming(true)} onMouseLeave={() => setZooming(false)} onMouseMove={handleMouseMove}
           className="pdp-main-image-wrap"
-          style={{ position: 'relative', width: '100%', backgroundColor: '#f5f5f5', overflow: 'hidden', cursor: zooming ? 'crosshair' : 'default' }}>
+          style={{ position: 'relative', width: '100%', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #f0f0f0', overflow: 'hidden', cursor: zooming ? 'crosshair' : 'default' }}>
+          {/* Previous 3:4 aspect ratio spacer commented out as requested
           <div className="pdp-main-image-spacer" style={{ width: '100%', paddingBottom: '133.33%' }} />
+          */}
+          <div className="pdp-main-image-spacer" style={{ width: '100%', paddingBottom: '100%' }} />
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
             <Swiper
               modules={[Navigation]}
@@ -173,6 +189,10 @@ function ProductGallery({
             >
               {images.map((img, idx) => (
                 <SwiperSlide key={img.id} style={{ width: '100%', height: '100%' }}>
+                  {/* Previous contain objectFit with padding commented out as requested
+                  <img src={img.src} alt={img.alt} onClick={() => openLightbox(idx)}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '20px', display: 'block', cursor: 'pointer' }} />
+                  */}
                   <img src={img.src} alt={img.alt} onClick={() => openLightbox(idx)}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', cursor: 'pointer' }} />
                 </SwiperSlide>
@@ -528,6 +548,7 @@ export function SingleProductFeaturedProduct() {
                   )}
                   {wishlistLoading ? 'Loading...' : inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </button>
+                {/* Add to Compare button removed/commented out as requested
                 <button onClick={handleCompareClick} disabled={compareLoading}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: compareLoading ? 'wait' : 'pointer', color: inCompare ? '#F15B41' : '#555', fontSize: '16px', padding: 0, transition: 'color 200ms ease', opacity: compareLoading ? 0.5 : 1 }}>
                   {compareLoading ? (
@@ -543,6 +564,7 @@ export function SingleProductFeaturedProduct() {
                   )}
                   {compareLoading ? 'Loading...' : inCompare ? 'Remove from Compare' : 'Add to Compare'}
                 </button>
+                */}
               </div>
 
               {/* Share row */}
