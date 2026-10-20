@@ -22,6 +22,24 @@ function IconTikTok() { return (<svg viewBox="0 0 24 24" fill="currentColor" wid
 function IconLinkedIn() { return (<svg viewBox="0 0 24 24" fill="currentColor" width={16} height={16}><path d="M6.94048 4.99993C6.94011 5.81424 6.44608 6.54702 5.69134 6.85273C4.9366 7.15845 4.07187 6.97605 3.5049 6.39155C2.93793 5.80704 2.78195 4.93715 3.1105 4.19207C3.43906 3.44699 4.18654 2.9755 5.00048 2.99993C6.08155 3.03238 6.94097 3.91837 6.94048 4.99993ZM7.00048 8.47993H3.00048V20.9999H7.00048V8.47993ZM13.3205 8.47993H9.34048V20.9999H13.2805V14.4299C13.2805 10.7699 18.0505 10.4299 18.0505 14.4299V20.9999H22.0005V13.0699C22.0005 6.89993 14.9405 7.12993 13.2805 10.1599L13.3205 8.47993Z" /></svg>); }
 
 function IconChevronDown() { return (<svg viewBox="0 0 24 24" fill="currentColor" width={14} height={14}><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z" /></svg>); }
+
+function IconSriLankaFlag() {
+  return (
+    <svg width="20" height="13" viewBox="0 0 640 400" style={{ borderRadius: '2px', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, boxShadow: '0 0 1px rgba(0,0,0,0.5)' }}>
+      <rect width="640" height="400" fill="#FFBE29" />
+      <rect x="14" y="14" width="612" height="372" fill="#FFBE29" />
+      <rect x="36" y="36" width="68" height="328" fill="#005A36" />
+      <rect x="114" y="36" width="68" height="328" fill="#EB7400" />
+      <rect x="195" y="36" width="410" height="328" fill="#8D153A" />
+      <circle cx="220" cy="62" r="10" fill="#FFBE29" />
+      <circle cx="580" cy="62" r="10" fill="#FFBE29" />
+      <circle cx="220" cy="338" r="10" fill="#FFBE29" />
+      <circle cx="580" cy="338" r="10" fill="#FFBE29" />
+      <path d="M420 180 C400 150 365 150 345 180 C325 200 330 235 355 255 L345 295 L375 295 L385 265 L430 265 L440 295 L470 295 L460 230 C480 200 450 160 420 180 Z" fill="#FFBE29" />
+      <rect x="450" y="140" width="10" height="70" transform="rotate(40 450 140)" fill="#FFBE29" />
+    </svg>
+  );
+}
 function IconPlusMobile({ open }: { open: boolean }) {
   return (
     <span style={{ position: 'relative', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -209,22 +227,12 @@ export function Footer() {
       {/* ═══ BOTTOM ═══ */}
       <div className="container-main" style={{ paddingTop: isPizza ? '40px' : '24px', paddingBottom: isPizza ? '40px' : '24px' }}>
         <div className="footer-bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center' }}>
+          {/* Original currency and language dropdowns commented out as requested:
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', rowGap: '10px' }}>
             <UpwardDropdown selected={currency} options={['Bangladesh USD $', 'Canada USD $', 'Germany USD $', 'Netherlands USD $', 'Norway USD $', 'United Kingdom USD $', 'United States USD $']} onSelect={setCurrency} isRtl={isRtlDemo} textColor={isMegastore ? '#111' : undefined} itemColor={isMegastore ? '#111' : undefined} triggerClassName={isMegastore ? 'mega-footer-dd-trigger' : undefined} itemClassName={isMegastore ? 'mega-footer-dd-item' : undefined} />
             <UpwardDropdown selected={language} options={['English', 'Español', 'Português (brasil)', 'Français']} onSelect={setLanguage} isRtl={isRtlDemo} textColor={isMegastore ? '#111' : undefined} itemColor={isMegastore ? '#111' : undefined} triggerClassName={isMegastore ? 'mega-footer-dd-trigger' : undefined} itemClassName={isMegastore ? 'mega-footer-dd-item' : undefined} />
             {isMegastore && (
               <style>{`
-                /* Defensive override — guarantees #111 even if some future
-                   global rule with !important ever targets footer buttons.
-                   Scoped to Megastore only via these classes; every other
-                   storefront's footer is untouched.
-
-                   The dropdown items' hover color is set by a JS
-                   onMouseEnter/Leave handler (inline style, no !important),
-                   which a blanket "!important" rule here would permanently
-                   block (stylesheet !important always beats inline style).
-                   ":not(:hover)" excludes the hovered state from this rule
-                   so the JS-driven hover color keeps working unchanged. */
                 .mega-footer-dd-trigger,
                 .mega-footer-dd-trigger * {
                   color: #111 !important;
@@ -235,16 +243,83 @@ export function Footer() {
               `}</style>
             )}
           </div>
+          */}
+
+          {/* Sri Lanka + Differentiated LKR + English display */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', rowGap: '10px' }}>
+            {/* Country & Currency: Sri Lanka + LKR */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                color: isPizza ? '#fff' : '#222',
+                padding: '9px 18px',
+                border: isPizza ? '1px solid rgba(255,255,255,0.2)' : '1px solid #ddd',
+                borderRadius: '40px',
+                background: isPizza ? 'rgb(30,30,30)' : '#fff',
+                fontWeight: 500,
+              }}
+            >
+              <IconSriLankaFlag />
+              <span>Sri Lanka</span>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  padding: '2px 7px',
+                  backgroundColor: isPizza ? 'rgba(255,255,255,0.15)' : '#F15B41',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  lineHeight: 1.2,
+                }}
+              >
+                LKR
+              </span>
+            </div>
+
+            {/* Language: English */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '14px',
+                color: isPizza ? '#fff' : '#222',
+                padding: '9px 18px',
+                border: isPizza ? '1px solid rgba(255,255,255,0.2)' : '1px solid #ddd',
+                borderRadius: '40px',
+                background: isPizza ? 'rgb(30,30,30)' : '#fff',
+                fontWeight: 500,
+              }}
+            >
+              <span>English</span>
+            </div>
+          </div>
 
           {/* Center: Copyright */}
           <p style={{ fontSize: '14px', color: fc.text, textAlign: 'center' }}>
-            © 2026, Powered by HookThemes
+            {/* Original: © 2026, Powered by HookThemes */}
+            © 2026, Developed by{' '}
+            <a
+              href="https://theneonlabz.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'inherit', textDecoration: 'none', fontWeight: 500, transition: 'color 200ms ease' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = fc.linkHover; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'inherit'; }}
+            >
+              NeonLabz (Pvt) Ltd.
+            </a>
           </p>
 
-          {/* Right: Payment icons */}
+          {/* Right: Payment icons commented out as requested:
           <div style={{ justifySelf: 'end' }}>
             <PaymentIcons />
           </div>
+          */}
         </div>
       </div>
 

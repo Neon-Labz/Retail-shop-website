@@ -89,6 +89,32 @@ const defaultAnnouncements = [
   'New arrivals just dropped →',
 ];
 
+function IconSriLankaFlag() {
+  return (
+    <svg width="20" height="13" viewBox="0 0 640 400" style={{ borderRadius: '2px', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, boxShadow: '0 0 1px rgba(0,0,0,0.5)' }}>
+      {/* Outer yellow border */}
+      <rect width="640" height="400" fill="#FFBE29" />
+      {/* Inner background */}
+      <rect x="14" y="14" width="612" height="372" fill="#FFBE29" />
+      {/* Green stripe */}
+      <rect x="36" y="36" width="68" height="328" fill="#005A36" />
+      {/* Orange stripe */}
+      <rect x="114" y="36" width="68" height="328" fill="#EB7400" />
+      {/* Crimson maroon field */}
+      <rect x="195" y="36" width="410" height="328" fill="#8D153A" />
+      {/* 4 Bo leaves corners */}
+      <circle cx="220" cy="62" r="10" fill="#FFBE29" />
+      <circle cx="580" cy="62" r="10" fill="#FFBE29" />
+      <circle cx="220" cy="338" r="10" fill="#FFBE29" />
+      <circle cx="580" cy="338" r="10" fill="#FFBE29" />
+      {/* Golden Lion */}
+      <path d="M420 180 C400 150 365 150 345 180 C325 200 330 235 355 255 L345 295 L375 295 L385 265 L430 265 L440 295 L470 295 L460 230 C480 200 450 160 420 180 Z" fill="#FFBE29" />
+      <rect x="450" y="140" width="10" height="70" transform="rotate(40 450 140)" fill="#FFBE29" />
+    </svg>
+  );
+}
+
+/* Original currencies array commented out:
 const currencies = [
   'Bangladesh USD $',
   'Canada USD $',
@@ -98,12 +124,21 @@ const currencies = [
   'United Kingdom USD $',
   'United States USD $',
 ];
+*/
+const currencies = [
+  'Sri Lanka LKR',
+];
 
+/* Original languages array commented out:
 const languages = [
   'English',
   'Español',
   'Português (brasil)',
   'Français',
+];
+*/
+const languages = [
+  'English',
 ];
 
 /* ──────────────────────────────────
@@ -140,7 +175,7 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '5px',
+          gap: '6px',
           fontSize: '14px',
           color: textColor,
           cursor: 'pointer',
@@ -149,6 +184,7 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
           whiteSpace: 'nowrap',
         }}
       >
+        {selected.includes('Sri Lanka') && <IconSriLankaFlag />}
         {selected}
         <span
           style={{
@@ -184,7 +220,9 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
               role="menuitem"
               onClick={() => { onSelect(option); onClose(); }}
               style={{
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 width: '100%',
                 textAlign: 'left',
                 padding: '10px 24px',
@@ -197,6 +235,7 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
               onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
             >
+              {option.includes('Sri Lanka') && <IconSriLankaFlag />}
               {option}
             </button>
           ))}
@@ -236,7 +275,10 @@ export function GroceryAnnouncementBar({ backgroundColor = 'rgb(27, 128, 87)', t
   const { current, direction, goNext, goPrev } = useSlider(slides.length);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  /* Original selectedCurrency commented out:
   const [selectedCurrency, setSelectedCurrency] = useState('Bangladesh USD $');
+  */
+  const [selectedCurrency, setSelectedCurrency] = useState('Sri Lanka LKR');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   const toggleCurrency = useCallback(() => {
@@ -332,7 +374,8 @@ export function GroceryAnnouncementBar({ backgroundColor = 'rgb(27, 128, 87)', t
           </button>
         </div>
 
-        {/* ── Column 3: Currency & Language Dropdowns ── */}
+        {/* ── Column 3: Currency & Language (Dropdown removed, static differentiated display) ── */}
+        {/* Original dropdowns commented out:
         <div className="announce-dropdowns" style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'flex-end' }}>
           <Dropdown
             selected={selectedCurrency}
@@ -352,6 +395,44 @@ export function GroceryAnnouncementBar({ backgroundColor = 'rgb(27, 128, 87)', t
             onClose={closeLanguage}
             textColor={textColor}
           />
+        </div>
+        */}
+        <div
+          className="announce-dropdowns"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            justifyContent: 'flex-end',
+            fontSize: '13.5px',
+            color: textColor,
+          }}
+        >
+          {/* Sri Lanka + Differentiated LKR */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', whiteSpace: 'nowrap' }}>
+            <IconSriLankaFlag />
+            <span style={{ fontWeight: 500 }}>Sri Lanka</span>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                padding: '2px 6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.16)',
+                borderRadius: '3px',
+                lineHeight: 1.2,
+                color: textColor,
+              }}
+            >
+              LKR
+            </span>
+          </div>
+
+          {/* Separator */}
+          <span style={{ opacity: 0.35, fontSize: '12px' }}>|</span>
+
+          {/* Language: English */}
+          <span style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>English</span>
         </div>
       </div>
 

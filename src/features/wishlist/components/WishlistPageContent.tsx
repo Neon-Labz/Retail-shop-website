@@ -248,9 +248,11 @@ function WishlistCard({ item, index, onRemove, onQuickAdd, onQuickView, onCompar
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(item.productId); }} className="fc-action-btn fc-action-btn-light" aria-label="Remove">
             <IconTrash size={18} />
           </button>
+          {/* Compare button removed/commented out as requested:
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCompare(item); }} className="fc-action-btn fc-action-btn-light" aria-label="Compare">
             <IconCompare size={18} />
           </button>
+          */}
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onQuickView(item); }} className="fc-action-btn fc-action-btn-dark wl-eye-btn" aria-label="Quick view">
             <IconEye size={18} />
           </button>

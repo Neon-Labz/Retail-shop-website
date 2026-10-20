@@ -1,10 +1,12 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { MegaMenuColumn, MegaCategoryCard } from '@/types/common';
+/* Previous productsData import with unlisted template products commented out as requested:
 import productsData from '@/data/products.json';
+*/
 import type { Product } from '@/types/product';
 import { formatPrice } from '@/utils/formatPrice';
 
@@ -145,9 +147,107 @@ export interface SliderProduct {
   images: { src: string }[];
 }
 
+// Real live store products from MongoDB for Featured Collection slider in Mega Menu
+const realStoreFeaturedProducts: SliderProduct[] = [
+  {
+    id: '6ad5f6860e445000414fa0d5',
+    slug: 'gold-silver-plated-granted-charm-bracelet',
+    name: 'Gold & Silver Plated Granted Charm Bracelet (European Pandora Style)',
+    price: 1250,
+    compareAtPrice: 1550,
+    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484317347-7da77223-4a96-4b72-b8e6-9cd39b1aa356.png' }],
+  },
+  {
+    id: '6ad5f6820e445000414fa0cf',
+    slug: 'mini-handheld-fan-daisy-flower-accent-with-removable-stand',
+    name: 'Mini Handheld Fan (Daisy Flower Accent with Removable Stand)',
+    price: 450,
+    compareAtPrice: 650,
+    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407158549-a3f3ec62-1010-46dc-8868-547b807584d4.png' }],
+  },
+  {
+    id: '6ad5f67e0e445000414fa0c9',
+    slug: 'portable-desktop-fan-ultra-thin-folding-stand',
+    name: 'Portable Desktop Fan (Ultra-Thin Folding Stand)',
+    price: 475,
+    compareAtPrice: 600,
+    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407167386-42072d33-a778-40dc-9045-1879d3235c02.png' }],
+  },
+  {
+    id: '6ad5f6750e445000414fa0c4',
+    slug: 'sweet-bunny-kids-stationery-set-with-coin-purse',
+    name: 'Sweet Bunny Kids Stationery Set with Coin Purse',
+    price: 240,
+    compareAtPrice: 320,
+    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407140539-02d7d3ca-9078-4b58-9d90-dbd2c5dadc8a.png' }],
+  },
+  {
+    id: '6ad5f66d0e445000414fa0bf',
+    slug: 'space-astronaut-stationery-set-no-907-dream-space-edition',
+    name: 'Space Astronaut Stationery Set No. 907 (Dream Space Edition)',
+    price: 225,
+    compareAtPrice: 290,
+    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407149657-c8a210e8-62df-45ff-853b-f821ebe9f6df.png' }],
+  },
+  {
+    id: '6ad5f6640e445000414fa0b2',
+    slug: 'heavy-duty-foldable-step-ladder-model-8935',
+    name: 'Heavy Duty Foldable Step Ladder (Model 8935)',
+    price: 8935,
+    compareAtPrice: 11000,
+    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484380387-7310740e-b8ef-4b14-a5c4-5c194b845b5a.png' }],
+  },
+];
+
 function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }: { products?: SliderProduct[]; hrefBase?: string; t: Required<MegaMenuTheme> }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const products: SliderProduct[] = (overrideProducts ?? (productsData as Product[])).slice(0, 6);
+  /* Previous empty initial state commented out as requested:
+  const [dbProducts, setDbProducts] = useState<SliderProduct[]>([]);
+  */
+  const [dbProducts, setDbProducts] = useState<SliderProduct[]>(realStoreFeaturedProducts);
+
+  useEffect(() => {
+    if (overrideProducts && overrideProducts.length > 0) return;
+    let isMounted = true;
+    fetch('/api/products?limit=8')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+          const formatted: SliderProduct[] = data.products.map((p: any) => ({
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            price: p.price,
+            compareAtPrice: p.compareAtPrice,
+            images: p.images && p.images.length > 0 ? p.images : [{ src: '' }],
+          }));
+          setDbProducts(formatted);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching featured products for MegaMenu:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [overrideProducts]);
+
+  /* Previous fallback to unlisted productsData commented out as requested:
+  const products: SliderProduct[] = (overrideProducts && overrideProducts.length > 0)
+    ? overrideProducts
+    : dbProducts.length > 0
+    ? dbProducts
+    : (productsData as Product[]).slice(0, 6);
+  */
+  const products: SliderProduct[] = (overrideProducts && overrideProducts.length > 0)
+    ? overrideProducts
+    : dbProducts.length > 0
+    ? dbProducts
+    : realStoreFeaturedProducts;
 
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return;
@@ -206,46 +306,60 @@ function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }
           scrollSnapType: 'x mandatory',
         }}
       >
-        {products.map((product) => (
-          <Link
-            key={product.id}
-            href={`${hrefBase}/${product.slug}`}
-            style={{ textDecoration: 'none', color: 'inherit', scrollSnapAlign: 'start' }}
-          >
-            <div
-              style={{
-                width: '100%',
-                height: '385px',
-                backgroundColor: t.cardBg,
-                borderRadius: '4px',
-                overflow: 'hidden',
-                position: 'relative',
-                marginBottom: '10px',
-              }}
+        {products.map((product) => {
+          /* Previous imgSrc extraction commented out as requested:
+          const imgSrc = product.images?.[0]?.src || '';
+          */
+          const rawImg = product.images?.[0] as any;
+          const imgSrc = (typeof rawImg === 'string' ? rawImg : rawImg?.src) || '';
+          return (
+            <Link
+              key={product.id}
+              href={`${hrefBase}/${product.slug}`}
+              style={{ textDecoration: 'none', color: 'inherit', scrollSnapAlign: 'start' }}
             >
-              <Image
-                src={product.images[0]?.src || ''}
-                alt={product.name}
-                fill
-                style={{ objectFit: 'cover' }}
-                sizes="220px"
-              />
-            </div>
-            <p style={{ fontSize: '14px', fontWeight: 500, color: t.linkColor, marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {product.name}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {product.compareAtPrice && (
-                <span style={{ fontSize: '13px', color: t.sliderOldPriceColor, textDecoration: 'line-through' }}>
-                  {formatPrice(product.compareAtPrice)}
+              <div
+                style={{
+                  width: '100%',
+                  height: '385px',
+                  backgroundColor: t.cardBg,
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  marginBottom: '10px',
+                }}
+              >
+                {imgSrc ? (
+                  <Image
+                    src={imgSrc}
+                    alt={product.name}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    sizes="220px"
+                    unoptimized
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '13px', backgroundColor: '#f0f0f0' }}>
+                    No image
+                  </div>
+                )}
+              </div>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: t.linkColor, marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {product.name}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {product.compareAtPrice && product.compareAtPrice > product.price && (
+                  <span style={{ fontSize: '13px', color: t.sliderOldPriceColor, textDecoration: 'line-through' }}>
+                    {formatPrice(product.compareAtPrice)}
+                  </span>
+                )}
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#F15B41' }}>
+                  {formatPrice(product.price)}
                 </span>
-              )}
-              <span style={{ fontSize: '14px', fontWeight: 600, color: t.headingColor }}>
-                {formatPrice(product.price)}
-              </span>
-            </div>
-          </Link>
-        ))}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

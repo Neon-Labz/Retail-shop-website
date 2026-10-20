@@ -21,8 +21,15 @@ export function PodRandomRecommendations() {
 
   const fetchRandomProducts = () => {
     setIsLoading(true);
+    /* Original fetch commented out:
     fetch('/api/recommendations/random?limit=4')
       .then((r) => r.json())
+    */
+    fetch('/api/recommendations/random?limit=4')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         if (data.success && Array.isArray(data.products)) {
           setProducts(data.products);
@@ -72,6 +79,7 @@ export function PodRandomRecommendations() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '40px', display: 'flex', justifyContent: 'center', gap: '16px' }}>
+          {/* Shuffle More Products button commented out as requested:
           <button
             type="button"
             onClick={fetchRandomProducts}
@@ -90,6 +98,7 @@ export function PodRandomRecommendations() {
           >
             ↻ Shuffle More Products
           </button>
+          */}
           <Link
             href="/shop"
             style={{

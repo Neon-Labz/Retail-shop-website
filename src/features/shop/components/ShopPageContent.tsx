@@ -268,7 +268,8 @@ function FilterSidebar({
 
   const hasActiveFilters =
     Object.values(selectedFilters).some((v) => v !== '') ||
-    priceRange[0] > filters.priceRange.min ||
+    /* priceRange[0] > filters.priceRange.min || commented out as requested */
+    priceRange[0] > 0 ||
     priceRange[1] < filters.priceRange.max;
 
   // Active selected subcategories array from comma-separated string
@@ -280,7 +281,8 @@ function FilterSidebar({
     : [];
 
   const activeFilterTags: { label: string; key: string }[] = [];
-  if (priceRange[0] > filters.priceRange.min || priceRange[1] < filters.priceRange.max) {
+  /* if (priceRange[0] > filters.priceRange.min || priceRange[1] < filters.priceRange.max) { commented out as requested */
+  if (priceRange[0] > 0 || priceRange[1] < filters.priceRange.max) {
     activeFilterTags.push({
       label: `LKR ${priceRange[0].toLocaleString('en-US')} – LKR ${priceRange[1].toLocaleString('en-US')}`,
       key: 'price',
@@ -323,7 +325,8 @@ function FilterSidebar({
               label={tag.label}
               onRemove={() => {
                 if (tag.key === 'price') {
-                  onPriceChange([filters.priceRange.min, filters.priceRange.max]);
+                  /* onPriceChange([filters.priceRange.min, filters.priceRange.max]); commented out as requested */
+                  onPriceChange([0, filters.priceRange.max]);
                 } else if (tag.key === 'category') {
                   // Removing category also clears subcategories
                   if (onBatchFilterChange) onBatchFilterChange({ category: '', subcategory: '' });
@@ -345,6 +348,7 @@ function FilterSidebar({
       )}
 
       <FilterGroup title="Availability">
+        {/* Original static/hardcoded availability counts commented out:
         <FilterCheckbox
           label="In stock"
           count={filters.categories.reduce((s, c) => s + c.count, 0)}
@@ -357,11 +361,35 @@ function FilterSidebar({
           checked={selectedFilters.availability === 'out-of-stock'}
           onChange={() => onFilterChange('availability', selectedFilters.availability === 'out-of-stock' ? '' : 'out-of-stock')}
         />
+        */}
+        <FilterCheckbox
+          label="In stock"
+          count={filters.availability?.inStock ?? filters.categories.reduce((s, c) => s + c.count, 0)}
+          checked={selectedFilters.availability === 'in-stock'}
+          onChange={() => onFilterChange('availability', selectedFilters.availability === 'in-stock' ? '' : 'in-stock')}
+        />
+        <FilterCheckbox
+          label="Out of stock"
+          count={filters.availability?.outOfStock ?? 0}
+          checked={selectedFilters.availability === 'out-of-stock'}
+          onChange={() => onFilterChange('availability', selectedFilters.availability === 'out-of-stock' ? '' : 'out-of-stock')}
+        />
       </FilterGroup>
 
       <FilterGroup title="Price">
+        {/* Original min={filters.priceRange.min} commented out as requested
         <PriceRangeSlider
           min={filters.priceRange.min}
+          max={filters.priceRange.max}
+          value={priceRange}
+          onChange={onPriceChange}
+          accentColor={theme.accentColor}
+          mutedColor={theme.mutedColor}
+          textColor={theme.textColor}
+        />
+        */}
+        <PriceRangeSlider
+          min={0}
           max={filters.priceRange.max}
           value={priceRange}
           onChange={onPriceChange}
@@ -672,10 +700,11 @@ export function ShopPageContent({
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const filterTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  // Track filter changes to trigger loading state
+  // Track filter changes
   const prevFiltersRef = useRef('');
   const currentFilterKey = `${searchParams.toString()}`;
 
+  /* Original artificial 1.5s filterLoading delay commented out as requested so filter options don't refresh / lock the page:
   useEffect(() => {
     if (prevFiltersRef.current && prevFiltersRef.current !== currentFilterKey) {
       setFilterLoading(true);
@@ -685,6 +714,7 @@ export function ShopPageContent({
     prevFiltersRef.current = currentFilterKey;
     return () => { if (filterTimerRef.current) clearTimeout(filterTimerRef.current); };
   }, [currentFilterKey]);
+  */
 
   const setViewCols = useCallback((cols: 2 | 3 | 4) => {
     localStorage.setItem('shop-view-cols', String(cols));
@@ -734,6 +764,12 @@ export function ShopPageContent({
   // (not a magic constant), so the fill percentage is always <= 100%.
   const displayMaxPrice = maxPrice ?? data?.filters?.priceRange.max ?? 0;
 
+  // Persist filter facets across renders so sidebar options never unmount or refresh
+  const filtersDataRef = useRef(data?.filters);
+  if (data?.filters) {
+    filtersDataRef.current = data.filters;
+  }
+
   const updateParams = useCallback((updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([key, value]) => {
@@ -741,13 +777,24 @@ export function ShopPageContent({
       else params.delete(key);
     });
     if (!('page' in updates)) params.set('page', '1');
+    /* Original router.push commented out as requested to prevent page reload feeling:
     router.push(`${basePath}?${params.toString()}`, { scroll: false });
+    */
+    router.replace(`${basePath}?${params.toString()}`, { scroll: false });
   }, [router, searchParams, basePath]);
 
   const handleFilterChange = (key: string, value: string) => updateParams({ [key]: value });
+  /* Original handlePriceChange commented out as requested
   const handlePriceChange = useCallback((range: [number, number]) => {
     updateParams({ minPrice: String(range[0]), maxPrice: String(range[1]) });
   }, [updateParams]);
+  */
+  const handlePriceChange = useCallback((range: [number, number]) => {
+    updateParams({
+      minPrice: range[0] > 0 ? String(range[0]) : '',
+      maxPrice: range[1] < (data?.filters?.priceRange.max ?? range[1]) ? String(range[1]) : '',
+    });
+  }, [updateParams, data?.filters?.priceRange.max]);
   const handlePageChange = (page: number) => {
     updateParams({ page: String(page) });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -881,6 +928,7 @@ export function ShopPageContent({
               onRemoveAll={() => {}}
             />
             */}
+            {/* Original filters={data?.filters} commented out as requested; cached in ref so filter sidebar never disappears/refreshes while products update:
             <FilterSidebar
               filters={data?.filters}
               selectedFilters={{ category, subcategory, brand, color, size, availability }}
@@ -893,6 +941,21 @@ export function ShopPageContent({
                 const view = searchParams.get('view');
                 if (view) params.set('view', view);
                 router.push(`${basePath}?${params.toString()}`, { scroll: false });
+              }}
+            />
+            */}
+            <FilterSidebar
+              filters={data?.filters || filtersDataRef.current}
+              selectedFilters={{ category, subcategory, brand, color, size, availability }}
+              onFilterChange={handleFilterChange}
+              onBatchFilterChange={updateParams}
+              priceRange={[minPrice, displayMaxPrice]}
+              onPriceChange={handlePriceChange}
+              onRemoveAll={() => {
+                const params = new URLSearchParams();
+                const view = searchParams.get('view');
+                if (view) params.set('view', view);
+                router.replace(`${basePath}?${params.toString()}`, { scroll: false });
               }}
             />
           </div>
@@ -964,7 +1027,10 @@ export function ShopPageContent({
       <MobileFilterDrawer
         open={mobileFilterOpen}
         onClose={() => setMobileFilterOpen(false)}
+        /* Original filters={data?.filters} commented out as requested; cached in ref to avoid refresh/flicker:
         filters={data?.filters}
+        */
+        filters={data?.filters || filtersDataRef.current}
         selected={{ availability, brand, color, size, category, subcategory, sort }}
         priceRange={[minPrice, displayMaxPrice]}
         productCount={data?.pagination?.totalProducts ?? 0}

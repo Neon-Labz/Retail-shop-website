@@ -1,5 +1,6 @@
-export const SITE_NAME = 'Ambaz';
-export const SITE_DESCRIPTION = 'Premium fashion ecommerce store — Shop the latest trends in clothing, accessories, and more.';
+// export const SITE_NAME = 'Ambaz';
+export const SITE_NAME = 'RKF Distributer';
+export const SITE_DESCRIPTION = 'RKF Distributer — Premium ecommerce and distribution store.';
 export const SITE_URL = 'https://ambaz-nextjs-project.vercel.app';
 
 export const FREE_SHIPPING_THRESHOLD = 150;
@@ -17,8 +18,18 @@ export const SORT_OPTIONS = [
   { label: 'Date, old to new', value: 'date-asc' },
   { label: 'Date, new to old', value: 'newest' },
 ] as const;
-
+/* Original fashion template popular searches commented out as requested:
 export const POPULAR_SEARCHES = ['T-Shirt', 'Blue', 'Jacket', 'Dress', 'Shorts'];
+*/
+export const POPULAR_SEARCHES = [
+  'Fan',
+  'Step Ladder',
+  'Storage Rack',
+  'Toys',
+  'Cup & Saucer',
+  'Bracelet',
+  'Party Supplies',
+];
 
 export const GROCERY_POPULAR_SEARCHES = ['Fruits', 'Vegetables', 'Dairy', 'Organic', 'Meat'];
 

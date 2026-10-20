@@ -266,7 +266,8 @@ export function MobileFilterDrawer({
       category: '',
       subcategory: '',
       sort: 'featured',
-      priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100],
+      /* priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100], commented out as requested */
+      priceRange: [0, filters?.priceRange.max ?? 100],
     });
     onRemoveAll();
     onClose();
@@ -275,7 +276,8 @@ export function MobileFilterDrawer({
   const handleClearSub = (key: SubKey) => {
     setPending((p) => {
       if (key === 'price') {
-        return { ...p, priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100] };
+        /* return { ...p, priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100] }; commented out as requested */
+        return { ...p, priceRange: [0, filters?.priceRange.max ?? 100] };
       }
       return { ...p, [key]: '' };
     });
@@ -481,9 +483,15 @@ export function MobileFilterDrawer({
                 {/* Content per sub-view. Render all, hide inactive. */}
                 {filters && view === 'availability' && (
                   <div>
+                    {/* Original hardcoded stock array commented out:
                     {([
                       { label: 'In stock', value: 'in-stock', count: filters.categories.reduce((s, c) => s + c.count, 0) },
                       { label: 'Out of stock', value: 'out-of-stock', count: 1 },
+                    ]).map((o) => (
+                    */}
+                    {([
+                      { label: 'In stock', value: 'in-stock', count: filters.availability?.inStock ?? filters.categories.reduce((s, c) => s + c.count, 0) },
+                      { label: 'Out of stock', value: 'out-of-stock', count: filters.availability?.outOfStock ?? 0 },
                     ]).map((o) => (
                       <FilterCheckbox
                         key={o.value}
@@ -497,8 +505,19 @@ export function MobileFilterDrawer({
                 )}
 
                 {filters && view === 'price' && (
+                  /* Original min={filters.priceRange.min} commented out as requested
                   <PriceRangeSlider
                     min={filters.priceRange.min}
+                    max={filters.priceRange.max}
+                    value={pending.priceRange}
+                    onChange={(r) => setPending((p) => ({ ...p, priceRange: r }))}
+                    accentColor={theme?.accentColor}
+                    mutedColor={theme?.mutedColor}
+                    textColor={theme?.textColor}
+                  />
+                  */
+                  <PriceRangeSlider
+                    min={0}
                     max={filters.priceRange.max}
                     value={pending.priceRange}
                     onChange={(r) => setPending((p) => ({ ...p, priceRange: r }))}

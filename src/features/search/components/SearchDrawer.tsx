@@ -40,9 +40,15 @@ function IconArrowRight({ size = 18 }: { size?: number }) {
 
 /* ── Suggestion pages data ── */
 
+/* Previous fashion suggestion pages commented out:
 const fashionSuggestionPages = [
   { label: 'About us', href: '/pages/about' },
   { label: 'Ultimate Guide to Styling Jewelry Like a Fashion Expert', href: '/pages/faq' },
+];
+*/
+const fashionSuggestionPages = [
+  { label: 'About us', href: '/pages/about' },
+  { label: 'Frequently Asked Questions & Support', href: '/pages/faq' },
 ];
 
 const grocerySuggestionPages = [
@@ -343,7 +349,7 @@ export function SearchDrawer() {
                             {formatPrice(product.compareAtPrice)}
                           </span>
                         )}
-                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#222' }}>
+                        <span className="product-price-text" style={{ fontSize: '15px', fontWeight: 600, color: '#222' }}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -445,7 +451,7 @@ export function SearchDrawer() {
                             {formatPrice(product.compareAtPrice)}
                           </span>
                         )}
-                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#222' }}>
+                        <span className="product-price-text" style={{ fontSize: '15px', fontWeight: 600, color: '#222' }}>
                           {formatPrice(product.price)}
                         </span>
                       </div>

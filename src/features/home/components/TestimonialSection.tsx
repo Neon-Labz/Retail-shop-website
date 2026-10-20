@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 
 import 'swiper/css';
@@ -55,104 +56,170 @@ export function TestimonialSection({
   };
 
   return (
-    <section style={{ backgroundColor, padding: sectionPadding }}>
+    <section className="ts-section" style={{ backgroundColor, padding: sectionPadding }}>
       <div className="container-main">
         {/* Heading */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: '36px', fontWeight: 600, color: '#222' }}>{heading}</h2>
         </div>
 
-        {/* Testimonials — Swiper (promotion-badge-style behavior) */}
-        <Swiper
-          onSwiper={setSwiperInstance}
-          onSlideChange={(s) => setActiveIndex(s.realIndex)}
-          slidesPerView={1}
-          breakpoints={{
-            750: { slidesPerView: 2 },
-            992: { slidesPerView: 3 },
-          }}
-          spaceBetween={24}
-          loop
-          speed={500}
-          style={{ overflow: 'hidden' }}
-        >
-          {data.map((item) => (
-            <SwiperSlide key={item.id} style={{ height: 'auto' }}>
-              <div
-                className="ts-card"
-                style={{
-                  backgroundColor: 'rgb(255, 255, 255)',
-                  borderRadius: '8px',
-                  padding: '40px 30px 30px',
-                  textAlign: 'center',
-                  position: 'relative',
-                  height: '380px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: '0 2px 16px rgba(0, 0, 0, 0.05)',
-                }}
-              >
-                {/* Avatar */}
+        {/* Testimonials — Swiper with Left/Right Arrow Buttons */}
+        <div className="ts-slider-outer" style={{ position: 'relative' }}>
+          <Swiper
+            modules={[Autoplay]}
+            onSwiper={setSwiperInstance}
+            onSlideChange={(s) => setActiveIndex(s.realIndex)}
+            slidesPerView={1}
+            slidesPerGroup={1}
+            autoplay={{
+              delay: 3200,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            breakpoints={{
+              750: { slidesPerView: 2, slidesPerGroup: 1 },
+              992: { slidesPerView: 3, slidesPerGroup: 1 },
+            }}
+            spaceBetween={24}
+            loop
+            speed={650}
+            style={{ overflow: 'hidden' }}
+          >
+            {data.map((item, idx) => {
+              const initials = item.name
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((w) => Array.from(w)[0] || '')
+                .join('')
+                .toUpperCase();
+              const isPlaceholderAvatar = item.avatar.startsWith('/fashion/testimonials/');
+
+              return (
+              <SwiperSlide key={item.id} style={{ height: 'auto' }}>
                 <div
+                  className="ts-card"
                   style={{
-                    width: '90px',
-                    height: '90px',
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    margin: '0 auto 20px',
-                    border: '3px solid #f0f0f0',
+                    backgroundColor: 'rgb(255, 255, 255)',
+                    borderRadius: '12px',
+                    padding: '36px 28px 28px',
+                    textAlign: 'center',
                     position: 'relative',
-                    backgroundColor: '#f5f5f5',
-                    flexShrink: 0,
+                    minHeight: '390px',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxShadow: '0 4px 20px rgba(11, 28, 61, 0.06)',
+                    border: '1px solid #eef2f6',
                   }}
                 >
-                  <Image
-                    src={item.avatar}
-                    alt={item.name}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    sizes="90px"
-                  />
-                </div>
-
-                {/* Name */}
-                <h4 style={{ fontSize: '22px', fontWeight: 700, color: '#222', marginBottom: '4px' }}>
-                  {item.name}
-                </h4>
-
-                {/* Role */}
-                <p style={{ fontSize: '15px', color: '#999', marginBottom: '16px' }}>
-                  {item.role}
-                </p>
-
-                {/* Description */}
-                <p style={{ fontSize: '16px', color: '#888', lineHeight: '28px', flex: 1 }}>
-                  {item.text}
-                </p>
-
-                {/* Rating stars centered + Chat icon bottom-right */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
-                  <div style={{ display: 'flex', gap: '4px', flex: 1, justifyContent: 'center' }}>
-                    {Array.from({ length: 5 }).map((_, si) => (
-                      <span
-                        key={si}
-                        style={{
-                          fontSize: '22px',
-                          color: si < item.rating ? '#F5C518' : '#ddd',
-                        }}
-                      >
-                        ★
-                      </span>
-                    ))}
+                  {/* Avatar */}
+                  <div
+                    style={{
+                      width: '82px',
+                      height: '82px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      margin: '0 auto 18px',
+                      border: '3px solid #e2e8f0',
+                      position: 'relative',
+                      background: idx % 2 === 0
+                        ? 'linear-gradient(135deg, #0b1c3d 0%, #183e84 100%)'
+                        : 'linear-gradient(135deg, #F15B41 0%, #d94a32 100%)',
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ffffff',
+                      fontSize: '24px',
+                      fontWeight: 700,
+                      boxShadow: '0 6px 16px rgba(11, 28, 61, 0.14)',
+                    }}
+                  >
+                    {/* Original template placeholder avatar commented out to avoid grey 75x75 box:
+                    <Image
+                      src={item.avatar}
+                      alt={item.name}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="90px"
+                    />
+                    */}
+                    {!isPlaceholderAvatar ? (
+                      <Image
+                        src={item.avatar}
+                        alt={item.name}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="82px"
+                      />
+                    ) : (
+                      <span>{initials}</span>
+                    )}
                   </div>
-                  <div style={{ color: '#ccc', flexShrink: 0 }}>
-                    <ChatIcon />
+
+                  {/* Name */}
+                  <h4 style={{ fontSize: '19px', fontWeight: 700, color: '#0b1c3d', marginBottom: '6px', lineHeight: 1.35 }}>
+                    {item.name}
+                  </h4>
+
+                  {/* Role */}
+                  <p style={{ fontSize: '13.5px', fontWeight: 600, color: '#F15B41', marginBottom: '16px' }}>
+                    {item.role}
+                  </p>
+
+                  {/* Description */}
+                  <p style={{ fontSize: '15px', color: '#475569', lineHeight: '26px', flex: 1 }}>
+                    &ldquo;{item.text}&rdquo;
+                  </p>
+
+                  {/* Rating stars centered + Chat icon bottom-right */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
+                    <div style={{ display: 'flex', gap: '4px', flex: 1, justifyContent: 'center' }}>
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <span
+                          key={si}
+                          style={{
+                            fontSize: '22px',
+                            color: si < item.rating ? '#F5C518' : '#ddd',
+                          }}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ color: '#ccc', flexShrink: 0 }}>
+                      <ChatIcon />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+              );
+            })}
+          </Swiper>
+
+          {/* Left & Right Arrow Buttons */}
+          <button
+            type="button"
+            onClick={() => swiperInstance?.slidePrev()}
+            aria-label="Previous testimonial"
+            className="ts-nav ts-nav-prev"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width={20} height={20}>
+              <path d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => swiperInstance?.slideNext()}
+            aria-label="Next testimonial"
+            className="ts-nav ts-nav-next"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width={20} height={20}>
+              <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z" />
+            </svg>
+          </button>
+        </div>
 
         {/* Pagination dots — visuals preserved from the original design; always 5 dots */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '36px' }}>
@@ -175,6 +242,39 @@ export function TestimonialSection({
           ))}
         </div>
       </div>
+
+      <style>{`
+        .ts-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: 1.5px solid #e0e0e0;
+          background-color: #fff;
+          color: #222;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          transition: background-color 250ms ease, border-color 250ms ease, color 250ms ease, box-shadow 250ms ease;
+        }
+        .ts-nav-prev { left: -22px; }
+        .ts-nav-next { right: -22px; }
+        .ts-nav:hover {
+          background-color: #111;
+          border-color: #111;
+          color: #fff;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        }
+        @media (max-width: 749px) {
+          .ts-nav-prev { left: 4px; }
+          .ts-nav-next { right: 4px; }
+        }
+      `}</style>
     </section>
   );
 }

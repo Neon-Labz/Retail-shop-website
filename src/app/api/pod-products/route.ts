@@ -200,7 +200,8 @@ export async function GET(request: NextRequest) {
       colors,
       sizes,
       priceRange: {
-        min: allPodProducts.length ? Math.min(...allPodProducts.map((p) => p.price)) : 0,
+        /* min: allPodProducts.length ? Math.min(...allPodProducts.map((p) => p.price)) : 0, commented out as requested */
+        min: 0,
         max: allPodProducts.length ? Math.max(...allPodProducts.map((p) => p.price)) : 0,
       },
     },

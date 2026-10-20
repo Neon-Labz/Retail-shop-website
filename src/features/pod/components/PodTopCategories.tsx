@@ -35,7 +35,7 @@ const categories = [
 ];
 */
 
-// Real initial categories matching MongoDB store
+/* Previous static electronic categories commented out as requested:
 const categories = [
   {
     id: 'smartphones',
@@ -86,6 +86,91 @@ const categories = [
     href: '/shop?category=Fitness%20Trackers',
   },
 ];
+*/
+
+/* Previous initial categories with product image fallbacks commented out as requested:
+const liveStoreCategories = [
+  {
+    id: '6ad5f26d8c37efc3ddcb1a03',
+    label: 'Toys & Games',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484449922-ee826189-87ad-4c37-97af-58db28078eb4.png',
+    href: '/shop?category=Toys%20%26%20Games',
+  },
+  {
+    id: '6ad5f2708c37efc3ddcb1a08',
+    label: 'Party & Celebrations',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407056811-a73fb02b-b6ce-4484-aa22-585f33421467.png',
+    href: '/shop?category=Party%20%26%20Celebrations',
+  },
+  {
+    id: '6ad5f2738c37efc3ddcb1a0b',
+    label: 'Home & Living',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407034027-5a1c072d-9eee-4f01-8609-273618a525e1.png',
+    href: '/shop?category=Home%20%26%20Living',
+  },
+  {
+    id: '6ad5f2758c37efc3ddcb1a0f',
+    label: 'Stationery & School',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407140539-02d7d3ca-9078-4b58-9d90-dbd2c5dadc8a.png',
+    href: '/shop?category=Stationery%20%26%20School',
+  },
+  {
+    id: '6ad5f2788c37efc3ddcb1a11',
+    label: 'Electronics & Gadgets',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407158549-a3f3ec62-1010-46dc-8868-547b807584d4.png',
+    href: '/shop?category=Electronics%20%26%20Gadgets',
+  },
+  {
+    id: '6ad5f27a8c37efc3ddcb1a13',
+    label: 'Fashion & Accessories',
+    image: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484317347-7da77223-4a96-4b72-b8e6-9cd39b1aa356.png',
+    href: '/shop?category=Fashion%20%26%20Accessories',
+  },
+];
+*/
+
+// Real live MongoDB categories — strictly connects with DB category image
+const liveStoreCategories = [
+  {
+    id: '6ad5f26d8c37efc3ddcb1a03',
+    label: 'Toys & Games',
+    image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+    href: '/shop?category=Toys%20%26%20Games',
+  },
+  {
+    id: '6ad5f2708c37efc3ddcb1a08',
+    label: 'Party & Celebrations',
+    image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+    href: '/shop?category=Party%20%26%20Celebrations',
+  },
+  {
+    id: '6ad5f2738c37efc3ddcb1a0b',
+    label: 'Home & Living',
+    image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+    href: '/shop?category=Home%20%26%20Living',
+  },
+  {
+    id: '6ad5f2758c37efc3ddcb1a0f',
+    label: 'Stationery & School',
+    image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+    href: '/shop?category=Stationery%20%26%20School',
+  },
+  {
+    id: '6ad5f2788c37efc3ddcb1a11',
+    label: 'Electronics & Gadgets',
+    image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+    href: '/shop?category=Electronics%20%26%20Gadgets',
+  },
+  {
+    id: '6ad5f27a8c37efc3ddcb1a13',
+    label: 'Fashion & Accessories',
+    image: '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+    href: '/shop?category=Fashion%20%26%20Accessories',
+  },
+];
+
+// Padded to ensure smooth infinite looping in Swiper
+const categories = [...liveStoreCategories, ...liveStoreCategories];
 
 export function PodTopCategories() {
   const swiperRef = useRef<SwiperType | null>(null);
@@ -94,17 +179,28 @@ export function PodTopCategories() {
   // Fetch live categories from MongoDB
   useEffect(() => {
     let isMounted = true;
+    /* Original fetch commented out:
     fetch('/api/categories')
       .then((r) => r.json())
+    */
+    fetch('/api/categories')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         if (!isMounted) return;
         if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
-          const liveCats = data.categories.map((c: any) => ({
-            id: c.id,
-            label: c.name,
-            image: c.image || '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
-            href: `/shop?category=${encodeURIComponent(c.name)}`,
-          }));
+          const liveCats = data.categories.map((c: any) => {
+            return {
+              id: c.id,
+              label: c.name,
+              image: (c.image && typeof c.image === 'string' && c.image.trim() !== '')
+                ? c.image
+                : '/pod/shop-by-categories-slider/shop-by-categories-1.webp',
+              href: `/shop?category=${encodeURIComponent(c.name)}`,
+            };
+          });
           const padded = liveCats.length < 6 ? [...liveCats, ...liveCats] : liveCats;
           setCategoryItems(padded);
         }
@@ -140,7 +236,10 @@ export function PodTopCategories() {
                 480: { slidesPerView: 2, spaceBetween: 16 },
                 750: { slidesPerView: 3, spaceBetween: 20 },
                 992: { slidesPerView: 4, spaceBetween: 20 },
+                /* Original 1200 breakpoint commented out as requested:
                 1200: { slidesPerView: 5, spaceBetween: 24 },
+                */
+                1350: { slidesPerView: 5, spaceBetween: 24 },
               }}
               spaceBetween={14}
               loop
@@ -197,14 +296,23 @@ export function PodTopCategories() {
           text-align: center;
           text-decoration: none;
           gap: 12px;
+          width: 100%;
         }
         .pd-cat-circle {
           position: relative;
+          /* Original clamp using 22vw commented out as requested:
           width: clamp(96px, 22vw, 272px);
           height: clamp(96px, 22vw, 272px);
+          */
+          width: 100%;
+          max-width: 250px;
+          aspect-ratio: 1 / 1;
+          height: auto;
           border-radius: 50%;
           overflow: hidden;
           background-color: #f0f0f0;
+          border: 2px solid #cbd5e1;
+          box-shadow: 0 4px 14px rgba(11, 28, 61, 0.08);
           margin: 0 auto;
         }
         .pd-cat-img { transition: transform 400ms ease; }

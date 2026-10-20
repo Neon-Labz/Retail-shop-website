@@ -28,6 +28,7 @@ export interface FiltersData {
   brands: FilterCounts[];
   colors: FilterCounts[];
   sizes: FilterCounts[];
+  availability?: { inStock: number; outOfStock: number };
   priceRange: { min: number; max: number };
 }
 

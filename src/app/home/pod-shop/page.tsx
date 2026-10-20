@@ -26,7 +26,9 @@ export default function PodHomePage() {
     <div className="pod-home-sections">
       <PodHero />
       <PodTopCategories />
+      {/* Promo grid commented out as requested:
       <PodPromoGrid />
+      */}
       <PodFeaturedProducts />
       <PodDealBanner />
       <PodNewArrivals />
@@ -34,12 +36,18 @@ export default function PodHomePage() {
       <PodRandomRecommendations />
       <PodRecentlyViewed />
       <PodMarquee />
+      {/* Banner list commented out as requested:
       <PodBannerList />
+      */}
       <div className="pod-home-testimonial">
         <TestimonialSection heading="Customers Feedback" backgroundColor="transparent" sectionPadding="0" />
       </div>
+      {/* Instagram shop section commented out as requested:
       <PodInstagram />
+      */}
+      {/* Top trust badges section commented out as requested:
       <PodTrustBadges />
+      */}
       <style>{`
         .pod-home-sections {
           padding-bottom: 80px;

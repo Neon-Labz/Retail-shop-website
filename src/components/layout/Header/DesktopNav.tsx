@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { MegaMenu } from './MegaMenu';
@@ -20,7 +20,7 @@ import { getStorefrontFromPath } from '@/utils/storefront';
 import { singleProductProducts } from '@/data/single-product-products';
 import { activeWearProducts } from '@/data/active-wear-products';
 import type { SliderProduct } from './MegaMenu';
-import type { NavigationItem } from '@/types/common';
+import type { NavigationItem, MegaMenuColumn } from '@/types/common';
 
 const SP_SHOP_MEGA_IMAGE = '/single -product/shop-mega-menu/shop-mega-menu-1.webp';
 const SP_CATEGORY_IMAGE = (i: number) => `/single -product/categories-mega-menu/categories-mega-menu-${i + 1}.webp`;
@@ -131,10 +131,85 @@ function IconChevronDown() {
   );
 }
 
+const FALLBACK_CATEGORY_COLUMNS: MegaMenuColumn[] = [
+  {
+    title: 'Electronics',
+    links: [
+      { id: 'el-1', label: 'Audio & Headphones', href: '/shop?category=Electronics&subcategory=Audio+%26+Headphones' },
+      { id: 'el-2', label: 'Laptops & Computers', href: '/shop?category=Electronics&subcategory=Laptops+%26+Computers' },
+      { id: 'el-3', label: 'Smart Watches', href: '/shop?category=Electronics&subcategory=Smart+Watches' },
+      { id: 'el-4', label: 'Smartphones', href: '/shop?category=Electronics&subcategory=Smartphones' },
+      { id: 'el-5', label: 'Television', href: '/shop?category=Electronics&subcategory=Television' },
+    ],
+  },
+  {
+    title: 'Home & Kitchen',
+    links: [
+      { id: 'hk-1', label: 'Kitchen Appliances', href: '/shop?category=Home+%26+Kitchen&subcategory=Kitchen+Appliances' },
+      { id: 'hk-2', label: 'Cookware & Dining', href: '/shop?category=Home+%26+Kitchen&subcategory=Cookware+%26+Dining' },
+      { id: 'hk-3', label: 'Coffee Makers', href: '/shop?category=Home+%26+Kitchen&subcategory=Coffee+Makers' },
+      { id: 'hk-4', label: 'Home Decor', href: '/shop?category=Home+%26+Kitchen&subcategory=Home+Decor' },
+      { id: 'hk-5', label: 'Cleaning & Care', href: '/shop?category=Home+%26+Kitchen&subcategory=Cleaning+%26+Care' },
+    ],
+  },
+  {
+    title: 'Fashion',
+    links: [
+      { id: 'fa-1', label: "Men's Clothing", href: "/shop?category=Fashion&subcategory=Men's+Clothing" },
+      { id: 'fa-2', label: "Women's Clothing", href: "/shop?category=Fashion&subcategory=Women's+Clothing" },
+      { id: 'fa-3', label: 'Footwear', href: '/shop?category=Fashion&subcategory=Footwear' },
+      { id: 'fa-4', label: 'Accessories', href: '/shop?category=Fashion&subcategory=Accessories' },
+      { id: 'fa-5', label: 'Eyewear & Accessories', href: '/shop?category=Fashion&subcategory=Eyewear+%26+Accessories' },
+    ],
+  },
+  {
+    title: 'Sports & Outdoors',
+    links: [
+      { id: 'sp-1', label: 'Fitness & Gym', href: '/shop?category=Sports+%26+Outdoors&subcategory=Fitness+%26+Gym' },
+      { id: 'sp-2', label: 'Strength Training', href: '/shop?category=Sports+%26+Outdoors&subcategory=Strength+Training' },
+      { id: 'sp-3', label: 'Cycling', href: '/shop?category=Sports+%26+Outdoors&subcategory=Cycling' },
+      { id: 'sp-4', label: 'Camping & Hiking', href: '/shop?category=Sports+%26+Outdoors&subcategory=Camping+%26+Hiking' },
+      { id: 'sp-5', label: 'Yoga & Fitness', href: '/shop?category=Sports+%26+Outdoors&subcategory=Yoga+%26+Fitness' },
+    ],
+  },
+];
+
 export function DesktopNav() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [dbCategoryColumns, setDbCategoryColumns] = useState<MegaMenuColumn[]>([]);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/categories')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+          const cols: MegaMenuColumn[] = data.categories.slice(0, 4).map((cat: any) => ({
+            title: cat.name,
+            links: (cat.subcategories || []).map((sub: string, idx: number) => ({
+              id: `${cat.slug || cat.id}-${idx}`,
+              label: sub,
+              href: `/shop?category=${encodeURIComponent(cat.name)}&subcategory=${encodeURIComponent(sub)}`,
+            })),
+          }));
+          setDbCategoryColumns(cols);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching categories for Products mega menu:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const productMegaColumns = dbCategoryColumns.length > 0 ? dbCategoryColumns : FALLBACK_CATEGORY_COLUMNS;
   const storefront = getStorefrontFromPath(pathname);
   const isSingleProduct = storefront === 'single-product';
   const isActiveWear = storefront === 'active-wear';
@@ -189,15 +264,31 @@ export function DesktopNav() {
         gap: '32px',
       }}
     >
-      {navItems.map((item) => (
-        <div
-          key={item.id}
-          style={{ position: 'static' }}
-          onMouseEnter={() => handleMouseEnter(item.id)}
-          onMouseLeave={handleMouseLeave}
-        >
+      {navItems.map((item) => {
+        /* Shop button commented out as requested because Shop and Products navigate to the same page:
+        if (item.id === 'nav-shop') { ... }
+        */
+        if (item.id === 'nav-shop') return null;
+
+        /* Blog button commented out as requested:
+        if (item.id === 'nav-blog') return null;
+        */
+        if (item.id === 'nav-blog') return null;
+
+        // Only Home, Categories, Products, and About us are shown per request:
+        const isAboutUs = item.id === 'nav-pages';
+        const itemLabel = isAboutUs ? 'About us' : item.label;
+        const itemHref = isAboutUs ? '/pages/about' : (item.id === 'nav-products' ? '/shop' : item.href);
+
+        return (
+          <div
+            key={item.id}
+            style={{ position: 'static' }}
+            onMouseEnter={() => handleMouseEnter(item.id)}
+            onMouseLeave={handleMouseLeave}
+          >
           <Link
-            href={item.href}
+            href={itemHref}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -215,8 +306,9 @@ export function DesktopNav() {
               if (activeMenu !== item.id) e.currentTarget.style.color = navColor;
             }}
           >
-            {item.label}
-            {(item.type === 'dropdown' || item.type === 'megamenu') && (
+            {itemLabel}
+            {/* Show chevron only for items that have dropdown/megamenu. Categories and About us are direct navigation links */}
+            {!isAboutUs && item.id !== 'nav-categories' && (item.type === 'dropdown' || item.type === 'megamenu') && (
               <span
                 style={{
                   display: 'inline-flex',
@@ -229,29 +321,74 @@ export function DesktopNav() {
             )}
           </Link>
 
-          {/* Text-Only Categories Cascading Menu (Real MongoDB Categories & Subcategories) */}
+          {/* Original Categories cascading menu inside navbar commented out; moved to dedicated button near logo per request:
           {item.id === 'nav-categories' && activeMenu === item.id && (
             <CategoriesCascadingMenu onClose={() => setActiveMenu(null)} />
           )}
+          */}
 
           {/* Mega Menu (Preserved for non-categories, do not remove) */}
           {item.id !== 'nav-categories' && item.type === 'megamenu' && (item.megaMenu || item.megaCategoryCards) && activeMenu === item.id && (
             <MegaMenu
+              /* Original dummy template columns commented out; replaced with real categories as requested:
               columns={item.megaMenu}
+              */
+              columns={item.id === 'nav-products' ? productMegaColumns : item.megaMenu}
               promoImage={item.megaImage}
               showProductSlider={item.megaProductSlider}
               categoryCards={item.megaCategoryCards}
+              /* Previous undefined sliderProducts fallback commented out as requested:
               sliderProducts={isSingleProduct ? SP_SLIDER_PRODUCTS : isActiveWear ? AW_SLIDER_PRODUCTS : undefined}
+              */
+              sliderProducts={isSingleProduct ? SP_SLIDER_PRODUCTS : isActiveWear ? AW_SLIDER_PRODUCTS : [
+                {
+                  id: '6ad5f6860e445000414fa0d5',
+                  slug: 'gold-silver-plated-granted-charm-bracelet',
+                  name: 'Gold & Silver Plated Granted Charm Bracelet (European Pandora Style)',
+                  price: 1250,
+                  compareAtPrice: 1550,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484317347-7da77223-4a96-4b72-b8e6-9cd39b1aa356.png' }],
+                },
+                {
+                  id: '6ad5f6820e445000414fa0cf',
+                  slug: 'mini-handheld-fan-daisy-flower-accent-with-removable-stand',
+                  name: 'Mini Handheld Fan (Daisy Flower Accent with Removable Stand)',
+                  price: 450,
+                  compareAtPrice: 650,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407158549-a3f3ec62-1010-46dc-8868-547b807584d4.png' }],
+                },
+                {
+                  id: '6ad5f67e0e445000414fa0c9',
+                  slug: 'portable-desktop-fan-ultra-thin-folding-stand',
+                  name: 'Portable Desktop Fan (Ultra-Thin Folding Stand)',
+                  price: 475,
+                  compareAtPrice: 600,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407167386-42072d33-a778-40dc-9045-1879d3235c02.png' }],
+                },
+                {
+                  id: '6ad5f6750e445000414fa0c4',
+                  slug: 'sweet-bunny-kids-stationery-set-with-coin-purse',
+                  name: 'Sweet Bunny Kids Stationery Set with Coin Purse',
+                  price: 240,
+                  compareAtPrice: 320,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407140539-02d7d3ca-9078-4b58-9d90-dbd2c5dadc8a.png' }],
+                },
+              ]}
               sliderHrefBase={isSingleProduct || isActiveWear ? '/products' : undefined}
             />
           )}
 
-          {/* Dropdown (Preserved) */}
+          {/* Dropdown: Pages dropdown items (Contact, FAQ, Store Location, Wishlist, Compare, 404, Privacy, Terms, Refund) commented out as requested to show only About us:
           {item.type === 'dropdown' && item.children && activeMenu === item.id && (
             <DropdownMenu items={item.children} />
           )}
+          */}
+          {!isAboutUs && item.type === 'dropdown' && item.children && activeMenu === item.id && (
+            <DropdownMenu items={item.children} />
+          )}
         </div>
-      ))}
+        );
+      })}
     </nav>
   );
 }

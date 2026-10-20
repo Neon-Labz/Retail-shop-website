@@ -13,12 +13,24 @@ function IconBolt() {
   );
 }
 
+/* Original template marquee items commented out as requested:
 const items = [
   'Personalize One, Get One Free!',
   'Buy More, Save More!',
   'Free Shipping on Orders $50+',
   'Fast Turnaround Time',
   'Made Just for You',
+];
+*/
+
+/* RKF Distributer brand & store ticker items */
+const items = [
+  'RKF Wholesale & Retail Distributer',
+  'Islandwide Fast Delivery Across Sri Lanka',
+  'Best Wholesale & Retail Prices Guaranteed',
+  'Premium Toys, Party & Event Essentials',
+  'Bulk & Retail Orders Welcome',
+  'Quality Products • Trusted Service',
 ];
 
 export function PodMarquee() {
@@ -41,6 +53,7 @@ export function PodMarquee() {
       </div>
 
       <style>{`
+        /* Original white marquee styling commented out as requested:
         .pdmq-section {
           overflow: hidden;
           background: #fff;
@@ -48,6 +61,31 @@ export function PodMarquee() {
           display: flex;
           align-items: center;
         }
+        */
+        .pdmq-section {
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(135deg, #0b1c3d 0%, #112d62 55%, #183e84 100%);
+          height: 68px;
+          display: flex;
+          align-items: center;
+          box-shadow: 0 8px 24px rgba(11, 28, 61, 0.18);
+        }
+        /* Top & bottom inner ribbon border lines inspired by reference banner */
+        .pdmq-section::before,
+        .pdmq-section::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 1.5px;
+          background: rgba(147, 197, 253, 0.38);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .pdmq-section::before { top: 6px; }
+        .pdmq-section::after { bottom: 6px; }
+
         .pdmq-track {
           display: flex;
           width: max-content;
@@ -67,10 +105,12 @@ export function PodMarquee() {
           gap: 24px;
           padding-right: 24px;
           white-space: nowrap;
-          font-size: 50px;
-          font-weight: 700;
-          letter-spacing: 0.01em;
+          font-size: clamp(22px, 2.6vw, 32px);
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
+        /* Original text colors commented out:
         .pdmq-item--solid { color: #151515; }
         .pdmq-item--ghost {
           color: transparent;
@@ -80,6 +120,22 @@ export function PodMarquee() {
           .pdmq-item--ghost { color: #c8c8c8; }
         }
         .pdmq-bolt { color: #151515; display: inline-flex; }
+        */
+        .pdmq-item--solid {
+          color: #ffffff;
+        }
+        .pdmq-item--ghost {
+          color: #93c5fd;
+        }
+        .pdmq-bolt {
+          color: #F15B41;
+          display: inline-flex;
+          align-items: center;
+        }
+        .pdmq-bolt svg {
+          width: 28px;
+          height: 28px;
+        }
         @keyframes pdmqScroll {
           from { transform: translateX(0); }
           to   { transform: translateX(-50%); }

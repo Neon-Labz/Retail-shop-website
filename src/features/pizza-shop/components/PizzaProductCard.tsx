@@ -417,6 +417,7 @@ export function PizzaProductCard({
           </button>
           <span className="ppt-tooltip">{inWishlist ? 'Already Wishlisted' : 'Wishlist'}</span>
         </div>
+        {/* Compare button removed/commented out as requested:
         <div className="ppt-tooltip-wrap">
           <button
             aria-label="Compare"
@@ -431,6 +432,7 @@ export function PizzaProductCard({
           </button>
           <span className="ppt-tooltip">{inCompare ? 'Added' : 'Add to compare'}</span>
         </div>
+        */}
         <div className="ppt-tooltip-wrap ppt-qv-wrap">
           <button
             aria-label="Quick view"

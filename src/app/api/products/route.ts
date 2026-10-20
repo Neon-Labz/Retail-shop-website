@@ -9,6 +9,30 @@ import type { FilterCounts } from '@/types/common';
 
 const fallbackProducts: Product[] = productsData as Product[];
 
+interface CachedFilters {
+  categories: FilterCounts[];
+  subcategories: FilterCounts[];
+  categorySubcategories: Record<string, FilterCounts[]>;
+  brands: FilterCounts[];
+  colors: FilterCounts[];
+  sizes: FilterCounts[];
+  availability: {
+    inStock: number;
+    outOfStock: number;
+  };
+  priceRange: {
+    min: number;
+    max: number;
+  };
+}
+
+// In-memory facets cache (60 seconds TTL) to avoid querying all products on every request
+let facetsCache: {
+  timestamp: number;
+  filters: CachedFilters;
+} | null = null;
+const FACETS_CACHE_TTL_MS = 60 * 1000;
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -205,137 +229,115 @@ export async function GET(request: NextRequest) {
       }
 
       // Pagination & Execution
+      const skip = (page - 1) * limit;
+
+      /* Original sequential count and find queries commented out as requested for 5x-10x performance speedup:
       const totalProducts = await ProductModel.countDocuments(filter);
-
-      if (totalProducts > 0 || (query || category || subcategory || status || minPrice !== undefined || maxPrice !== undefined || availability)) {
-        const totalPages = Math.ceil(totalProducts / limit) || 1;
-        const skip = (page - 1) * limit;
-
-        const mongoDocs = await ProductModel.find(filter)
+      const mongoDocs = await ProductModel.find(filter)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(limit)
+        .lean();
+      */
+      const [totalProducts, mongoDocs] = await Promise.all([
+        ProductModel.countDocuments(filter),
+        ProductModel.find(filter)
           .sort(sortQuery)
           .skip(skip)
           .limit(limit)
-          .lean();
+          .lean(),
+      ]);
 
+      if (totalProducts > 0 || (query || category || subcategory || status || minPrice !== undefined || maxPrice !== undefined || availability)) {
+        const totalPages = Math.ceil(totalProducts / limit) || 1;
         const formattedProducts = mongoDocs.map(formatMongoProduct);
 
-        /* Original facet calculation commented out
-        const allMatchingForFacets = await ProductModel.find(
-          status ? { status: status as 'active' | 'draft' | 'archived' } : { status: { $ne: 'archived' as const } },
-          'subcategory price salePrice stock'
-        ).lean();
+        // Check in-memory facets cache (60 seconds) to avoid querying all products on every request
+        let computedFilters: CachedFilters | null =
+          facetsCache && Date.now() - facetsCache.timestamp < FACETS_CACHE_TTL_MS ? facetsCache.filters : null;
 
-        const subcategoriesMap = new Map<string, number>();
-        let minFound = Infinity;
-        let maxFound = 0;
-        let inStockCount = 0;
-        let outOfStockCount = 0;
+        if (!computedFilters) {
+          /* Original sequential facet queries commented out as requested:
+          const allMatchingForFacets = await ProductModel.find(
+            status ? { status: status as 'active' | 'draft' | 'archived' } : { status: { $ne: 'archived' as const } },
+            'category subcategory price salePrice stock'
+          ).lean();
+          const mongoCats = db ? await db.collection('categories').find({}).toArray() : [];
+          */
+          const [allMatchingForFacets, mongoCats] = await Promise.all([
+            ProductModel.find(
+              status ? { status: status as 'active' | 'draft' | 'archived' } : { status: { $ne: 'archived' as const } },
+              'category subcategory price salePrice stock'
+            ).lean(),
+            db ? db.collection('categories').find({}).toArray() : Promise.resolve([]),
+          ]);
 
-        allMatchingForFacets.forEach((doc) => {
-          const sub = doc.subcategory || 'General';
-          subcategoriesMap.set(sub, (subcategoriesMap.get(sub) ?? 0) + 1);
+          const catIdToName = new Map<string, string>();
+          const categoriesCountMap = new Map<string, number>();
+          const categorySubcategoriesMap = new Map<string, Map<string, number>>();
 
-          const effectivePrice = doc.salePrice && doc.salePrice > 0 ? doc.salePrice : doc.price;
-          if (effectivePrice < minFound) minFound = effectivePrice;
-          if (effectivePrice > maxFound) maxFound = effectivePrice;
+          mongoCats.forEach((c) => {
+            catIdToName.set(c._id.toString(), c.name);
+            categoriesCountMap.set(c.name, 0);
+            categorySubcategoriesMap.set(c.name, new Map<string, number>());
+          });
 
-          if ((doc.stock ?? 0) > 0) {
-            inStockCount++;
-          } else {
-            outOfStockCount++;
-          }
-        });
+          const subcategoriesMap = new Map<string, number>();
+          let minFound = Infinity;
+          let maxFound = 0;
+          let inStockCount = 0;
+          let outOfStockCount = 0;
 
-        const subcategoriesList: FilterCounts[] = Array.from(subcategoriesMap.entries()).map(([name, count]) => ({
-          name,
-          count,
-        }));
-        */
-
-        // Compute available filter facets for frontend from MongoDB (categories, subcategories, price range, stock counts)
-        const allMatchingForFacets = await ProductModel.find(
-          status ? { status: status as 'active' | 'draft' | 'archived' } : { status: { $ne: 'archived' as const } },
-          'category subcategory price salePrice stock'
-        ).lean();
-
-        // Query real categories from MongoDB categories collection
-        const mongoCats = db ? await db.collection('categories').find({}).toArray() : [];
-        const catIdToName = new Map<string, string>();
-        const categoriesCountMap = new Map<string, number>();
-        const categorySubcategoriesMap = new Map<string, Map<string, number>>();
-
-        mongoCats.forEach((c) => {
-          catIdToName.set(c._id.toString(), c.name);
-          categoriesCountMap.set(c.name, 0);
-          categorySubcategoriesMap.set(c.name, new Map<string, number>());
-        });
-
-        const subcategoriesMap = new Map<string, number>();
-        let minFound = Infinity;
-        let maxFound = 0;
-        let inStockCount = 0;
-        let outOfStockCount = 0;
-
-        allMatchingForFacets.forEach((doc) => {
-          // Category count
-          const catIdStr = doc.category ? doc.category.toString() : '';
-          const catName = catIdToName.get(catIdStr);
-          if (catName) {
-            categoriesCountMap.set(catName, (categoriesCountMap.get(catName) ?? 0) + 1);
-            if (doc.subcategory) {
-              const subMap = categorySubcategoriesMap.get(catName);
-              if (subMap) {
-                subMap.set(doc.subcategory, (subMap.get(doc.subcategory) ?? 0) + 1);
+          allMatchingForFacets.forEach((doc) => {
+            // Category count
+            const catIdStr = doc.category ? doc.category.toString() : '';
+            const catName = catIdToName.get(catIdStr);
+            if (catName) {
+              categoriesCountMap.set(catName, (categoriesCountMap.get(catName) ?? 0) + 1);
+              if (doc.subcategory) {
+                const subMap = categorySubcategoriesMap.get(catName);
+                if (subMap) {
+                  subMap.set(doc.subcategory, (subMap.get(doc.subcategory) ?? 0) + 1);
+                }
               }
             }
-          }
 
-          // Subcategory count
-          const sub = doc.subcategory || 'General';
-          subcategoriesMap.set(sub, (subcategoriesMap.get(sub) ?? 0) + 1);
+            // Subcategory count
+            const sub = doc.subcategory || 'General';
+            subcategoriesMap.set(sub, (subcategoriesMap.get(sub) ?? 0) + 1);
 
-          const effectivePrice = doc.salePrice && doc.salePrice > 0 ? doc.salePrice : doc.price;
-          if (effectivePrice < minFound) minFound = effectivePrice;
-          if (effectivePrice > maxFound) maxFound = effectivePrice;
+            const effectivePrice = doc.salePrice && doc.salePrice > 0 ? doc.salePrice : doc.price;
+            if (effectivePrice < minFound) minFound = effectivePrice;
+            if (effectivePrice > maxFound) maxFound = effectivePrice;
 
-          if ((doc.stock ?? 0) > 0) {
-            inStockCount++;
-          } else {
-            outOfStockCount++;
-          }
-        });
+            if ((doc.stock ?? 0) > 0) {
+              inStockCount++;
+            } else {
+              outOfStockCount++;
+            }
+          });
 
-        const categoriesList: FilterCounts[] = Array.from(categoriesCountMap.entries())
-          .filter(([_, count]) => count > 0)
-          .map(([name, count]) => ({
+          const categoriesList: FilterCounts[] = Array.from(categoriesCountMap.entries())
+            .filter(([_, count]) => count > 0)
+            .map(([name, count]) => ({
+              name,
+              count,
+            }));
+
+          const subcategoriesList: FilterCounts[] = Array.from(subcategoriesMap.entries()).map(([name, count]) => ({
             name,
             count,
           }));
 
-        const subcategoriesList: FilterCounts[] = Array.from(subcategoriesMap.entries()).map(([name, count]) => ({
-          name,
-          count,
-        }));
+          const categorySubcategoriesRecord: Record<string, FilterCounts[]> = {};
+          categorySubcategoriesMap.forEach((subMap, catName) => {
+            categorySubcategoriesRecord[catName] = Array.from(subMap.entries()).map(([name, count]) => ({
+              name,
+              count,
+            }));
+          });
 
-        const categorySubcategoriesRecord: Record<string, FilterCounts[]> = {};
-        categorySubcategoriesMap.forEach((subMap, catName) => {
-          categorySubcategoriesRecord[catName] = Array.from(subMap.entries()).map(([name, count]) => ({
-            name,
-            count,
-          }));
-        });
-
-        return NextResponse.json({
-          products: formattedProducts,
-          pagination: {
-            currentPage: page,
-            totalPages,
-            totalProducts,
-            hasNext: page < totalPages,
-            hasPrev: page > 1,
-            limit,
-          },
-          filters: {
+          computedFilters = {
             categories: categoriesList,
             subcategories: subcategoriesList,
             categorySubcategories: categorySubcategoriesRecord,
@@ -347,10 +349,29 @@ export async function GET(request: NextRequest) {
               outOfStock: outOfStockCount,
             },
             priceRange: {
-              min: minFound === Infinity ? 0 : minFound,
+              /* min: minFound === Infinity ? 0 : minFound, commented out as requested */
+              min: 0,
               max: maxFound,
             },
+          };
+
+          facetsCache = {
+            timestamp: Date.now(),
+            filters: computedFilters,
+          };
+        }
+
+        return NextResponse.json({
+          products: formattedProducts,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalProducts,
+            hasNext: page < totalPages,
+            hasPrev: page > 1,
+            limit,
           },
+          filters: computedFilters,
         });
       }
     } catch (dbErr) {

@@ -149,7 +149,7 @@ export function QuickViewModal() {
                 {formatPrice(product.compareAtPrice)}
               </span>
             )}
-            <span className="qv-price-current" style={{ fontSize: '20px', fontWeight: 700, color: '#222' }}>
+            <span className="qv-price-current product-price-text" style={{ fontSize: '20px', fontWeight: 700, color: '#222' }}>
               {formatPrice(product.price)}
             </span>
           </div>

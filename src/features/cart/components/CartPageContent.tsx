@@ -12,6 +12,8 @@ import { FREE_SHIPPING_THRESHOLD, GIFT_WRAP_PRICE } from '@/lib/constants';
 const ACCENT = '#c96742';
 
 const SHIP_COUNTRIES = [
+  { value: 'LK', label: 'Sri Lanka' },
+  /* Other countries commented out as requested:
   { value: '', label: '---' },
   { value: 'US', label: 'United States' },
   { value: 'GB', label: 'United Kingdom' },
@@ -24,6 +26,7 @@ const SHIP_COUNTRIES = [
   { value: 'JP', label: 'Japan' },
   { value: 'SG', label: 'Singapore' },
   { value: 'AE', label: 'United Arab Emirates' },
+  */
 ];
 
 /* ── Icons ───────────────────────────────────────────────────── */
@@ -202,7 +205,10 @@ function AccordionSection({
 export function CartPageContent() {
   const { items, removeItem, updateQuantity, getSubtotal, getFreeShippingRemaining } = useCartStore();
   const [promoCode, setPromoCode] = useState('');
+  /* Original default country state commented out:
   const [country, setCountry] = useState('');
+  */
+  const [country, setCountry] = useState('LK');
   const [postalCode, setPostalCode] = useState('');
   const [instructions, setInstructions] = useState('');
   const [giftWrap, setGiftWrap] = useState(false);
@@ -299,7 +305,9 @@ export function CartPageContent() {
             </div>
 
             <TrustBadges />
+            {/* Gift wrap options commented out as requested:
             <GiftOptions checked={giftWrap} onChange={setGiftWrap} />
+            */}
           </div>
 
           {/* ── Right sidebar ── */}
@@ -365,6 +373,7 @@ export function CartPageContent() {
             <div className="cp-summary">
               <h3 className="cp-summary-title">Order Summary</h3>
 
+              {/* Free shipping progress bar commented out as requested:
               <p className="cp-ship-msg">
                 {shippingRemaining > 0
                   ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
@@ -378,6 +387,7 @@ export function CartPageContent() {
                   <IcoTruck size={11} />
                 </div>
               </div>
+              */}
 
               <div className="cp-totals">
                 <div className="cp-total-row">

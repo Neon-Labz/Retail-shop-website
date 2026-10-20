@@ -55,6 +55,13 @@ const ProductSchema = new Schema<IProductDocument>(
   }
 );
 
+// Performance optimization: compound indexes for high-speed sorting and filtering in MongoDB
+ProductSchema.index({ status: 1, createdAt: -1 });
+ProductSchema.index({ category: 1, status: 1 });
+ProductSchema.index({ subcategory: 1, status: 1 });
+ProductSchema.index({ price: 1 });
+ProductSchema.index({ isFeatured: 1, createdAt: -1 });
+
 export const Product: Model<IProductDocument> =
   mongoose.models.Product || mongoose.model<IProductDocument>('Product', ProductSchema);
 

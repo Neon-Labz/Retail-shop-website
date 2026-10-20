@@ -89,6 +89,32 @@ const defaultAnnouncements = [
   'New arrivals just dropped →',
 ];
 
+function IconSriLankaFlag() {
+  return (
+    <svg width="20" height="13" viewBox="0 0 640 400" style={{ borderRadius: '2px', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, boxShadow: '0 0 1px rgba(0,0,0,0.5)' }}>
+      {/* Outer yellow border */}
+      <rect width="640" height="400" fill="#FFBE29" />
+      {/* Inner background */}
+      <rect x="14" y="14" width="612" height="372" fill="#FFBE29" />
+      {/* Green stripe */}
+      <rect x="36" y="36" width="68" height="328" fill="#005A36" />
+      {/* Orange stripe */}
+      <rect x="114" y="36" width="68" height="328" fill="#EB7400" />
+      {/* Crimson maroon field */}
+      <rect x="195" y="36" width="410" height="328" fill="#8D153A" />
+      {/* 4 Bo leaves corners */}
+      <circle cx="220" cy="62" r="10" fill="#FFBE29" />
+      <circle cx="580" cy="62" r="10" fill="#FFBE29" />
+      <circle cx="220" cy="338" r="10" fill="#FFBE29" />
+      <circle cx="580" cy="338" r="10" fill="#FFBE29" />
+      {/* Golden Lion */}
+      <path d="M420 180 C400 150 365 150 345 180 C325 200 330 235 355 255 L345 295 L375 295 L385 265 L430 265 L440 295 L470 295 L460 230 C480 200 450 160 420 180 Z" fill="#FFBE29" />
+      <rect x="450" y="140" width="10" height="70" transform="rotate(40 450 140)" fill="#FFBE29" />
+    </svg>
+  );
+}
+
+/* Original currencies array commented out:
 const currencies = [
   'Bangladesh USD $',
   'Canada USD $',
@@ -98,12 +124,21 @@ const currencies = [
   'United Kingdom USD $',
   'United States USD $',
 ];
+*/
+const currencies = [
+  'Sri Lanka LKR',
+];
 
+/* Original languages array commented out:
 const languages = [
   'English',
   'Español',
   'Português (brasil)',
   'Français',
+];
+*/
+const languages = [
+  'English',
 ];
 
 /* ──────────────────────────────────
@@ -141,7 +176,7 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '5px',
+          gap: '6px',
           fontSize: '14px',
           color: textColor,
           cursor: 'pointer',
@@ -150,6 +185,7 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
           whiteSpace: 'nowrap',
         }}
       >
+        {selected.includes('Sri Lanka') && <IconSriLankaFlag />}
         {selected}
         <span
           style={{
@@ -185,7 +221,9 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
               role="menuitem"
               onClick={() => { onSelect(option); onClose(); }}
               style={{
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 width: '100%',
                 textAlign: 'left',
                 padding: '10px 24px',
@@ -198,6 +236,7 @@ function Dropdown({ selected, options, onSelect, isOpen, onToggle, onClose, text
               onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
             >
+              {option.includes('Sri Lanka') && <IconSriLankaFlag />}
               {option}
             </button>
           ))}
@@ -255,12 +294,15 @@ interface AnnouncementBarProps {
   autoplay?: boolean;
 }
 
-export function AnnouncementBar({ backgroundColor = '#000', announcements: announcementsProp, height = '40px', textColor = '#fff', autoplay = false }: AnnouncementBarProps = {}) {
+export function AnnouncementBar({ backgroundColor = '#fff', announcements: announcementsProp, height = '36px', textColor = '#222', autoplay = false }: AnnouncementBarProps = {}) {
   const announcements = announcementsProp ?? defaultAnnouncements;
   const { current, direction, goNext, goPrev } = useSlider(announcements.length, autoplay);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  /* Original selectedCurrency commented out:
   const [selectedCurrency, setSelectedCurrency] = useState('Bangladesh USD $');
+  */
+  const [selectedCurrency, setSelectedCurrency] = useState('Sri Lanka LKR');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   const toggleCurrency = useCallback(() => {
@@ -277,17 +319,26 @@ export function AnnouncementBar({ backgroundColor = '#000', announcements: annou
   const closeLanguage = useCallback(() => setLanguageOpen(false), []);
 
   return (
-    <div style={{ backgroundColor, color: textColor, height, position: 'relative', overflow: 'visible' }}>
+    <div
+      style={{
+        backgroundColor,
+        color: textColor,
+        height,
+        position: 'relative',
+        overflow: 'visible',
+        borderBottom: '1px solid #edf0f4',
+      }}
+    >
       <div
-        className="container-main announce-grid"
+        className="container-main"
         style={{
           height: '100%',
-          display: 'grid',
-          gridTemplateColumns: '1fr 2fr 1fr',
+          display: 'flex',
+          justifyContent: 'flex-end',
           alignItems: 'center',
         }}
       >
-        {/* ── Column 1: Social Icons ── */}
+        {/* ── Column 1: Social Icons commented out as requested:
         <div className="announce-social" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {socialLinks.map(({ name, Icon, href }) => (
             <a
@@ -302,8 +353,9 @@ export function AnnouncementBar({ backgroundColor = '#000', announcements: annou
             </a>
           ))}
         </div>
+        ── */}
 
-        {/* ── Column 2: Announcement Slider — extends full 2fr width ── */}
+        {/* ── Column 2: Announcement Slider commented out as requested:
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <button
             onClick={goPrev}
@@ -355,27 +407,45 @@ export function AnnouncementBar({ backgroundColor = '#000', announcements: annou
             <IconArrowRightS size={20} />
           </button>
         </div>
+        ── */}
 
-        {/* ── Column 3: Currency & Language Dropdowns ── */}
-        <div className="announce-dropdowns" style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'flex-end' }}>
-          <Dropdown
-            selected={selectedCurrency}
-            options={currencies}
-            onSelect={setSelectedCurrency}
-            isOpen={currencyOpen}
-            onToggle={toggleCurrency}
-            onClose={closeCurrency}
-            textColor={textColor}
-          />
-          <Dropdown
-            selected={selectedLanguage}
-            options={languages}
-            onSelect={setSelectedLanguage}
-            isOpen={languageOpen}
-            onToggle={toggleLanguage}
-            onClose={closeLanguage}
-            textColor={textColor}
-          />
+        {/* ── Column 3: Currency & Language on White Background ── */}
+        <div
+          className="announce-dropdowns"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            justifyContent: 'flex-end',
+            fontSize: '13px',
+            color: textColor,
+          }}
+        >
+          {/* Sri Lanka + Differentiated LKR */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', whiteSpace: 'nowrap' }}>
+            <IconSriLankaFlag />
+            <span style={{ fontWeight: 500, color: textColor }}>Sri Lanka</span>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                padding: '2px 7px',
+                backgroundColor: '#111',
+                borderRadius: '3px',
+                lineHeight: 1.2,
+                color: '#fff',
+              }}
+            >
+              LKR
+            </span>
+          </div>
+
+          {/* Separator */}
+          <span style={{ opacity: 0.25, fontSize: '12px', color: textColor }}>|</span>
+
+          {/* Language: English */}
+          <span style={{ fontWeight: 500, whiteSpace: 'nowrap', color: textColor }}>English</span>
         </div>
       </div>
     </div>

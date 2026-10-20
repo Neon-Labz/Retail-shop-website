@@ -172,7 +172,8 @@ export function HomeProductCard({
   const activeColorImage = hoveredColor ? colorImages[hoveredColor] : null;
 
   const nameColor = themeColor ?? '#222';
-  const priceColor = themeColor ?? (product.compareAtPrice ? '#F15B41' : '#222');
+  /* Reads --color-product-price from globals.css; falls back to original colors if removed from globals.css */
+  const priceColor = themeColor ?? `var(--color-product-price, ${product.compareAtPrice ? '#F15B41' : '#222'})`;
   const chipColor = themeColor ?? '#F15B41';
   const tooltipBg = themeColor ?? '#222';
 
@@ -181,10 +182,11 @@ export function HomeProductCard({
       className={`fc-card${compact ? ' fc-card--compact' : ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setHoveredColor(null); }}
-      style={{ position: 'relative', ['--fc-tooltip-bg' as string]: tooltipBg }}
+      style={{ position: 'relative', width: '100%', minWidth: 0, maxWidth: '100%', ['--fc-tooltip-bg' as string]: tooltipBg }}
     >
       <Link
         href={productHref}
+        className="fc-card-img-link"
         style={{
           display: 'block',
           position: 'relative',
@@ -193,9 +195,12 @@ export function HomeProductCard({
           */
           ...(imageHeight ? { height: imageHeight } : { aspectRatio: '1 / 1' }),
           overflow: 'hidden',
+          /* Original white background commented out as requested:
           backgroundColor: '#fff',
+          */
+          backgroundColor: '#f6f7f9',
           borderRadius: '8px',
-          border: '1px solid #f0f0f0',
+          border: '1px solid #ededf0',
           marginBottom: '14px',
         }}
       >
@@ -214,6 +219,7 @@ export function HomeProductCard({
           sizes="(max-width: 749px) 50vw, 25vw"
         />
         */}
+        {/* Previous hover image swap to defaultImg2 commented out as requested (no need to change/zoom image on cursor hover like other products):
         <Image
           src={defaultImg1}
           alt={product.name}
@@ -227,21 +233,6 @@ export function HomeProductCard({
           sizes="(max-width: 749px) 50vw, 25vw"
         />
 
-        {/* Hover image (when no color selected) */}
-        {/* Previous contain objectFit with padding commented out as requested
-        <Image
-          src={defaultImg2}
-          alt={`${product.name} hover`}
-          fill
-          style={{
-            objectFit: 'contain',
-            padding: '12px',
-            transition: 'opacity 400ms ease',
-            opacity: hovered && !hoveredColor ? 1 : 0,
-          }}
-          sizes="(max-width: 749px) 50vw, 25vw"
-        />
-        */}
         <Image
           src={defaultImg2}
           alt={`${product.name} hover`}
@@ -251,6 +242,19 @@ export function HomeProductCard({
             objectPosition: 'center',
             transition: 'opacity 400ms ease',
             opacity: hovered && !hoveredColor ? 1 : 0,
+          }}
+          sizes="(max-width: 749px) 50vw, 25vw"
+        />
+        */}
+        <Image
+          src={defaultImg1}
+          alt={product.name}
+          fill
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center',
+            transition: 'opacity 300ms ease',
+            opacity: activeColorImage ? 0 : 1,
           }}
           sizes="(max-width: 749px) 50vw, 25vw"
         />
@@ -302,6 +306,7 @@ export function HomeProductCard({
             </button>
             <span className="fc-tooltip">{inWishlist ? 'Already Wishlisted' : 'Wishlist'}</span>
           </div>
+          {/* Add to compare button removed/commented out as requested:
           <div style={{ position: 'relative' }} className="fc-tooltip-wrap">
             <button
               aria-label="Compare"
@@ -320,6 +325,7 @@ export function HomeProductCard({
             </button>
             <span className="fc-tooltip">{inCompare ? 'Added' : 'Compare'}</span>
           </div>
+          */}
           <div style={{ position: 'relative' }} className="fc-tooltip-wrap fc-quickview-wrap">
             <button aria-label="Quick view" className="fc-action-btn fc-action-btn-light" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}><IconEye size={18} /></button>
             <span className="fc-tooltip">Quick view</span>
@@ -343,9 +349,7 @@ export function HomeProductCard({
         </div>
       </Link>
 
-      {/* Mobile-only action row (shown at ≤ 749px): two icon buttons below
-          the image — Quick Add (bag) + Quick View (eye). Mirrors the
-          screenshot's mobile layout so users don't need hover to reach them. */}
+      {/* Mobile-only action row commented out as requested (remove the 2 icons below image in mobile view):
       <div className="fc-mobile-actions">
         <button
           type="button"
@@ -364,19 +368,47 @@ export function HomeProductCard({
           <IconEye size={18} />
         </button>
       </div>
+      */}
 
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: 'center', minWidth: 0, width: '100%', overflow: 'hidden' }}>
+        {/* Previous link style commented out as requested:
         <Link
           href={productHref}
           style={{ fontSize: '15px', fontWeight: 500, color: nameColor, textDecoration: 'none', transition: 'color 150ms ease' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = nameColor; }}
         >
-          {product.name}
-        </Link>
+        */}
+        <div className="fc-product-title-wrap" style={{ position: 'relative', width: '100%', minWidth: 0 }}>
+          <Link
+            href={productHref}
+            title={product.name}
+            className="fc-product-title-link"
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: 'vertical',
+              fontSize: 'clamp(12.5px, 1.25vw, 13.5px)',
+              fontWeight: 500,
+              color: nameColor,
+              textDecoration: 'none',
+              transition: 'color 150ms ease',
+              backgroundColor: 'transparent',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              wordBreak: 'break-all',
+              width: '100%',
+              padding: '0 4px',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = nameColor; }}
+          >
+            {product.name}
+          </Link>
+        </div>
         <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           {product.compareAtPrice && <span style={{ fontSize: '14px', color: '#999', textDecoration: 'line-through' }}>{formatPrice(product.compareAtPrice)}</span>}
-          <span style={{ fontSize: '15px', fontWeight: 600, color: priceColor }}>{formatPrice(product.price)}</span>
+          <span className="product-price-text" style={{ fontSize: '15px', fontWeight: 600, color: priceColor }}>{formatPrice(product.price)}</span>
         </div>
         {product.colors.length > 0 && (
           <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', position: 'relative' }}>
@@ -459,6 +491,33 @@ export function HomeProductCard({
         .fc-tooltip-wrap:hover .fc-tooltip {
           opacity: 1 !important;
           transform: translateY(-50%) translateX(0) !important;
+        }
+
+        .fc-product-title-tooltip {
+          position: absolute;
+          bottom: calc(100% + 6px);
+          left: 50%;
+          transform: translateX(-50%) translateY(4px);
+          background-color: #0b1c3d;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 1.4;
+          padding: 6px 10px;
+          border-radius: 5px;
+          max-width: 240px;
+          width: max-content;
+          white-space: normal;
+          text-align: center;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 20;
+          transition: opacity 180ms ease, transform 180ms ease;
+        }
+        .fc-product-title-wrap:hover .fc-product-title-tooltip {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
         }
 
         .fc-quick-add-btn {
@@ -553,7 +612,8 @@ export function HomeProductCard({
           .fc-card > a:first-child {
             height: clamp(200px, 44vw, 340px) !important;
             aspect-ratio: auto !important;
-            margin-bottom: 0 !important;
+            /* Original margin-bottom: 0 !important; commented out since .fc-mobile-actions is removed */
+            margin-bottom: 10px !important;
           }
           .fc-card > a:first-child img {
             object-fit: contain !important;

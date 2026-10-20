@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -577,8 +578,18 @@ export function ProductDetailContent({
   cardVariant = 'home',
 }: ProductDetailContentProps) {
   const { data, isLoading } = useProduct(slug, { endpoint: apiEndpoint });
+  /* Original relatedData fetch without category filter commented out as requested
   const { data: relatedData } = useProducts({ limit: 10 }, { endpoint: relatedEndpoint ?? apiEndpoint });
+  */
+  const { data: relatedData } = useProducts({
+    limit: 12,
+    category: data?.product?.category || undefined,
+  }, { endpoint: relatedEndpoint ?? apiEndpoint });
+  /* Original addItem extraction commented out:
   const { addItem } = useCartStore();
+  */
+  const { addItem, closeDrawer } = useCartStore();
+  const router = useRouter();
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlistStore();
   const { toggleItem: toggleCompare, isInCompare } = useCompareStore();
 
@@ -667,7 +678,12 @@ export function ProductDetailContent({
   const discount = calculateDiscount(product.price, product.compareAtPrice);
   const inWishlist = isInWishlist(product.id);
   const inCompare = isInCompare(product.id);
+  /* Original relatedProducts without self-exclusion commented out as requested
   const relatedProducts = relatedData?.products?.slice(0, 6) || [];
+  */
+  const relatedProducts = (relatedData?.products || [])
+    .filter((p) => p.id !== product.id && p.slug !== product.slug)
+    .slice(0, 6);
 
   const handleWishlistClick = () => {
     setWishlistLoading(true);
@@ -685,6 +701,7 @@ export function ProductDetailContent({
     }, 500);
   };
 
+  /* Original handleAddToCart commented out:
   const handleAddToCart = () => {
     const variant = product.variants.find(v => v.color === activeColor && v.size === activeSize) || product.variants[0];
     if (!variant) return;
@@ -693,6 +710,68 @@ export function ProductDetailContent({
       addItem({ productId: product.id, variantId: variant.id, name: product.name, slug: product.slug, image: variant.image, color: activeColor, size: activeSize, price: product.price, compareAtPrice: product.compareAtPrice, quantity, vendor: product.vendor });
       setAddingToCart(false);
     }, 800);
+  };
+  */
+
+  const getActiveVariant = () => {
+    if (!product) return null;
+    return (
+      product.variants?.find((v) => v.color === activeColor && v.size === activeSize) ||
+      product.variants?.[0] || {
+        id: `v-default-${product.id}`,
+        color: activeColor || '',
+        size: activeSize || '',
+        price: product.price,
+        compareAtPrice: product.compareAtPrice,
+        image: product.images?.[0]?.src || '',
+        available: product.availability === 'in-stock',
+        sku: product.sku || '',
+      }
+    );
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    const variant = getActiveVariant();
+    if (!variant) return;
+    setAddingToCart(true);
+    setTimeout(() => {
+      addItem({
+        productId: product.id,
+        variantId: variant.id,
+        name: product.name,
+        slug: product.slug,
+        image: variant.image || product.images?.[0]?.src || '',
+        color: activeColor,
+        size: activeSize,
+        price: product.price,
+        compareAtPrice: product.compareAtPrice,
+        quantity,
+        vendor: product.vendor,
+      });
+      setAddingToCart(false);
+    }, 800);
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+    const variant = getActiveVariant();
+    if (!variant) return;
+    addItem({
+      productId: product.id,
+      variantId: variant.id,
+      name: product.name,
+      slug: product.slug,
+      image: variant.image || product.images?.[0]?.src || '',
+      color: activeColor,
+      size: activeSize,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      quantity,
+      vendor: product.vendor,
+    });
+    closeDrawer();
+    router.push('/checkout');
   };
 
   // TEMP: focus on Product Section only while building responsive — flip to true to restore
@@ -738,13 +817,14 @@ export function ProductDetailContent({
               {/* Price */}
               <div className="pdp-info-price-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                 {product.compareAtPrice && <span className="pdp-info-compare-at" style={{ fontSize: '18px', color: '#999', textDecoration: 'line-through' }}>{formatPrice(product.compareAtPrice)}</span>}
-                <span className="pdp-info-price" style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>{formatPrice(product.price)}</span>
+                <span className="pdp-info-price product-price-text" style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>{formatPrice(product.price)}</span>
                 {product.badge === 'sale' && <span style={{ backgroundColor: '#F15B41', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '3px' }}>Sale</span>}
                 {discount > 0 && <span style={{ backgroundColor: '#222', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '3px' }}>-{discount}%</span>}
               </div>
 
-              {/* Description */}
+              {/* Top description commented out as requested (accordion description tab below already contains full description):
               <p className="pdp-info-description" style={{ fontSize: '15px', color: '#666', lineHeight: 1.7, marginBottom: '24px' }}>{product.description}</p>
+              */}
 
               {/* Color */}
               {product.colors.length > 0 && (
@@ -787,7 +867,13 @@ export function ProductDetailContent({
               </div>
 
               {/* Buy it now */}
+              {/* Original button without onClick commented out:
               <button className="pdp-buy-now-btn" style={{ width: '100%', padding: '14px 0', backgroundColor: '#fff', color: '#222', fontSize: '16px', fontWeight: 600, border: '1.5px solid #222', borderRadius: '0', cursor: 'pointer', marginBottom: '20px', transition: 'all 250ms ease' }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
+              >Buy it now</button>
+              */}
+              <button onClick={handleBuyNow} className="pdp-buy-now-btn" style={{ width: '100%', padding: '14px 0', backgroundColor: '#fff', color: '#222', fontSize: '16px', fontWeight: 600, border: '1.5px solid #222', borderRadius: '0', cursor: 'pointer', marginBottom: '20px', transition: 'all 250ms ease' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
               >Buy it now</button>
@@ -946,6 +1032,7 @@ export function ProductDetailContent({
 
               {/* ── Size Guide & Ask About This Product ── */}
               <div className="pdp-info-links" style={{ borderTop: '1px solid #e5e5e5', marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '6px' }}>
+                {/* Size Guide button commented out as requested
                 <button className="pdp-info-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px', color: '#222', fontWeight: 400 }}>
                   <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M18.9836 5.32852L14.6715 1.01638L1.01638 14.6715L5.32852 18.9836L18.9836 5.32852ZM15.3902 0.297691C14.9933 -0.0992303 14.3497 -0.0992303 13.9528 0.297691L0.297691 13.9528C-0.0992301 14.3497 -0.0992305 14.9932 0.297691 15.3902L4.60983 19.7023C5.00675 20.0992 5.65029 20.0992 6.04721 19.7023L19.7023 6.04721C20.0992 5.65029 20.0992 5.00675 19.7023 4.60983L15.3902 0.297691Z" fillRule="evenodd" />
@@ -956,6 +1043,7 @@ export function ProductDetailContent({
                   </svg>
                   Size Guide
                 </button>
+                */}
                 <button onClick={() => setAskModalOpen(true)} className="pdp-info-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px', color: '#222', fontWeight: 400 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                   Ask About This product
@@ -969,17 +1057,32 @@ export function ProductDetailContent({
                     title: 'Description',
                     content: (
                       <>
-                        <p style={{ marginBottom: '16px' }}>{product.description}</p>
+                        <p style={{ marginBottom: product.features && product.features.length > 0 ? '16px' : '0' }}>{product.description}</p>
+                        {/* Mock skirt and sequin dress description paragraphs commented out as requested:
                         <p style={{ marginBottom: '16px' }}>A black silk wrap skirt is a versatile and elegant piece. Typically, it features a wrap-around design with a tie or buckle closure at the waist, allowing for an adjustable fit. Made from luxurious silk, it has a smooth, flowing texture that drapes beautifully and moves gracefully. The skirt often falls to a knee-length or mid-calf, though variations in length are common. Its sleek black color makes it suitable for both formal and casual occasions, and it can easily be dressed up with heels and a blouse or worn more casually with flats and a simple top.</p>
                         <p style={{ marginBottom: '16px' }}>The sequins are meticulously arranged on the dress, often in intricate patterns or artful arrangements that enhance its visual appeal. They create a mesmerizing texture that sparkles and shines, making the dress the center of attention at any event or special occasion.</p>
                         <p style={{ marginBottom: '16px' }}>The length of the dress can also vary, from mini to midi or even floor-length, providing options for different preferences and occasions. Regardless of the length, the gold sequin dress is designed to make a grand entrance and leave a lasting impression.</p>
                         <p>To complete the glamorous look, pairing the dress with complementary accessories such as gold heels, a statement clutch, and elegant jewelry can elevate the overall ensemble.</p>
+                        */}
+                        {product.features && product.features.length > 0 && (
+                          <div style={{ marginTop: '14px' }}>
+                            <p style={{ fontWeight: 600, color: '#222', marginBottom: '8px' }}>Specifications & Features:</p>
+                            <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {product.features.map((feat, idx) => (
+                                <li key={idx} style={{ color: '#555', fontSize: '14px' }}>{feat}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </>
                     ),
                   },
                   {
                     title: 'Shipping and Returns',
+                    /* Original $100 shipping text commented out:
                     content: <p>Free shipping on orders over $100. Standard shipping takes 3-7 business days. Express shipping is available for an additional fee. 30-day hassle-free return policy on all unworn items.</p>,
+                    */
+                    content: <p>Island-wide delivery available across Sri Lanka. Standard shipping takes 2-4 business days. 7-day return policy on eligible items in original packaging.</p>,
                   },
                   {
                     title: 'Return Policies',
@@ -1035,20 +1138,18 @@ export function ProductDetailContent({
         )}
       </div>
 
-      {/* ── Trust Badges ── */}
+      {/* ── Trust Badges (Commented out on product detail page as requested) ──
       <div className="pdp-trust-section" style={{ marginTop: '80px' }}><TrustBadges /></div>
+      */}
 
-      {/* ── FAQ — 50/50 layout (responsive: stacks below 992, image-on-top) ── */}
+      {/* ── FAQ — 50/50 layout (Commented out on product detail page as requested) ──
       <div className="container-main pdp-faq-section">
-        {/* Header */}
         <div className="pdp-faq-header">
           <h2 className="pdp-faq-title">F.A.Q.</h2>
           <p className="pdp-faq-subtitle">Explore additional details in our FAQ section</p>
         </div>
 
-        {/* FAQ Grid */}
         <div className="pdp-faq-grid">
-          {/* Left — FAQ Accordion */}
           <div className="pdp-faq-left">
             <FaqAccordion items={[
               { question: 'How can I place an order?', answer: 'To place an order, simply browse our online store and add the desired items to your shopping cart. Proceed to checkout, enter your shipping information, and complete the payment process.' },
@@ -1058,7 +1159,6 @@ export function ProductDetailContent({
             ]} />
           </div>
 
-          {/* Right — Banner Image */}
           <div className="pdp-faq-right">
             <Image
               src={cardVariant === 'grocery' ? '/grocery-shop/faq/faq1.webp' : '/fashion/banners/banners9.webp'}
@@ -1070,6 +1170,7 @@ export function ProductDetailContent({
           </div>
         </div>
       </div>
+      */}
 
       {/* ── Recently Viewed ── */}
       <div className="container-main pdp-recently-section">
@@ -1186,7 +1287,8 @@ export function ProductDetailContent({
             <span className="pdp-sticky-name" style={{ fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
           </div>
 
-          {/* Variant selector */}
+          {/* Variant selector or Price display */}
+          {/* Original single-option select commented out as requested:
           <select
             className="pdp-sticky-variant"
             value={`${activeColor} / ${activeSize}`}
@@ -1195,6 +1297,85 @@ export function ProductDetailContent({
           >
             <option>{activeColor.toLowerCase()} / {activeSize.toLowerCase()} - {formatPrice(product.price)}</option>
           </select>
+          */}
+          {product.colors.length > 0 || product.sizes.length > 0 ? (
+            <select
+              className="pdp-sticky-variant"
+              value={`${activeColor}${activeColor && activeSize ? ' / ' : ''}${activeSize}`}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val.includes(' / ')) {
+                  const [c, s] = val.split(' / ');
+                  setSelectedColor(c);
+                  setSelectedSize(s);
+                } else if (product.colors.some((c) => c.name === val)) {
+                  setSelectedColor(val);
+                } else if (product.sizes.includes(val)) {
+                  setSelectedSize(val);
+                }
+              }}
+              style={{
+                padding: 'clamp(9px, 1vw, 12px) clamp(24px, 2.5vw, 34px) clamp(9px, 1vw, 12px) clamp(12px, 1.3vw, 16px)',
+                fontSize: 'clamp(12px, 1.1vw, 13px)',
+                border: '1px solid #e0e0e0',
+                borderRadius: '6px',
+                color: '#222',
+                backgroundColor: '#fff',
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\' viewBox=\'0 0 10 6\'%3E%3Cpath fill=\'%23555\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 14px center',
+                backgroundSize: '10px 6px',
+              }}
+            >
+              {product.colors.length > 0 && product.sizes.length > 0 ? (
+                product.colors.flatMap((c) =>
+                  product.sizes.map((s) => (
+                    <option key={`${c.name}-${s}`} value={`${c.name} / ${s}`}>
+                      {c.name} / {s} - {formatPrice(product.price)}
+                    </option>
+                  ))
+                )
+              ) : product.colors.length > 0 ? (
+                product.colors.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.name} - {formatPrice(product.price)}
+                  </option>
+                ))
+              ) : (
+                product.sizes.map((s) => (
+                  <option key={s} value={s}>
+                    {s} - {formatPrice(product.price)}
+                  </option>
+                ))
+              )}
+            </select>
+          ) : (
+            <div
+              className="pdp-sticky-price"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: 'clamp(14px, 1.3vw, 16px)',
+                fontWeight: 700,
+                color: '#222',
+                padding: 'clamp(8px, 1vw, 10px) 14px',
+                backgroundColor: '#f8f8f8',
+                borderRadius: '6px',
+                border: '1px solid #e5e5e5',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {product.compareAtPrice && (
+                <span style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through', fontWeight: 400 }}>
+                  {formatPrice(product.compareAtPrice)}
+                </span>
+              )}
+              <span>{formatPrice(product.price)}</span>
+            </div>
+          )}
 
           {/* Quantity stepper */}
           <div className="pdp-sticky-qty" style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #e0e0e0', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
@@ -1210,7 +1391,13 @@ export function ProductDetailContent({
           >{addingToCart ? 'Adding...' : 'Add to cart'}</button>
 
           {/* Buy it now */}
+          {/* Original sticky buy button without onClick commented out:
           <button className="pdp-sticky-buy" style={{ backgroundColor: '#fff', color: '#222', fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, border: '1.5px solid #222', cursor: 'pointer', transition: 'all 200ms ease', whiteSpace: 'nowrap' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
+          >Buy it now</button>
+          */}
+          <button onClick={handleBuyNow} className="pdp-sticky-buy" style={{ backgroundColor: '#fff', color: '#222', fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, border: '1.5px solid #222', cursor: 'pointer', transition: 'all 200ms ease', whiteSpace: 'nowrap' }}
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
           >Buy it now</button>

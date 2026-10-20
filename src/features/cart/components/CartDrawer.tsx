@@ -76,11 +76,14 @@ function ShippingPanel({ onClose }: { onClose: () => void }) {
     <div style={{ padding: '24px' }}>
       <h4 style={{ fontSize: '18px', fontWeight: 700, color: '#222', marginBottom: '16px' }}>Estimate shipping rates</h4>
       <select style={{ width: '100%', padding: '14px', fontSize: '15px', border: '1px solid #e5e5e5', borderRadius: '40px', outline: 'none', color: '#222', marginBottom: '14px', appearance: 'auto' }}>
+        <option>Sri Lanka</option>
+        {/* Other countries commented out as requested:
         <option>---</option>
         <option>United States</option>
         <option>United Kingdom</option>
         <option>Canada</option>
         <option>Bangladesh</option>
+        */}
       </select>
       <input
         placeholder="Postal/ZIP code"
@@ -177,7 +180,7 @@ export function CartDrawer() {
           </button>
         </div>
 
-        {/* Free shipping bar — only when items exist */}
+        {/* Free shipping bar commented out as requested:
         {items.length > 0 && <div style={{ padding: '16px 24px', borderBottom: '1px solid #f0f0f0' }}>
           <p style={{ fontSize: '15px', color: '#555', marginBottom: '10px' }}>
             {shippingRemaining > 0
@@ -192,6 +195,7 @@ export function CartDrawer() {
             <IconShipping size={14} />
           </div>
         </div>}
+        */}
 
         {/* Cart items — scrollable */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
@@ -227,7 +231,7 @@ export function CartDrawer() {
                     <span style={{ fontWeight: 600, color: '#222' }}>Color:</span> {item.color} &nbsp;&nbsp;
                     <span style={{ fontWeight: 600, color: '#222' }}>Size:</span> {item.size}
                   </p>
-                  <p style={{ fontSize: '17px', fontWeight: 600, color: '#F15B41', marginBottom: '12px' }}>{formatPrice(item.price)}</p>
+                  <p className="product-price-text" style={{ fontSize: '17px', fontWeight: 600, color: '#F15B41', marginBottom: '12px' }}>{formatPrice(item.price)}</p>
 
                   {/* Quantity + remove */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -256,7 +260,7 @@ export function CartDrawer() {
             ))
           )}
 
-          {/* Gift wrap */}
+          {/* Gift wrap option commented out as requested:
           {items.length > 0 && (
             <div style={{ padding: '18px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <input
@@ -270,6 +274,7 @@ export function CartDrawer() {
               </span>
             </div>
           )}
+          */}
         </div>
 
         {/* Footer — tabs + subtotal + buttons */}

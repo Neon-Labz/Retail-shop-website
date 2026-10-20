@@ -6,6 +6,8 @@ import { Logo } from './Logo';
 import { DesktopNav } from './DesktopNav';
 import { HeaderActions } from './HeaderActions';
 import { MobileNav } from './MobileNav';
+import { HeaderCategoriesButton } from './HeaderCategoriesButton';
+import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
 import { GroceryHeader } from './GroceryHeader';
 import { PetFoodHeader } from './PetFoodHeader';
 import { NutritionHeader } from './NutritionHeader';
@@ -231,7 +233,9 @@ export function Header() {
 
   return (
     <>
+      {/* Previous AnnouncementBar commented out as requested (language and currency moved into main header):
       <AnnouncementBar />
+      */}
 
       <header
         className="main-header"
@@ -278,6 +282,11 @@ export function Header() {
             <div className="fashion-logo-desktop">
               <Logo />
             </div>
+
+            {/* All Categories Dropdown Button near logo per user requirement */}
+            <div className="fashion-header-categories-desktop">
+              <HeaderCategoriesButton />
+            </div>
           </div>
 
           {/* Column 2: Desktop Navigation — hides at ≤715px, freeing column 2 for mobile logo */}
@@ -290,8 +299,13 @@ export function Header() {
             <Logo />
           </div>
 
-          {/* Column 3: Action Icons */}
-          <HeaderActions />
+          {/* Column 3: Language & Currency + Action Icons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '22px', justifySelf: 'end' }}>
+            <div className="fashion-header-lang-desktop">
+              <HeaderLanguageCurrency />
+            </div>
+            <HeaderActions />
+          </div>
         </div>
       </header>
 
@@ -302,6 +316,10 @@ export function Header() {
       <style jsx global>{`
         .main-header {
           border-bottom: 1px solid #e5e5e5;
+        }
+        .fashion-header-lang-desktop {
+          display: flex;
+          align-items: center;
         }
         /* Desktop-only sticky reinforcement. Inline style already sets
            position: sticky; this explicit rule guarantees it beats any
@@ -318,6 +336,14 @@ export function Header() {
         }
         .fashion-logo-mobile {
           display: none;
+        }
+        @media (max-width: 991px) {
+          .fashion-header-lang-desktop {
+            display: none !important;
+          }
+          .fashion-header-categories-desktop {
+            display: none !important;
+          }
         }
         @media (max-width: 715px) {
           .mobile-menu-btn {

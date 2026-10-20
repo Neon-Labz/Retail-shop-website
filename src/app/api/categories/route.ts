@@ -62,9 +62,25 @@ export async function GET() {
           );
         });
 
-        // Find first valid product image for this category
+        /* Previous image extraction supporting only { src } commented out as requested:
         const firstProductWithImg = matchingProducts.find((p) => p.images && p.images[0]?.src);
         const image = c.image || firstProductWithImg?.images[0]?.src || '/pod/shop-by-categories-slider/shop-by-categories-1.webp';
+        */
+        /* Previous product image fallback logic commented out as requested:
+        const firstProductWithImg = matchingProducts.find((p) => {
+          if (!p.images || !Array.isArray(p.images) || p.images.length === 0) return false;
+          const img0 = p.images[0];
+          return typeof img0 === 'string' ? img0.length > 0 : Boolean(img0?.src);
+        });
+        const resolvedProductImg = firstProductWithImg
+          ? (typeof firstProductWithImg.images[0] === 'string' ? firstProductWithImg.images[0] : firstProductWithImg.images[0]?.src)
+          : '';
+        const image = c.image || resolvedProductImg || '/pod/shop-by-categories-slider/shop-by-categories-1.webp';
+        */
+        // Connect strictly to MongoDB category document image (set from Admin panel)
+        const image = (c.image && typeof c.image === 'string' && c.image.trim() !== '')
+          ? c.image
+          : '/pod/shop-by-categories-slider/shop-by-categories-1.webp';
 
         return {
           id: catIdStr,
@@ -90,7 +106,17 @@ export async function GET() {
               (sp.subcategory && sp.subcategory.toLowerCase() === sub.toLowerCase()) ||
               (sp.category && sp.category.toString().toLowerCase() === sub.toLowerCase())
           );
+          /* Previous subcategory image extraction commented out as requested:
           const firstImg = subProducts.find((sp) => sp.images && sp.images[0]?.src)?.images[0]?.src;
+          */
+          const firstImgProd = subProducts.find((sp) => {
+            if (!sp.images || !Array.isArray(sp.images) || sp.images.length === 0) return false;
+            const img0 = sp.images[0];
+            return typeof img0 === 'string' ? img0.length > 0 : Boolean(img0?.src);
+          });
+          const firstImg = firstImgProd
+            ? (typeof firstImgProd.images[0] === 'string' ? firstImgProd.images[0] : firstImgProd.images[0]?.src)
+            : '';
           if (firstImg) {
             subcategoryItems.push({
               id: `sub-${sub.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,

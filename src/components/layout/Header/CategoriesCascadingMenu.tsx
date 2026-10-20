@@ -12,9 +12,13 @@ export interface CategoryTreeItem {
 
 interface CategoriesCascadingMenuProps {
   onClose?: () => void;
+  align?: 'left' | 'center';
 }
 
+/* Original function signature commented out:
 export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProps) {
+*/
+export function CategoriesCascadingMenu({ onClose, align = 'left' }: CategoriesCascadingMenuProps) {
   const [categoriesList, setCategoriesList] = useState<CategoryTreeItem[]>([]);
   // const [activeCategoryId, setActiveCategoryId] = useState<string>('');
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
@@ -22,12 +26,26 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
 
   useEffect(() => {
     let isMounted = true;
+    /* Original fetch commented out:
     fetch('/api/categories')
       .then((r) => r.json())
+    */
+    fetch('/api/categories')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         if (!isMounted) return;
         if (data.categories && Array.isArray(data.categories)) {
+          /* Original unfiltered category list commented out as requested:
           setCategoriesList(data.categories);
+          */
+          const excludedNames = ['electronics', 'home & kitchen', 'fashion', 'sports & outdoors', 'test'];
+          const filtered = data.categories.filter(
+            (c: CategoryTreeItem) => !excludedNames.includes(c.name.trim().toLowerCase())
+          );
+          setCategoriesList(filtered);
           // Initial selection commented out so menu opens showing ONLY main categories first:
           // if (data.categories.length > 0) {
           //   setActiveCategoryId(data.categories[0].id);
@@ -54,18 +72,26 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
       onMouseLeave={() => setHoveredCategoryId(null)}
       style={{
         position: 'absolute',
-        top: '100%',
+        top: 'calc(100% + 8px)',
+        /* Original center positioning commented out:
         left: '50%',
         transform: 'translateX(-50%)',
+        */
+        left: align === 'center' ? '50%' : '0',
+        transform: align === 'center' ? 'translateX(-50%)' : 'none',
         width: '230px',
         minHeight: '200px',
         backgroundColor: '#ffffff',
         border: '1px solid #e5e7eb',
+        /* Original conditional borderRadius commented out as requested:
         borderRadius: activeCategory && activeCategory.subcategories && activeCategory.subcategories.length > 0 ? '8px 0 0 8px' : '8px',
+        */
+        borderRadius: '8px',
         boxShadow: '0 12px 32px rgba(0, 0, 0, 0.08)',
-        zIndex: 350,
-        overflow: 'visible',
+        /* Original animation commented out:
         animation: 'menuSlideDown 200ms ease-out',
+        */
+        animation: align === 'center' ? 'menuSlideCenter 180ms ease-out' : 'menuSlideLeft 180ms ease-out',
       }}
     >
       {isLoading ? (
@@ -116,6 +142,7 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
                 key={cat.id}
                 onMouseEnter={() => setHoveredCategoryId(cat.id)}
                 style={{
+                  position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -152,11 +179,61 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
                     ›
                   </span>
                 )}
+
+                {/* Subcategories Flyout aligned directly beside hovered category */}
+                {isHovered && hasSubs && (
+                  <div
+                    className="cat-flyout-subpanel"
+                    style={{
+                      position: 'absolute',
+                      top: '-6px',
+                      left: '100%',
+                      width: '240px',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 28px rgba(0, 0, 0, 0.12)',
+                      padding: '12px 18px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      zIndex: 351,
+                      animation: 'flyoutSlideRight 150ms ease-out',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                      }}
+                    >
+                      {cat.subcategories.map((sub) => (
+                        <Link
+                          key={sub}
+                          href={`/shop?subcategory=${encodeURIComponent(sub)}`}
+                          onClick={onClose}
+                          className="cat-sub-link"
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: '#333',
+                            textDecoration: 'none',
+                            padding: '4px 0',
+                            transition: 'color 150ms ease, transform 150ms ease',
+                            display: 'block',
+                          }}
+                        >
+                          {sub}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
 
-          {/* ── Subcategories Flyout (Pure Text, Only shows when mouse hovers a category) ── */}
+          {/* Original full-height standalone subcategories flyout commented out as requested so subcategories appear directly beside the hovered category:
           {activeCategory && activeCategory.subcategories && activeCategory.subcategories.length > 0 && (
             <div
               className="cat-flyout-subpanel"
@@ -177,23 +254,6 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
                 animation: 'flyoutSlideRight 150ms ease-out',
               }}
             >
-              {/* Heading removed/commented out as requested
-              <div
-                style={{
-                  fontSize: '12px',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  color: '#888',
-                  letterSpacing: '0.6px',
-                  marginBottom: '16px',
-                  paddingBottom: '8px',
-                  borderBottom: '1px solid #eaeaea',
-                }}
-              >
-                {activeCategory.name} Subcategories
-              </div>
-              */}
-
               <div
                 style={{
                   display: 'flex',
@@ -223,6 +283,7 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
               </div>
             </div>
           )}
+          */}
         </div>
       )}
 
@@ -233,10 +294,32 @@ export function CategoriesCascadingMenu({ onClose }: CategoriesCascadingMenuProp
       */}
 
       <style jsx>{`
+        /* Original menuSlideDown with hardcoded translate(-50%) commented out to prevent jumping:
         @keyframes menuSlideDown {
           from {
             opacity: 0;
             transform: translate(-50%, -8px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+        */
+        @keyframes menuSlideLeft {
+          from {
+            opacity: 0;
+            transform: translateY(-6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes menuSlideCenter {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -6px);
           }
           to {
             opacity: 1;

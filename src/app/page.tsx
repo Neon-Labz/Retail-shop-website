@@ -34,9 +34,15 @@ const TestimonialSection = dynamic(() => import('@/features/home/components/Test
 const PodInstagram = dynamic(() => import('@/features/pod/components/PodInstagram').then(m => ({ default: m.PodInstagram })));
 const PodTrustBadges = dynamic(() => import('@/features/pod/components/PodTrustBadges').then(m => ({ default: m.PodTrustBadges })));
 
+/* Original metadata commented out as requested:
 export const metadata: Metadata = {
   title: `${SITE_NAME} — Custom POD Store`,
   description: 'Custom print-on-demand gear — personalize apparel, drinkware, bags, and decor made just for you.',
+};
+*/
+export const metadata: Metadata = {
+  title: `${SITE_NAME}`,
+  description: 'RKF Distributer — Premium ecommerce and distribution store.',
 };
 
 export default function HomePage() {
@@ -45,7 +51,7 @@ export default function HomePage() {
       {/* ── Active POD Storefront Sections ── */}
       <PodHero />
       <PodTopCategories />
-      <PodPromoGrid />
+      {/* Promo grid commented out as requested: <PodPromoGrid /> */}
       <PodFeaturedProducts />
       <PodDealBanner />
       <PodNewArrivals />
@@ -53,12 +59,14 @@ export default function HomePage() {
       <PodRandomRecommendations />
       <PodRecentlyViewed />
       <PodMarquee />
-      <PodBannerList />
+      {/* Banner list commented out as requested: <PodBannerList /> */}
       <div className="pod-home-testimonial">
         <TestimonialSection heading="Customers Feedback" backgroundColor="transparent" sectionPadding="0" />
       </div>
+      {/* Instagram shop and trust badges sections commented out as requested:
       <PodInstagram />
       <PodTrustBadges />
+      */}
 
       {/* ── Former Fashion Home Sections (Commented out as requested, preserved without deletion) ──
       <div className="home-sections">

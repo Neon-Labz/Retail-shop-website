@@ -9,6 +9,8 @@ const ACCENT = '#c96742';
 const DARK = '#111111';
 
 const COUNTRIES = [
+  { value: 'LK', label: 'Sri Lanka' },
+  /* Other countries commented out as requested:
   { value: '', label: '---' },
   { value: 'US', label: 'United States' },
   { value: 'GB', label: 'United Kingdom' },
@@ -21,6 +23,7 @@ const COUNTRIES = [
   { value: 'JP', label: 'Japan' },
   { value: 'SG', label: 'Singapore' },
   { value: 'AE', label: 'United Arab Emirates' },
+  */
 ];
 
 type PaymentMethod = 'bank' | 'cod';
@@ -34,11 +37,17 @@ function IcoCheck() {
 }
 
 export function CheckoutPageContent() {
+  /* Original useCartStore extraction commented out:
   const { items, getSubtotal } = useCartStore();
+  */
+  const { items, getSubtotal, clearCart } = useCartStore();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  /* Original default country state commented out:
   const [country, setCountry] = useState('');
+  */
+  const [country, setCountry] = useState('LK');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
@@ -48,7 +57,83 @@ export function CheckoutPageContent() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
   const [agreeTerms, setAgreeTerms] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [placedOrder, setPlacedOrder] = useState<any | null>(null);
+
   const subtotal = getSubtotal();
+
+  const handlePlaceOrder = async () => {
+    setOrderError(null);
+
+    if (items.length === 0) {
+      setOrderError('Your cart is empty. Please add items to cart before placing an order.');
+      return;
+    }
+    if (!firstName.trim() || !lastName.trim()) {
+      setOrderError('Please enter your full name (first and last name).');
+      return;
+    }
+    if (!country.trim()) {
+      setOrderError('Please select your country/region.');
+      return;
+    }
+    if (!city.trim() || !address.trim()) {
+      setOrderError('Please enter your complete address and city.');
+      return;
+    }
+    if (!phone.trim()) {
+      setOrderError('Please enter your phone number.');
+      return;
+    }
+    if (!agreeTerms) {
+      setOrderError('Please agree to the website terms and conditions.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: {
+            firstName,
+            lastName,
+            country,
+            city,
+            address,
+            phone,
+            email,
+            notes,
+          },
+          items,
+          subtotal,
+          shipping: 0,
+          discount: 0,
+          total: subtotal,
+          paymentMethod,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to place order. Please try again.');
+      }
+
+      clearCart();
+      setPlacedOrder(data.order || {
+        orderNumber: data.orderNumber,
+        total: subtotal,
+        paymentMethod,
+        customer: { firstName, lastName, address, city },
+      });
+    } catch (err: any) {
+      setOrderError(err.message || 'An unexpected error occurred while placing order.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -59,6 +144,37 @@ export function CheckoutPageContent() {
 
       {/* ── Main Content ── */}
       <div className="container-main" style={{ paddingTop: '6rem', paddingBottom: '8rem' }}>
+        {placedOrder ? (
+          <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', background: '#fff', border: '1px solid #eaeaea', borderRadius: '8px', padding: '48px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f6ffed', border: '2px solid #b7eb8f', color: '#52c41a', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#111', marginBottom: '8px' }}>Thank you for your order!</h2>
+            <p style={{ color: '#666', fontSize: '15px', marginBottom: '24px' }}>Your order has been recorded successfully in our database.</p>
+            <div style={{ background: '#fafafa', border: '1px solid #ebebeb', borderRadius: '6px', padding: '16px 20px', display: 'inline-block', marginBottom: '28px' }}>
+              <span style={{ fontSize: '13px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Number</span>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#111', marginTop: '4px', letterSpacing: '0.02em' }}>{placedOrder.orderNumber}</div>
+            </div>
+            <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', textAlign: 'left', marginBottom: '28px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
+                <span style={{ color: '#666' }}>Payment Method:</span>
+                <span style={{ fontWeight: 600, color: '#111' }}>{placedOrder.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Direct Bank Transfer'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
+                <span style={{ color: '#666' }}>Order Status:</span>
+                <span style={{ fontWeight: 600, color: '#e84d1c' }}>Pending (Sent to Admin Dashboard)</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', paddingTop: '10px', borderTop: '1px dashed #eee' }}>
+                <span style={{ fontWeight: 600, color: '#111' }}>Total Amount:</span>
+                <span style={{ fontWeight: 700, color: '#c96742', fontSize: '18px' }}>{formatPrice(placedOrder.total || subtotal)}</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <Link href="/shop" style={{ padding: '12px 28px', backgroundColor: '#111', color: '#fff', fontSize: '14px', fontWeight: 600, borderRadius: '4px', textDecoration: 'none' }}>Continue Shopping</Link>
+              <Link href="/" style={{ padding: '12px 28px', backgroundColor: '#fff', color: '#111', border: '1px solid #ccc', fontSize: '14px', fontWeight: 600, borderRadius: '4px', textDecoration: 'none' }}>Back to Home</Link>
+            </div>
+          </div>
+        ) : (
         <div className="co-layout">
 
           {/* ── LEFT: Billing Details ── */}
@@ -260,15 +376,46 @@ export function CheckoutPageContent() {
             </label>
 
             {/* Place order */}
+            {orderError && (
+              <div style={{ padding: '12px 16px', background: '#fff2f0', border: '1px solid #ffccc7', borderRadius: '4px', color: '#cf1322', fontSize: '14px', marginBottom: '16px', lineHeight: 1.5 }}>
+                {orderError}
+              </div>
+            )}
+            {/* Original button commented out:
             <button
               className="co-place-order"
               disabled={!agreeTerms}
             >
               Place order
             </button>
+            */}
+            <button
+              type="button"
+              onClick={handlePlaceOrder}
+              className="co-place-order"
+              disabled={!agreeTerms || isSubmitting}
+              style={{
+                cursor: (!agreeTerms || isSubmitting) ? 'not-allowed' : 'pointer',
+                opacity: isSubmitting ? 0.7 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  <span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'coSpin 0.7s linear infinite' }} />
+                  Placing order...
+                </>
+              ) : (
+                'Place order'
+              )}
+            </button>
 
           </aside>
         </div>
+        )}
       </div>
 
       <style>{coStyles}</style>
@@ -601,5 +748,9 @@ const coStyles = `
   }
   @media (min-width: 750px) and (max-width: 1023px) {
     .co-layout { grid-template-columns: 1fr 1fr; gap: 3rem; }
+  }
+
+  @keyframes coSpin {
+    to { transform: rotate(360deg); }
   }
 `;

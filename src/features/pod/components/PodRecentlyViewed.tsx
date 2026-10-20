@@ -21,8 +21,15 @@ export function PodRecentlyViewed() {
 
   useEffect(() => {
     let isMounted = true;
+    /* Original fetch commented out:
     fetch('/api/recommendations/recently-viewed?limit=4')
       .then((r) => r.json())
+    */
+    fetch('/api/recommendations/recently-viewed?limit=4')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         if (!isMounted) return;
         if (data.success && Array.isArray(data.products) && data.products.length > 0) {

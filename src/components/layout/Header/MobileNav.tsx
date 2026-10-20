@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,6 +10,8 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { getStorefrontFromPath, isGrocerySlug, isPetFoodSlug, isNutritionSlug, isMegastoreSlug, isPhoneCaseSlug, isSmartWatchesSlug, type Storefront } from '@/utils/storefront';
 import { ALL_CATEGORIES } from './AllCategoriesButton';
 import { MEGASTORE_CATEGORIES } from './MegastoreAllCategoriesButton';
+import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
+import { formatPrice } from '@/utils/formatPrice';
 
 import navigationFashion from '@/data/navigation.json';
 import navigationGrocery from '@/data/navigation-grocery.json';
@@ -306,6 +308,64 @@ export function MobileNav() {
   const toggleTop = (id: string)  => setOpenTop((p) => ({ ...p, [id]: !p[id] }));
   const toggleCol = (key: string) => setOpenCol((p) => ({ ...p, [key]: !p[key] }));
 
+  /* Live MongoDB categories and products for mobile navigation */
+  const [dbCategories, setDbCategories] = useState<Array<{ id: string; name: string; slug: string; subcategories: string[] }>>([]);
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; slug: string; price: number; compareAtPrice?: number | null; image: string }>>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch('/api/categories')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+          setDbCategories(
+            data.categories.map((c: any) => ({
+              id: c.id || c._id || c.name,
+              name: c.name,
+              slug: c.slug || c.name,
+              subcategories: Array.isArray(c.subcategories) ? c.subcategories : [],
+            }))
+          );
+        }
+      })
+      .catch((err) => console.error('Error fetching categories for MobileNav:', err));
+
+    fetch('/api/products?limit=10')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+          setDbProducts(
+            data.products.map((p: any) => {
+              const rawImg = p.images?.[0];
+              const imgSrc = (typeof rawImg === 'string' ? rawImg : rawImg?.src) || '';
+              return {
+                id: p.id || p._id || p.slug,
+                name: p.name,
+                slug: p.slug,
+                price: p.price,
+                compareAtPrice: p.compareAtPrice,
+                image: imgSrc,
+              };
+            })
+          );
+        }
+      })
+      .catch((err) => console.error('Error fetching products for MobileNav:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   /* Grocery Categories tab state */
   const [activeTab,  setActiveTab]  = useState<'menu' | 'categories'>('menu');
   const [openCatL1,  setOpenCatL1]  = useState<Record<string, boolean>>({});
@@ -434,17 +494,63 @@ export function MobileNav() {
         <>
           <nav>
             {navItems.map((item) => {
-              const columns: MegaMenuColumn[] = item.megaMenu ?? [];
-              const flatChildren = item.children ?? [];
-              const categoryCards = item.megaCategoryCards ?? [];
+              /* Shop button commented out as requested because Shop and Products navigate to the same page:
+              if (item.id === 'nav-shop') { ... }
+              */
+              if (item.id === 'nav-shop') return null;
+
+              /* Blog button commented out as requested:
+              if (item.id === 'nav-blog') return null;
+              */
+              if (item.id === 'nav-blog') return null;
+
+              // Only Home, Categories, Products, and About us are shown per request:
+              const isAboutUs = item.id === 'nav-pages';
+              const isCategoriesItem = item.id === 'nav-categories';
+              const isProductsItem = item.id === 'nav-products';
+              const itemLabel = isAboutUs ? 'About us' : item.label;
+              /* Original linkHref commented out:
+              const linkHref = isAboutUs ? '/pages/about' : (item.href && item.href !== '#' ? item.href : undefined);
+              */
+              const linkHref = isAboutUs
+                ? '/pages/about'
+                : isProductsItem
+                  ? '/shop'
+                  : (item.href && item.href !== '#' ? item.href : undefined);
+
+              /* Original static columns/categoryCards commented out; connected to MongoDB below:
+              const columns: MegaMenuColumn[] = isAboutUs ? [] : (item.megaMenu ?? []);
+              const flatChildren = isAboutUs ? [] : (item.children ?? []);
+              const categoryCards = isAboutUs ? [] : (item.megaCategoryCards ?? []);
               const hasChildren = columns.length > 0 || flatChildren.length > 0 || categoryCards.length > 0;
+              */
+              const columns: MegaMenuColumn[] = isAboutUs
+                ? []
+                : isCategoriesItem && dbCategories.length > 0
+                  ? dbCategories.map((cat) => ({
+                      title: cat.name,
+                      links: cat.subcategories.map((sub, idx) => ({
+                        id: `${cat.id}-sub-${idx}`,
+                        label: sub,
+                        href: `/shop?category=${encodeURIComponent(cat.name)}&subcategory=${encodeURIComponent(sub)}`,
+                      })),
+                    }))
+                  : isProductsItem
+                    ? []
+                    : (item.megaMenu ?? []);
+              const flatChildren = isAboutUs ? [] : (item.children ?? []);
+              const categoryCards = isAboutUs || isCategoriesItem ? [] : (item.megaCategoryCards ?? []);
+              const hasChildren =
+                columns.length > 0 ||
+                flatChildren.length > 0 ||
+                categoryCards.length > 0 ||
+                (isProductsItem && dbProducts.length > 0);
               const isTopOpen = !!openTop[item.id];
-              const linkHref = item.href && item.href !== '#' ? item.href : undefined;
 
               return (
                 <div key={item.id}>
                   <AccordionRow
-                    label={item.label}
+                    label={itemLabel}
                     href={linkHref}
                     isOpen={isTopOpen}
                     onToggle={() => toggleTop(item.id)}
@@ -459,10 +565,14 @@ export function MobileNav() {
                         const colKey = `${item.id}::${ci}`;
                         const isColOpen = !!openCol[colKey];
                         const hasLinks = col.links.length > 0;
+                        const colHref = isCategoriesItem
+                          ? `/shop?category=${encodeURIComponent(col.title)}`
+                          : undefined;
                         return (
                           <div key={colKey}>
                             <AccordionRow
                               label={col.title}
+                              href={colHref}
                               isOpen={isColOpen}
                               onToggle={() => toggleCol(colKey)}
                               onNavigate={close}
@@ -499,6 +609,87 @@ export function MobileNav() {
                           </div>
                         );
                       })}
+                      {/* Live MongoDB Products list inside mobile Products accordion */}
+                      {isProductsItem && dbProducts.length > 0 && (
+                        <div>
+                          {dbProducts.map((prod) => (
+                            <Link
+                              key={prod.id}
+                              href={`/products/${prod.slug}`}
+                              onClick={() => {
+                                close();
+                                window.scrollTo({ top: 0, behavior: 'instant' });
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '10px 20px 10px 32px',
+                                textDecoration: 'none',
+                                color: accent.text,
+                                borderBottom: '1px solid #f0f0f0',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  position: 'relative',
+                                  width: '44px',
+                                  height: '44px',
+                                  borderRadius: '6px',
+                                  overflow: 'hidden',
+                                  backgroundColor: '#f7f7f7',
+                                  flexShrink: 0,
+                                  border: '1px solid #eee',
+                                }}
+                              >
+                                {prod.image ? (
+                                  <Image
+                                    src={prod.image}
+                                    alt={prod.name}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="44px"
+                                    unoptimized
+                                  />
+                                ) : null}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <p
+                                  style={{
+                                    fontSize: '14px',
+                                    fontWeight: 500,
+                                    color: '#222',
+                                    margin: '0 0 2px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                  }}
+                                >
+                                  {prod.name}
+                                </p>
+                                <span className="product-price-text" style={{ fontSize: '13px', fontWeight: 700, color: '#F15B41' }}>
+                                  {formatPrice(prod.price)}
+                                </span>
+                              </div>
+                            </Link>
+                          ))}
+                          <Link
+                            href="/shop"
+                            onClick={close}
+                            style={{
+                              display: 'block',
+                              padding: '14px 32px',
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              color: '#F15B41',
+                              textDecoration: 'none',
+                              borderBottom: '1px solid #eee',
+                            }}
+                          >
+                            View All Products →
+                          </Link>
+                        </div>
+                      )}
                       {flatChildren.map((c) => (
                         <Link
                           key={c.id}
@@ -543,6 +734,20 @@ export function MobileNav() {
             Wishlist
           </Link>
 
+          {/* Previous placement of language/currency selector above My account commented out as requested:
+          <div
+            style={{
+              padding: '16px 20px',
+              borderBottom: '1px solid #eee',
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#fafbfc',
+            }}
+          >
+            <HeaderLanguageCurrency />
+          </div>
+          */}
+
           {/* My account block */}
           <div style={{ padding: '28px 20px 20px' }}>
             <h4 style={{ fontSize: '22px', fontWeight: 700, color: accent.text, margin: '0 0 18px' }}>My account</h4>
@@ -557,10 +762,23 @@ export function MobileNav() {
             <button
               type="button"
               onClick={close}
-              style={{ display: 'block', width: '100%', background: 'transparent', color: accent.text, border: `1.5px solid ${accent.primary}`, borderRadius: '40px', padding: '14px 24px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ display: 'block', width: '100%', background: 'transparent', color: accent.text, border: `1.5px solid ${accent.primary}`, borderRadius: '40px', padding: '14px 24px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginBottom: '20px' }}
             >
               Register
             </button>
+
+            {/* Sri Lanka LKR | English language and currency moved to the very bottom as requested */}
+            <div
+              style={{
+                paddingTop: '16px',
+                borderTop: '1px solid #eee',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+              }}
+            >
+              <HeaderLanguageCurrency />
+            </div>
           </div>
         </>
       )}

@@ -105,12 +105,14 @@ export function BookProductCard({
             </button>
             <span className="bpc-tooltip">{inWishlist ? 'Wishlisted' : 'Wishlist'}</span>
           </div>
+          {/* Compare button removed/commented out as requested:
           <div className="bpc-tooltip-wrap">
             <button aria-label="Compare" className={`bpc-action-btn ${inCompare ? 'is-on' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(product); }}>
               <IconCompare size={18} />
             </button>
             <span className="bpc-tooltip">{inCompare ? 'Added' : 'Compare'}</span>
           </div>
+          */}
           <div className="bpc-tooltip-wrap bpc-qv-wrap">
             <button aria-label="Quick view" className="bpc-action-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}>
               <IconEye size={18} />
