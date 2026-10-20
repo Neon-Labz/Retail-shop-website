@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { isGrocerySlug, isGroceryProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 function IconUser({ size = 22 }: { size?: number }) {
   return (
@@ -110,9 +111,7 @@ export function GroceryHeaderActions() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '14px', justifySelf: 'end' }}>
-      <Link href="/login" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-        <IconUser />
-      </Link>
+      <AccountDropdown hoverColor="#1E7A3C" />
       <Link href="/grocery/compare" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Compare" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconCompare />
         <CountBadge count={groceryCompareItems.length} />

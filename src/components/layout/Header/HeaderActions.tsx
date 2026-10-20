@@ -6,6 +6,7 @@ import { useUIStore } from '@/store/uiStore';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { getStorefrontFromPath, getStorefrontOfSlug } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 /* ── Remix Icon SVGs ── */
 
@@ -113,10 +114,8 @@ export function HeaderActions() {
           <IconSearch />
         </button>
 
-        {/* Account — hidden at ≤715px */}
-        <Link href="/login" className="fha-hide-mobile" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-          <IconUser />
-        </Link>
+        {/* Account Dropdown — hidden at ≤715px */}
+        <AccountDropdown className="fha-hide-mobile" />
 
         {/* Wishlist — hidden at ≤715px */}
         <Link href="/wishlist" className="fha-hide-mobile" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>

@@ -1,14 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 
-const ACCENT = '#c96742';
-const DARK = '#111111';
+
+function IconMail() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
+    </svg>
+  );
+}
+
+function IconLock() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
 
 function EyeIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -17,216 +35,218 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   );
 }
 
-function ArrowDiag() {
+function IconArrowRight() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="7" y1="17" x2="17" y2="7" />
-      <polyline points="7 7 17 7 17 17" />
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function IconShield() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   );
 }
 
 export function LoginPageContent() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Lock body & html scroll while on login page to guarantee zero-scroll
+  useEffect(() => {
+    const origHtmlOverflow = document.documentElement.style.overflow;
+    const origBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.documentElement.style.overflow = origHtmlOverflow;
+      document.body.style.overflow = origBodyOverflow;
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Invalid email or password');
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        useAuthStore.getState().setUser(data.user);
+      }
+
+      router.push('/');
+    } catch {
+      setError('A network error occurred. Please try again.');
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <>
-      <div className="li-hero">
-        <h1 className="li-hero-title">Log in</h1>
-      </div>
+    <div className="bg-slate-50 min-h-[calc(100vh-68px)] max-h-[calc(100vh-68px)] flex items-center justify-center w-full overflow-hidden px-[1.6rem] box-border">
+      <div className="w-full max-w-full flex justify-center items-center box-border">
+        <div className="w-full max-w-[440px] mx-auto bg-white border border-slate-200 rounded-[1.2rem] p-[2.4rem_2rem] sm:p-[3.2rem_3rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04),0_10px_20px_-5px_rgba(0,0,0,0.06)] box-border">
+          {/* Header */}
+          <div className="text-center mb-[2rem]">
+            <span className="inline-block bg-[#fdf3ef] text-[#c96742] text-[1.05rem] font-bold tracking-[0.06em] px-[0.9rem] py-[0.25rem] rounded-[2rem] mb-[0.8rem] uppercase">
+              WELCOME BACK
+            </span>
+            <h1 className="text-[2.15rem] font-bold text-[#0f172a] tracking-[-0.01em] mb-[0.5rem] leading-[1.25]">
+              Log in to your account
+            </h1>
+            <p className="text-[1.25rem] text-[#64748b] leading-[1.45] m-0">
+              Enter your credentials to manage your orders.
+            </p>
+          </div>
 
-      <div className="container-main" style={{ paddingTop: '6rem', paddingBottom: '8rem' }}>
-        <div className="li-layout">
+          {error && (
+            <div className="bg-[#fef2f2] border border-[#fee2e2] text-[#991b1b] p-[0.8rem_1.1rem] rounded-[0.75rem] text-[1.25rem] mb-[1.2rem] flex items-center gap-[0.8rem] leading-[1.4]" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
 
-          {/* ── Left: Login form ── */}
-          <section>
-            <h2 className="li-heading">Log in</h2>
-            <form className="li-form" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Email *"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="au-input"
-              />
-              <div className="au-pw-wrap">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-[1.4rem]" noValidate>
+            {/* Email Field */}
+            <div className="flex flex-col gap-[0.5rem]">
+              <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="login-email">
+                Email Address <span className="text-[#ef4444]">*</span>
+              </label>
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none">
+                  <IconMail />
+                </span>
                 <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-[4.4rem] pl-[3.8rem] pr-[1.4rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="flex flex-col gap-[0.5rem]">
+              <div className="flex justify-between items-center">
+                <label className="text-[1.25rem] font-semibold text-[#1e293b]" htmlFor="login-password">
+                  Password <span className="text-[#ef4444]">*</span>
+                </label>
+                <Link href="/reset-password" className="text-[1.2rem] text-[#c96742] font-medium hover:underline transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-[1.2rem] text-[#94a3b8] flex items-center pointer-events-none">
+                  <IconLock />
+                </span>
+                <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Password *"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="au-input au-pw-input"
+                  className="w-full h-[4.4rem] pl-[3.8rem] pr-[4.2rem] bg-white border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] text-[#0f172a] placeholder-[#94a3b8] outline-none transition-all focus:border-[#c96742] focus:ring-2 focus:ring-[#c96742]/15 disabled:bg-[#f8fafc] disabled:cursor-not-allowed"
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="au-eye-btn"
+                  className="absolute right-[0.9rem] p-[0.5rem] text-[#94a3b8] hover:text-[#334155] rounded-[0.4rem] transition-colors disabled:cursor-not-allowed cursor-pointer flex items-center"
                   onClick={() => setShowPassword((s) => !s)}
-                  aria-label="Toggle password"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
+            </div>
 
-              <div>
-                <Link href="/reset-password" className="li-forgot">
-                  Forgot your password?
-                </Link>
-              </div>
+            {/* Remember Me */}
+            <div className="flex items-center -mt-[0.2rem]">
+              <label className="inline-flex items-center gap-[0.7rem] text-[1.25rem] text-[#475569] cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-[1.6rem] h-[1.6rem] accent-[#c96742] cursor-pointer shrink-0"
+                />
+                <span>Remember me on this browser</span>
+              </label>
+            </div>
 
-              <div>
-                <button type="submit" className="li-submit">Log in</button>
-              </div>
-            </form>
-          </section>
+            {/* Submit button */}
+            <button
+              type="submit"
+              className="w-full h-[4.6rem] bg-[#111111] hover:bg-[#2a2a2a] text-white text-[1.45rem] font-semibold rounded-[0.75rem] tracking-[0.01em] flex items-center justify-center transition-all duration-150 shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_5px_12px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-[0.1rem]"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-[0.8rem]">
+                  <span className="w-[1.6rem] h-[1.6rem] border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Logging in...
+                </span>
+              ) : (
+                'Log in'
+              )}
+            </button>
 
-          {/* ── Right: New user ── */}
-          <section>
-            <h2 className="li-heading">I&apos;m new here</h2>
-            <p className="li-new-text">
-              Sign up for early{' '}
-              <span style={{ color: ACCENT }}>Sale</span>{' '}
-              access plus tailored new arrivals, trends and promotions. To opt out,
-              click unsubscribe in our emails.
-            </p>
-            <Link href="/register" className="li-register-link">
-              Register <ArrowDiag />
+            {/* Register below login button */}
+            <div className="flex items-center gap-[1.2rem] my-[0.35rem]">
+              <span className="flex-1 h-[1px] bg-[#e2e8f0]" />
+              <span className="text-[1.15rem] text-[#64748b] font-medium">Don&apos;t have an account?</span>
+              <span className="flex-1 h-[1px] bg-[#e2e8f0]" />
+            </div>
+
+            <Link href="/register" className="inline-flex items-center justify-center gap-[0.7rem] w-full h-[4.4rem] bg-white text-[#0f172a] border border-[#cbd5e1] rounded-[0.75rem] text-[1.35rem] font-semibold hover:border-[#c96742] hover:text-[#c96742] hover:bg-[#fff9f6] transition-all duration-150 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_10px_rgba(201,103,66,0.1)] hover:-translate-y-[1px] active:translate-y-0 no-underline cursor-pointer">
+              <span>Register an Account</span>
+              <IconArrowRight />
             </Link>
-          </section>
-
+          </form>
         </div>
       </div>
-
-      <style>{liStyles}</style>
-    </>
+    </div>
   );
 }
 
-const liStyles = `
-  /* ── Hero ── */
-  .li-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #fdf4f0 50%, #fde8df 100%);
-    padding: 5.5rem 0;
-    text-align: center;
-  }
-  .li-hero-title {
-    font-size: 4rem;
-    font-weight: 400;
-    color: var(--color-heading);
-    letter-spacing: 0.01em;
-  }
-
-  /* ── Two-column layout ── */
-  .li-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8rem;
-    align-items: start;
-  }
-  .li-heading {
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: var(--color-heading);
-    margin-bottom: 2rem;
-  }
-
-  /* ── Form ── */
-  .li-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.6rem;
-    max-width: 42rem;
-  }
-  .au-input {
-    width: 100%;
-    height: 4.8rem;
-    border: 1px solid #d5d5d5;
-    border-radius: 0.3rem;
-    padding: 0 1.4rem;
-    font-size: 1.4rem;
-    color: var(--color-heading);
-    background: #fff;
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.2s;
-  }
-  .au-input:focus { border-color: #888; }
-  .au-input::placeholder { color: #bbb; }
-  .au-pw-wrap { position: relative; }
-  .au-pw-input { padding-right: 4.8rem; }
-  .au-eye-btn {
-    position: absolute;
-    right: 1.2rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #aaa;
-    display: flex;
-    align-items: center;
-    padding: 0.4rem;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-  .au-eye-btn:hover { color: #555; }
-
-  /* ── Forgot / submit ── */
-  .li-forgot {
-    font-size: 1.35rem;
-    color: var(--color-heading);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .li-forgot:hover { color: ${ACCENT}; }
-  .li-submit {
-    height: 5rem;
-    min-width: 16rem;
-    background: ${DARK};
-    color: #fff;
-    font-size: 1.5rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.4rem;
-    cursor: pointer;
-    font-family: inherit;
-    padding: 0 3.2rem;
-    letter-spacing: 0.02em;
-    transition: background 0.2s;
-  }
-  .li-submit:hover { background: #333; }
-
-  /* ── Right column ── */
-  .li-new-text {
-    font-size: 1.35rem;
-    color: #555;
-    line-height: 1.65;
-    margin-bottom: 1.6rem;
-  }
-  .li-register-link {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--color-heading);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .li-register-link:hover { color: ${ACCENT}; }
-
-  @media (max-width: 749px) {
-    .li-layout { grid-template-columns: 1fr; gap: 4rem; }
-    .li-hero-title { font-size: 3rem; }
-  }
-`;

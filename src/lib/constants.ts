@@ -77,7 +77,7 @@ export const FOOTER_LINKS = {
   company: [
     { label: 'Wishlist', href: '/wishlist' },
     { label: 'My account', href: '/login' },
-    // { label: 'Product compare', href: '/compare' }, // Removed/commented out as requested
+    // { label: 'Product compare', href: '/compare' },
     { label: 'Cart', href: '/cart' },
     { label: 'About us', href: '/pages/about' },
   ],

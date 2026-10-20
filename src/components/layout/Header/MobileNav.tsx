@@ -30,6 +30,7 @@ import navigationCraftDecore from '@/data/navigation-craft-and-decore.json';
 import navigationToys from '@/data/navigation-toys.json';
 import navigationSocks from '@/data/navigation-socks.json';
 import navigationPod from '@/data/navigation-pod.json';
+import { HOME_DEMO_COLUMNS } from '@/data/homeDemoMenu';
 
 import type { NavigationItem, MegaMenuColumn } from '@/types/common';
 
@@ -518,10 +519,12 @@ export function MobileNav() {
                   ? '/shop'
                   : (item.href && item.href !== '#' ? item.href : undefined);
 
-              /* Original static columns/categoryCards commented out; connected to MongoDB below:
-              const columns: MegaMenuColumn[] = isAboutUs ? [] : (item.megaMenu ?? []);
-              const flatChildren = isAboutUs ? [] : (item.children ?? []);
-              const categoryCards = isAboutUs ? [] : (item.megaCategoryCards ?? []);
+              /* Previous static columns/categoryCards commented out:
+              const rawColumns: MegaMenuColumn[] = item.megaMenu ?? [];
+              const isDemoMenu = rawColumns.some((c) => c.title && c.title.toLowerCase().startsWith('demo list'));
+              const columns = isDemoMenu ? HOME_DEMO_COLUMNS : rawColumns;
+              const flatChildren = item.children ?? [];
+              const categoryCards = item.megaCategoryCards ?? [];
               const hasChildren = columns.length > 0 || flatChildren.length > 0 || categoryCards.length > 0;
               */
               const columns: MegaMenuColumn[] = isAboutUs

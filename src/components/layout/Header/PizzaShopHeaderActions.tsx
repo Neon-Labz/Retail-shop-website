@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useUIStore } from '@/store/uiStore';
 import { isPizzaSlug } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 function IconSearch({ size = 22 }: { size?: number }) {
   return (
@@ -110,16 +111,7 @@ export function PizzaShopHeaderActions() {
       >
         <IconSearch />
       </button>
-      <Link
-        href="/login"
-        className="ps-action-desktop"
-        style={{ ...iconBtnStyle, textDecoration: 'none' }}
-        aria-label="Account"
-        onMouseEnter={hoverIn}
-        onMouseLeave={hoverOut}
-      >
-        <IconUser />
-      </Link>
+      <AccountDropdown className="ps-action-desktop" hoverColor="#e84d1c" />
 
       <Link
         href="/pizza/wishlist"

@@ -9,6 +9,7 @@ import productsData from '@/data/products.json';
 */
 import type { Product } from '@/types/product';
 import { formatPrice } from '@/utils/formatPrice';
+import { HOME_DEMO_COLUMNS } from '@/data/homeDemoMenu';
 
 /* ── Remix Icon arrows for product slider ── */
 
@@ -557,6 +558,10 @@ export function MegaMenu({ columns, promoImage, showProductSlider, categoryCards
   /* Layout: Default (Home) = equal columns, no image */
   if (!columns) return null;
 
+  /* Check if this is the Home demo lists menu */
+  const isDemoMenu = columns.some((c) => c.title && c.title.toLowerCase().startsWith('demo list'));
+  const effectiveColumns = isDemoMenu ? HOME_DEMO_COLUMNS : columns;
+
   return (
     <div
       style={{
@@ -572,8 +577,17 @@ export function MegaMenu({ columns, promoImage, showProductSlider, categoryCards
       }}
     >
       <div className="container-main" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: '24px' }}>
-          <MegaMenuColumns columns={columns} t={t} />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns:
+              effectiveColumns.length <= 2
+                ? 'repeat(auto-fit, minmax(220px, 280px))'
+                : `repeat(${effectiveColumns.length}, 1fr)`,
+            gap: '32px',
+          }}
+        >
+          <MegaMenuColumns columns={effectiveColumns} t={t} />
         </div>
       </div>
     </div>

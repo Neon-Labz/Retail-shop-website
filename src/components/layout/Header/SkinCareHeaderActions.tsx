@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isSkinCareSlug, isSkinCareProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 const ACCENT = '#111';
 
@@ -113,15 +114,7 @@ export function SkinCareHeaderActions() {
       >
         <IconSearch />
       </button>
-      <Link
-        href="/login"
-        style={{ ...iconBtnStyle, textDecoration: 'none' }}
-        aria-label="Account"
-        onMouseEnter={hoverIn}
-        onMouseLeave={hoverOut}
-      >
-        <IconUser />
-      </Link>
+      <AccountDropdown />
       <Link
         href="/wishlist"
         style={{ ...iconBtnStyle, textDecoration: 'none' }}

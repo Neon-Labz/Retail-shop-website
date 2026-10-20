@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isSneakerSlug, isSneakerProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 const ACCENT = '#e84d1c';
 
@@ -107,9 +108,7 @@ export function SneakerHeaderActions() {
       <button onClick={openSearch} style={iconBtnStyle} aria-label="Open search" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconSearch />
       </button>
-      <Link href="/login" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-        <IconUser />
-      </Link>
+      <AccountDropdown hoverColor={ACCENT} />
       <Link href="/wishlist" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
         <IconHeart />
         {snWishlistItems.length > 0 && <CountBadge count={snWishlistItems.length} />}

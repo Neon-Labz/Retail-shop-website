@@ -1,98 +1,145 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IOrderItem {
-  productId: string;
+  product?: any;
+  productId?: string;
   variantId?: string;
   name: string;
-  slug: string;
-  image: string;
+  slug?: string;
+  image?: string;
+  sku?: string;
   color?: string;
   size?: string;
   price: number;
   quantity: number;
+  subtotal?: number;
   vendor?: string;
 }
 
-export interface ICustomerDetails {
-  firstName: string;
-  lastName: string;
-  country: string;
-  city: string;
-  address: string;
-  phone: string;
-  email?: string;
-  notes?: string;
+export interface IOrderAddress {
+  fullName?: string;
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
 }
 
-export interface IOrderDocument extends Document {
+export interface IStatusHistoryItem {
+  status: string;
+  changedAt: Date;
+  note?: string;
+}
+
+export interface IOrder extends Document {
   orderNumber: string;
-  customer: ICustomerDetails;
+  customer?: mongoose.Types.ObjectId;
+  customerSnapshot: {
+    name: string;
+    email: string;
+    phone?: string;
+  };
   items: IOrderItem[];
+  billingAddress: IOrderAddress;
+  shippingAddress: IOrderAddress;
   subtotal: number;
-  shipping: number;
   discount: number;
+  shippingFee: number;
+  tax: number;
   total: number;
-  paymentMethod: 'bank' | 'cod';
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentStatus: string;
+  paymentMethod: string;
+  status: string;
+  statusHistory: IStatusHistoryItem[];
+  notes?: string;
+  cancelReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export type IOrderDocument = IOrder;
+
+const AddressSubSchema = new Schema<IOrderAddress>(
+  {
+    fullName: { type: String, default: '' },
+    line1: { type: String, default: '' },
+    line2: { type: String, default: '' },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    postalCode: { type: String, default: '' },
+    country: { type: String, default: '' },
+    phone: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
 const OrderItemSchema = new Schema<IOrderItem>(
   {
-    productId: { type: String, required: true },
+    product: { type: Schema.Types.Mixed },
+    productId: { type: String, default: '' },
     variantId: { type: String, default: '' },
     name: { type: String, required: true },
-    slug: { type: String, required: true },
+    slug: { type: String, default: '' },
     image: { type: String, default: '' },
+    sku: { type: String, default: '' },
     color: { type: String, default: '' },
     size: { type: String, default: '' },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
+    subtotal: { type: Number, default: 0 },
     vendor: { type: String, default: '' },
   },
   { _id: false }
 );
 
-const CustomerDetailsSchema = new Schema<ICustomerDetails>(
+const OrderSchema = new Schema<IOrder>(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    country: { type: String, required: true },
-    city: { type: String, required: true },
-    address: { type: String, required: true },
-    phone: { type: String, required: true },
-    email: { type: String, default: '' },
-    notes: { type: String, default: '' },
-  },
-  { _id: false }
-);
-
-const OrderSchema = new Schema<IOrderDocument>(
-  {
-    orderNumber: { type: String, required: true, unique: true, index: true },
-    customer: { type: CustomerDetailsSchema, required: true },
-    items: { type: [OrderItemSchema], required: true },
-    subtotal: { type: Number, required: true },
-    shipping: { type: Number, default: 0 },
-    discount: { type: Number, default: 0 },
-    total: { type: Number, required: true },
-    paymentMethod: { type: String, enum: ['bank', 'cod'], default: 'bank' },
-    paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
-    status: {
-      type: String,
-      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-      default: 'pending',
-      index: true,
+    orderNumber: { type: String, required: true, index: true },
+    customer: { type: Schema.Types.ObjectId, ref: 'Customer' },
+    customerSnapshot: {
+      name: { type: String, required: true },
+      email: { type: String, required: true },
+      phone: { type: String, default: '' },
     },
+    items: { type: [OrderItemSchema], default: [] },
+    billingAddress: { type: AddressSubSchema, default: () => ({}) },
+    shippingAddress: { type: AddressSubSchema, default: () => ({}) },
+    subtotal: { type: Number, required: true, default: 0 },
+    discount: { type: Number, default: 0 },
+    shippingFee: { type: Number, default: 0 },
+    tax: { type: Number, default: 0 },
+    total: { type: Number, required: true, default: 0 },
+    paymentStatus: { type: String, default: 'pending' },
+    paymentMethod: { type: String, default: 'cod' },
+    status: { type: String, default: 'pending' },
+    statusHistory: {
+      type: [
+        {
+          status: { type: String },
+          changedAt: { type: Date, default: Date.now },
+          note: { type: String, default: '' },
+        },
+      ],
+      default: [],
+    },
+    notes: { type: String, default: '' },
+    cancelReason: { type: String, default: '' },
   },
   {
     timestamps: true,
+    collection: 'orders',
   }
 );
 
-export const Order: Model<IOrderDocument> =
-  mongoose.models.Order || mongoose.model<IOrderDocument>('Order', OrderSchema);
+OrderSchema.index({ orderNumber: 'text', 'customerSnapshot.name': 'text', 'customerSnapshot.email': 'text' });
+
+if (mongoose.models.Order) {
+  delete mongoose.models.Order;
+}
+
+export const Order: Model<IOrder> =
+  mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema, 'orders');
 
 export default Order;

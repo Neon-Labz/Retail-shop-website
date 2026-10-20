@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice } from '@/utils/formatPrice';
-import { FREE_SHIPPING_THRESHOLD, GIFT_WRAP_PRICE } from '@/lib/constants';
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants';
 import { getStorefrontFromPath, getStorefrontOfSlug, productHrefBaseFor, shopHrefFor } from '@/utils/storefront';
 
 /* ── Icons ── */
@@ -16,14 +16,6 @@ function IconClose({ size = 22 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-function IconEdit({ size = 20 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
-      <path d="M15.7279 9.57627L14.3137 8.16206L5 17.4758V18.89H6.41421L15.7279 9.57627ZM17.1421 8.16206L18.5563 6.74785L17.1421 5.33363L15.7279 6.74785L17.1421 8.16206ZM7.24264 20.89H3V16.6473L16.435 3.21231C16.8256 2.82179 17.4587 2.82179 17.8492 3.21231L20.6777 6.04074C21.0682 6.43126 21.0682 7.06443 20.6777 7.45495L7.24264 20.89Z" />
     </svg>
   );
 }
@@ -117,7 +109,6 @@ function CouponPanel({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-
 /* ── Cart Drawer ── */
 
 export function CartDrawer() {
@@ -127,8 +118,6 @@ export function CartDrawer() {
   const items = allItems.filter((i) => getStorefrontOfSlug(i.slug) === storefront);
   const productHrefBase = productHrefBaseFor(storefront);
   const shopHref = shopHrefFor(storefront);
-  const [activeTab, setActiveTab] = useState<TabType>('none');
-  const [giftWrap, setGiftWrap] = useState(false);
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const shippingPercent = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
@@ -138,7 +127,6 @@ export function CartDrawer() {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
-      setActiveTab('none');
     }
     return () => { document.body.style.overflow = ''; };
   }, [isDrawerOpen]);
@@ -277,91 +265,48 @@ export function CartDrawer() {
           */}
         </div>
 
-        {/* Footer — tabs + subtotal + buttons */}
+        {/* Footer — subtotal + buttons */}
         {items.length > 0 && (
-          <div style={{ borderTop: '1px solid #e5e5e5' }}>
-            {/* Tab buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderBottom: '1px solid #f0f0f0' }}>
-              {[
-                { key: 'note' as TabType, icon: <IconEdit size={20} />, label: 'Note' },
-                { key: 'shipping' as TabType, icon: <IconShipping size={20} />, label: 'Shipping' },
-                { key: 'coupon' as TabType, icon: <IconCoupon size={20} />, label: 'Coupon' },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(activeTab === tab.key ? 'none' : tab.key)}
-                  style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-                    padding: '14px 0', background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: '14px', fontWeight: 500,
-                    color: activeTab === tab.key ? '#F15B41' : '#555',
-                    transition: 'color 200ms ease',
-                  }}
-                >
-                  {tab.icon}
-                  {tab.label}
-                </button>
-              ))}
+          <div style={{ borderTop: '1px solid #e5e5e5', padding: '20px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span style={{ fontSize: '26px', fontWeight: 700, color: '#222' }}>Subtotal</span>
+              <span style={{ fontSize: '20px', fontWeight: 600, color: '#222' }}>{formatPrice(subtotal)} USD</span>
             </div>
+            <p style={{ fontSize: '15px', color: '#777', marginBottom: '18px' }}>Taxes and shipping calculated at checkout</p>
 
-            {/* Active tab panel — slides up from below */}
-            {activeTab !== 'none' && (
-              <div style={{ animation: 'cartTabSlideUp 300ms ease-out' }}>
-                {activeTab === 'note' && <NotePanel onClose={() => setActiveTab('none')} />}
-                {activeTab === 'shipping' && <ShippingPanel onClose={() => setActiveTab('none')} />}
-                {activeTab === 'coupon' && <CouponPanel onClose={() => setActiveTab('none')} />}
-              </div>
-            )}
-
-            {/* Subtotal + buttons */}
-            <div style={{ padding: '20px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '26px', fontWeight: 700, color: '#222' }}>Subtotal</span>
-                <span style={{ fontSize: '20px', fontWeight: 600, color: '#222' }}>{formatPrice(subtotal)}</span>
-              </div>
-              <p style={{ fontSize: '15px', color: '#777', marginBottom: '18px' }}>Taxes and shipping calculated at checkout</p>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <Link
-                  href="/cart"
-                  onClick={closeDrawer}
-                  style={{
-                    flex: 1, textAlign: 'center', padding: '14px 0', border: '1.5px solid #222',
-                    borderRadius: '40px', fontSize: '15px', fontWeight: 600, color: '#222',
-                    textDecoration: 'none', transition: 'all 250ms ease',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#222'; }}
-                >
-                  View cart
-                </Link>
-                <Link
-                  href="/checkout"
-                  onClick={closeDrawer}
-                  style={{
-                    flex: 1, textAlign: 'center', padding: '14px 0', backgroundColor: '#F15B41',
-                    color: '#fff', border: 'none', borderRadius: '40px', fontSize: '15px',
-                    fontWeight: 600, textDecoration: 'none', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center',
-                    transition: 'background-color 250ms ease',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#000'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#F15B41'; }}
-                >
-                  Check out
-                </Link>
-              </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <Link
+                href="/cart"
+                onClick={closeDrawer}
+                style={{
+                  flex: 1, textAlign: 'center', padding: '14px 0', border: '1.5px solid #222',
+                  borderRadius: '40px', fontSize: '15px', fontWeight: 600, color: '#222',
+                  textDecoration: 'none', transition: 'all 250ms ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#222'; }}
+              >
+                View cart
+              </Link>
+              <Link
+                href="/checkout"
+                onClick={closeDrawer}
+                style={{
+                  flex: 1, textAlign: 'center', padding: '14px 0', backgroundColor: '#F15B41',
+                  color: '#fff', border: 'none', borderRadius: '40px', fontSize: '15px',
+                  fontWeight: 600, textDecoration: 'none', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  transition: 'background-color 250ms ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#000'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#F15B41'; }}
+              >
+                Check out
+              </Link>
             </div>
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes cartTabSlideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </>
   );
 }

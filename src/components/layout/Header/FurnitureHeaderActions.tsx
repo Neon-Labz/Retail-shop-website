@@ -6,6 +6,7 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { useCompareStore } from '@/store/compareStore';
 import { useUIStore } from '@/store/uiStore';
 import { isFurnitureSlug, isFurnitureProductId } from '@/utils/storefront';
+import { AccountDropdown } from './AccountDropdown';
 
 const ACCENT = '#c8a45a';
 
@@ -108,9 +109,7 @@ export function FurnitureHeaderActions() {
         <button onClick={openSearch} style={iconBtnStyle} aria-label="Open search" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
           <IconSearch />
         </button>
-        <Link href="/login" className="fu-icon-account" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Account" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-          <IconUser />
-        </Link>
+        <AccountDropdown className="fu-icon-account" hoverColor={ACCENT} />
         <Link href="/wishlist" className="fu-icon-wishlist" style={{ ...iconBtnStyle, textDecoration: 'none' }} aria-label="Wishlist" onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
           <IconHeart />
           {fuWishlistItems.length > 0 && <CountBadge count={fuWishlistItems.length} />}
