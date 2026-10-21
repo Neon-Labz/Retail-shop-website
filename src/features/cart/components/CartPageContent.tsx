@@ -4,10 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import { FeaturedSlider } from '@/features/home/components/FeaturedSlider';
 import { formatPrice } from '@/utils/formatPrice';
-import { FREE_SHIPPING_THRESHOLD, GIFT_WRAP_PRICE } from '@/lib/constants';
+import { GIFT_WRAP_PRICE } from '@/lib/constants';
 
 const ACCENT = '#c96742';
 
@@ -200,42 +201,75 @@ function AccordionSection({
 /* ── Main component ──────────────────────────────────────────── */
 
 export function CartPageContent() {
-  const { items, removeItem, updateQuantity, getSubtotal, getFreeShippingRemaining } = useCartStore();
-  const [promoCode, setPromoCode] = useState('');
-  const [country, setCountry] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [instructions, setInstructions] = useState('');
+  const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
+  // Promo code, shipping estimate, and instructions removed from cart as requested
   const [giftWrap, setGiftWrap] = useState(false);
 
   const subtotal = getSubtotal();
-  const shippingRemaining = getFreeShippingRemaining();
   const giftTotal = giftWrap ? items.reduce((s, i) => s + i.quantity, 0) * GIFT_WRAP_PRICE : 0;
   const total = subtotal + giftTotal;
-  const shippingPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   /* ── Empty state ─────────────────────────────────── */
   if (items.length === 0) {
     return (
       <>
-        <div className="container-main" style={{ paddingTop: '3.6rem', paddingBottom: '8rem' }}>
-          <h1 className="cp-page-title">Your Shopping Cart</h1>
-
-          <div className="cp-empty-center">
-            <Link href="/shop" className="cp-return-btn">Return to shop</Link>
-            <div className="cp-account-block">
-              <h2 className="cp-account-heading">Have an account?</h2>
-              <p className="cp-account-text">
-                <Link href="#" className="cp-login-link">Log in</Link>{' '}to check out faster.
-              </p>
+        <div className="container-main" style={{ paddingTop: '3.6rem', paddingBottom: '6rem' }}>
+          {/* Header & Breadcrumb */}
+          <div style={{ textAlign: 'center', marginBottom: '3.6rem' }}>
+            <h1 className="cp-page-title" style={{ textAlign: 'center', marginBottom: '0.8rem' }}>
+              Your Shopping Cart
+            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '1.4rem', color: '#888' }}>
+              <Link href="/" style={{ color: '#666', textDecoration: 'none' }}>Home</Link>
+              <span>/</span>
+              <span style={{ color: '#222' }}>Cart</span>
             </div>
           </div>
 
-          <TrustBadges />
-          <GiftOptions checked={false} onChange={() => {}} />
+          {/* Clean Centered Empty Card */}
+          <div className="cp-empty-card">
+            <div className="cp-empty-icon-wrap">
+              <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+            </div>
+
+            <h2 className="cp-empty-title">Your cart is currently empty</h2>
+            <p className="cp-empty-desc">
+              Before you can proceed to checkout, you must add some items to your shopping cart.
+              Browse our collections to find something you love!
+            </p>
+
+            <Link href="/shop" className="cp-continue-btn">
+              <span>Continue Shopping</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
+
+            <div className="cp-empty-shortcuts">
+              <span className="cp-shortcuts-label">Popular Categories:</span>
+              <div className="cp-shortcuts-list">
+                <Link href="/shop" className="cp-shortcut-pill">All Products</Link>
+                <Link href="/categories" className="cp-shortcut-pill">Categories</Link>
+                <Link href="/wishlist" className="cp-shortcut-pill">Wishlist</Link>
+              </div>
+            </div>
+
+            {!isAuthenticated && (
+              <p className="cp-empty-auth-hint">
+                Have an account? <Link href="/login" className="cp-login-link">Log in</Link> to view your saved items.
+              </p>
+            )}
+          </div>
         </div>
 
         <div style={{ paddingBottom: '8rem' }}>
-          <FeaturedSlider title="You may also like" />
+          <FeaturedSlider title="Trending Products" />
         </div>
         <style>{cpStyles}</style>
       </>
@@ -298,88 +332,16 @@ export function CartPageContent() {
               ))}
             </div>
 
-            <TrustBadges />
-            <GiftOptions checked={giftWrap} onChange={setGiftWrap} />
+            {/* Trust badges and Gift options removed as requested */}
           </div>
 
-          {/* ── Right sidebar ── */}
+          {/* ── Right sidebar: Order Summary ── */}
           <div className="cp-right">
-
-            {/* Promo code */}
-            <AccordionSection icon={<IcoPercent />} title="Promo Code">
-              <div className="cp-promo-row">
-                <input
-                  type="text"
-                  placeholder="Enter discount code"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="cp-promo-input"
-                />
-                <button className="cp-apply-btn">Apply</button>
-              </div>
-            </AccordionSection>
-
-            {/* Estimate shipping */}
-            <AccordionSection icon={<IcoTruck size={14} />} title="Estimate Shipping">
-              <div className="cp-ship-fields">
-                <label className="cp-field-label">Country/region</label>
-                <select
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  className="cp-select"
-                >
-                  {SHIP_COUNTRIES.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
-                </select>
-                <label className="cp-field-label">Postal/ZIP code</label>
-                <div className="cp-input-wrap">
-                  <input
-                    type="text"
-                    placeholder="Postal/ZIP code"
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    className="cp-text-input"
-                  />
-                  <span className="cp-input-icon"><IcoKeyboard /></span>
-                </div>
-                <button className="cp-calc-btn">Calculate Shipping</button>
-              </div>
-            </AccordionSection>
-
-            {/* Order instructions */}
-            <AccordionSection icon={<IcoDoc />} title="Order Special Instructions" defaultOpen={false}>
-              <div className="cp-notes-wrap">
-                <textarea
-                  value={instructions}
-                  onChange={(e) => setInstructions(e.target.value.slice(0, 500))}
-                  placeholder="Add a note to your order (optional)"
-                  className="cp-notes-area"
-                  rows={4}
-                />
-                <p className="cp-char-count">{instructions.length}/500 characters</p>
-              </div>
-            </AccordionSection>
-
             {/* Order summary */}
             <div className="cp-summary">
               <h3 className="cp-summary-title">Order Summary</h3>
 
-              <p className="cp-ship-msg">
-                {shippingRemaining > 0
-                  ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
-                  : 'You qualify for free standard shipping!'
-                }
-              </p>
-
-              <div className="cp-progress-track">
-                <div className="cp-progress-fill" style={{ width: `${shippingPct}%` }} />
-                <div className="cp-progress-thumb" style={{ left: `calc(${shippingPct}% - 1.4rem)` }}>
-                  <IcoTruck size={11} />
-                </div>
-              </div>
-
-              <div className="cp-totals">
+              <div className="cp-totals" style={{ borderTop: 'none', paddingTop: 0 }}>
                 <div className="cp-total-row">
                   <span>Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
@@ -396,11 +358,11 @@ export function CartPageContent() {
                 </div>
               </div>
 
-              <p className="cp-tax-note">Taxes and shipping calculated at checkout</p>
+              <p className="cp-tax-note">Shipping calculated at checkout</p>
 
-              <button className="cp-checkout-btn">
+              <Link href="/checkout" className="cp-checkout-btn">
                 <IcoLock /> Secure Checkout
-              </button>
+              </Link>
             </div>
 
           </div>
@@ -424,38 +386,119 @@ const cpStyles = `
     margin-bottom: 8rem;
   }
 
-  /* ── empty state ── */
-  .cp-empty-center {
+  /* ── Clean Empty State Card ── */
+  .cp-empty-card {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 4.8rem 3.2rem;
+    background: #ffffff;
+    border: 1px solid #ededed;
+    border-radius: 1.6rem;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 4rem 0 3.6rem;
   }
-  .cp-return-btn {
+  .cp-empty-icon-wrap {
+    width: 8.8rem;
+    height: 8.8rem;
+    border-radius: 50%;
+    background: #fdf2f0;
+    color: ${ACCENT};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.2rem;
+    border: 1px solid rgba(201, 103, 66, 0.15);
+  }
+  .cp-empty-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--color-heading, #111827);
+    margin: 0 0 1.2rem;
+    letter-spacing: -0.02em;
+  }
+  .cp-empty-desc {
+    font-size: 1.5rem;
+    color: #6b7280;
+    line-height: 1.65;
+    max-width: 46rem;
+    margin: 0 0 3rem;
+  }
+  .cp-continue-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: ${ACCENT};
-    color: #fff;
-    font-size: 1.6rem;
-    font-weight: 500;
-    padding: 1.3rem 3.6rem;
+    gap: 1rem;
+    background: #111827;
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1.4rem 3.6rem;
     border-radius: 9999px;
     text-decoration: none;
-    transition: opacity 0.2s;
-    margin-bottom: 3.6rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   }
-  .cp-return-btn:hover { opacity: 0.85; }
-  .cp-account-block { text-align: center; }
-  .cp-account-heading {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--color-heading);
-    margin-bottom: 0.5rem;
+  .cp-continue-btn:hover {
+    background: ${ACCENT};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(201, 103, 66, 0.25);
+    color: #ffffff;
   }
-  .cp-account-text { font-size: 1.5rem; color: var(--color-body); }
-  .cp-login-link { color: var(--color-heading); text-decoration: underline; }
+  .cp-empty-shortcuts {
+    margin-top: 3.2rem;
+    padding-top: 2.4rem;
+    border-top: 1px solid #f0f0f0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .cp-shortcuts-label {
+    font-size: 1.25rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .cp-shortcuts-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  .cp-shortcut-pill {
+    padding: 0.7rem 1.8rem;
+    border-radius: 9999px;
+    border: 1px solid #e5e7eb;
+    background: #fafafa;
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: #4b5563;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .cp-shortcut-pill:hover {
+    border-color: #111827;
+    color: #111827;
+    background: #ffffff;
+  }
+  .cp-empty-auth-hint {
+    font-size: 1.35rem;
+    color: #6b7280;
+    margin: 2.4rem 0 0;
+  }
+  .cp-empty-auth-hint .cp-login-link {
+    color: #111827;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .cp-empty-auth-hint .cp-login-link:hover {
+    color: ${ACCENT};
+  }
 
   /* ── trust badges ── */
   .cp-trust {
@@ -786,10 +829,9 @@ const cpStyles = `
   .cp-notes-area:focus { border-color: #bbb; }
   .cp-char-count { font-size: 1.25rem; color: #aaa; text-align: right; }
 
-  /* ── order summary (bottom of right card) ── */
+  /* ── order summary card ── */
   .cp-summary {
-    padding: 2rem 2rem 2.2rem;
-    border-top: 1px solid #e5e5e5;
+    padding: 2.4rem;
   }
   .cp-summary-title {
     font-size: 1.7rem;
@@ -882,8 +924,9 @@ const cpStyles = `
     transition: background 0.2s;
     font-family: inherit;
     letter-spacing: 0.01em;
+    text-decoration: none;
   }
-  .cp-checkout-btn:hover { background: #2d2d2d; }
+  .cp-checkout-btn:hover { background: #2d2d2d; color: #fff; }
 
   /* ── responsive ── */
   @media (max-width: 749px) {

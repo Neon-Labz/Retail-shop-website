@@ -6,27 +6,73 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice } from '@/utils/formatPrice';
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants';
 import { getStorefrontFromPath, getStorefrontOfSlug, productHrefBaseFor, shopHrefFor } from '@/utils/storefront';
 
 /* ── Icons ── */
 
-function IconClose({ size = 22 }: { size?: number }) {
+function IconClose({ size = 20, className = '' }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
 }
 
-function IconShipping({ size = 20 }: { size?: number }) {
+function IconCheck({ size = 15, className = '' }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="3" width="15" height="13" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function IconTrash({ size = 15, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
+
+function IconShoppingBag({ size = 36, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 01-8 0" />
+    </svg>
+  );
+}
+
+function IconTruck({ size = 14, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="1" y="3" width="15" height="13" rx="2" />
       <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
       <circle cx="5.5" cy="18.5" r="2.5" />
       <circle cx="18.5" cy="18.5" r="2.5" />
+    </svg>
+  );
+}
+
+function IconShield({ size = 12, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+function IconArrowRight({ size = 15, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
     </svg>
   );
 }
@@ -41,8 +87,7 @@ export function CartDrawer() {
   const productHrefBase = productHrefBaseFor(storefront);
   const shopHref = shopHrefFor(storefront);
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const shippingPercent = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     if (isDrawerOpen) {
@@ -62,157 +107,247 @@ export function CartDrawer() {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Backdrop overlay */}
       <div
         onClick={closeDrawer}
-        style={{
-          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)',
-          zIndex: 9999, transition: 'opacity 250ms ease',
-          opacity: isDrawerOpen ? 1 : 0, pointerEvents: isDrawerOpen ? 'auto' : 'none',
-        }}
+        aria-hidden="true"
+        className={`fixed inset-0 bg-black/50 backdrop-blur-[3px] z-[9998] transition-opacity duration-300 ease-out ${
+          isDrawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
       />
 
       {/* Drawer */}
-      <div
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping Cart"
+        className={`fixed top-0 right-0 bottom-0 z-[9999] bg-white flex flex-col w-full sm:max-w-[430px] md:max-w-[450px] transition-transform duration-300 ease-out shadow-2xl ${
+          isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
         style={{
-          position: 'fixed', top: 0, right: 0, bottom: 0, width: '460px', maxWidth: '100vw',
-          backgroundColor: '#fff', zIndex: 9999, display: 'flex', flexDirection: 'column',
-          transition: 'transform 350ms ease',
-          transform: isDrawerOpen ? 'translateX(0)' : 'translateX(100%)',
-          boxShadow: isDrawerOpen ? '-4px 0 24px rgba(0,0,0,0.1)' : 'none',
+          height: '100dvh',
         }}
       >
-        {/* Header — close button always, title only when items exist */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: items.length > 0 ? 'space-between' : 'flex-end', padding: '20px 24px', borderBottom: items.length > 0 ? '1px solid #f0f0f0' : 'none' }}>
-          {items.length > 0 && <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#222' }}>Item added to your cart</h3>}
-          <button onClick={closeDrawer} style={{ display: 'flex', background: 'none', border: 'none', cursor: 'pointer', color: '#222' }} aria-label="Close cart">
-            <IconClose size={22} />
+        {/* Header */}
+        <div className="flex items-center justify-between px-[18px] py-[12px] sm:px-[20px] sm:py-[14px] border-b border-neutral-100 bg-white shrink-0">
+          <div className="flex items-center gap-[10px]">
+            <span className="w-[24px] h-[24px] rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <IconCheck size={12} />
+            </span>
+            <div>
+              <h3 className="text-[1.5rem] font-bold text-neutral-900 tracking-tight leading-tight">
+                Item added to your cart
+              </h3>
+              <p className="text-[1.15rem] text-neutral-500 font-medium">
+                {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'} in your cart
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={closeDrawer}
+            className="w-[30px] h-[30px] flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 active:scale-95 transition-all -mr-1"
+            aria-label="Close cart"
+          >
+            <IconClose size={16} />
           </button>
         </div>
 
-        {/* Free shipping bar — only when items exist */}
-        {items.length > 0 && <div style={{ padding: '16px 24px', borderBottom: '1px solid #f0f0f0' }}>
-          <p style={{ fontSize: '15px', color: '#555', marginBottom: '10px' }}>
-            {shippingRemaining > 0
-              ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
-              : <span style={{ color: '#22c55e', fontWeight: 600 }}>You qualify for Free Standard Shipping!</span>
-            }
-          </p>
-          <div style={{ position: 'relative', height: '8px', backgroundColor: '#e5e5e5', borderRadius: '40px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${shippingPercent}%`, background: 'linear-gradient(90deg, #4ECDC4, #44B09E)', borderRadius: '40px', transition: 'width 500ms ease' }} />
-          </div>
-          <div style={{ position: 'relative', marginTop: '-14px', left: `calc(${Math.min(shippingPercent, 95)}% - 14px)`, width: '28px', height: '28px', borderRadius: '50%', border: '2px solid #44B09E', backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'left 500ms ease' }}>
-            <IconShipping size={14} />
-          </div>
-        </div>}
-
-        {/* Cart items — scrollable */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
+        {/* Cart items list */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-[16px] sm:px-[20px] py-[4px] divide-y divide-neutral-100 cart-drawer-scroll">
           {items.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '60px' }}>
-              <p style={{ fontSize: '18px', fontWeight: 600, color: '#222', marginBottom: '20px' }}>Your cart is currently empty.</p>
+            <div className="flex flex-col items-center justify-center py-[50px] px-[20px] text-center">
+              <div className="w-[60px] h-[60px] rounded-full bg-neutral-100/80 flex items-center justify-center text-neutral-400 mb-[16px]">
+                <IconShoppingBag size={30} />
+              </div>
+              <h4 className="text-[1.7rem] font-bold text-neutral-900 mb-[8px]">Your cart is currently empty</h4>
+              <p className="text-[1.35rem] text-neutral-500 mb-[20px] max-w-[260px] leading-relaxed">
+                Discover our collections and find something you love.
+              </p>
               <Link
                 href={shopHref}
                 onClick={closeDrawer}
-                style={{
-                  display: 'inline-block', padding: '14px 36px', backgroundColor: '#F15B41',
-                  color: '#fff', fontSize: '16px', fontWeight: 600, borderRadius: '40px',
-                  textDecoration: 'none', transition: 'background-color 250ms ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#000'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#F15B41'; }}
+                className="inline-flex items-center justify-center gap-2 px-[24px] py-[10px] bg-neutral-900 hover:bg-neutral-800 text-white text-[1.4rem] font-semibold rounded-lg transition-all shadow-sm active:scale-95"
               >
-                Return to shop
+                <span>Return to shop</span>
+                <IconArrowRight size={14} />
               </Link>
             </div>
           ) : (
-            items.map((item) => (
-              <div key={`${item.productId}-${item.variantId}`} style={{ display: 'flex', gap: '16px', padding: '20px 0', borderBottom: '1px solid #f0f0f0' }}>
-                {/* Thumbnail */}
-                <Link href={`${productHrefBase}/${item.slug}`} onClick={closeDrawer} style={{ width: '90px', height: '110px', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#f5f5f5', flexShrink: 0, position: 'relative', display: 'block' }}>
-                  <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }} sizes="90px" />
-                </Link>
+            items.map((item) => {
+              const hasColor = Boolean(item.color && item.color.trim() !== '' && item.color.toLowerCase() !== 'default');
+              const hasSize = Boolean(item.size && item.size.trim() !== '' && item.size.toLowerCase() !== 'default');
 
-                {/* Info */}
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ fontSize: '17px', fontWeight: 600, color: '#222', marginBottom: '5px' }}>{item.name}</h4>
-                  <p style={{ fontSize: '15px', color: '#666', marginBottom: '3px' }}>
-                    <span style={{ fontWeight: 600, color: '#222' }}>Color:</span> {item.color} &nbsp;&nbsp;
-                    <span style={{ fontWeight: 600, color: '#222' }}>Size:</span> {item.size}
-                  </p>
-                  <p style={{ fontSize: '17px', fontWeight: 600, color: '#F15B41', marginBottom: '12px' }}>{formatPrice(item.price)}</p>
+              return (
+                <div
+                  key={`${item.productId}-${item.variantId}`}
+                  className="flex gap-[12px] py-[12px] group"
+                >
+                  {/* Thumbnail */}
+                  <Link
+                    href={`${productHrefBase}/${item.slug}`}
+                    onClick={closeDrawer}
+                    className="w-[72px] h-[84px] sm:w-[78px] sm:h-[90px] rounded-lg overflow-hidden bg-neutral-50 border border-neutral-100 shrink-0 relative block transition-transform group-hover:scale-[1.02]"
+                  >
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 72px, 78px"
+                    />
+                  </Link>
 
-                  {/* Quantity + remove */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #e5e5e5', borderRadius: '4px' }}>
-                      <button
-                        onClick={() => updateQuantity(item.productId, item.variantId, Math.max(1, item.quantity - 1))}
-                        style={{ width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#222' }}
-                      >−</button>
-                      <span style={{ width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 500, color: '#222', borderLeft: '1px solid #e5e5e5', borderRight: '1px solid #e5e5e5' }}>
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
-                        style={{ width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#222' }}
-                      >+</button>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between py-[1px]">
+                    <div>
+                      <div className="flex items-start justify-between gap-[8px]">
+                        <Link
+                          href={`${productHrefBase}/${item.slug}`}
+                          onClick={closeDrawer}
+                          className="text-[1.35rem] font-semibold text-neutral-900 hover:text-[#F15B41] transition-colors leading-snug line-clamp-2"
+                        >
+                          {item.name}
+                        </Link>
+                        <button
+                          onClick={() => removeItem(item.productId, item.variantId)}
+                          className="text-neutral-400 hover:text-red-500 hover:bg-red-50 p-[4px] rounded-md transition-colors shrink-0 -mr-1 -mt-1"
+                          aria-label="Remove item"
+                          title="Remove item"
+                        >
+                          <IconTrash size={14} />
+                        </button>
+                      </div>
+
+                      {/* Color & Size badges if present */}
+                      {(hasColor || hasSize) && (
+                        <div className="flex flex-wrap items-center gap-[4px] mt-[3px] text-[1.15rem] text-neutral-500">
+                          {hasColor && (
+                            <span className="bg-neutral-100 text-neutral-700 px-[6px] py-[1px] rounded font-medium">
+                              {item.color}
+                            </span>
+                          )}
+                          {hasSize && (
+                            <span className="bg-neutral-100 text-neutral-700 px-[6px] py-[1px] rounded font-medium">
+                              {item.size}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      <div className="mt-[4px]">
+                        <span className="text-[1.45rem] font-bold text-neutral-900">
+                          {formatPrice(item.price)}
+                        </span>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => removeItem(item.productId, item.variantId)}
-                      style={{ fontSize: '15px', color: '#222', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 500 }}
-                    >
-                      remove
-                    </button>
+
+                    {/* Quantity controls + Line Total */}
+                    <div className="flex items-center justify-between pt-[6px]">
+                      <div className="inline-flex items-center bg-neutral-100 rounded-md p-[2px] border border-neutral-200/70">
+                        <button
+                          onClick={() => updateQuantity(item.productId, item.variantId, Math.max(1, item.quantity - 1))}
+                          className="w-[24px] h-[24px] rounded bg-white shadow-2xs flex items-center justify-center text-neutral-700 hover:bg-neutral-50 active:scale-95 transition-all text-[1.4rem] font-light leading-none"
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <span className="w-[28px] text-center text-[1.3rem] font-bold text-neutral-900 tabular-nums">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
+                          className="w-[24px] h-[24px] rounded bg-white shadow-2xs flex items-center justify-center text-neutral-700 hover:bg-neutral-50 active:scale-95 transition-all text-[1.4rem] font-light leading-none"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <span className="text-[1.3rem] font-semibold text-neutral-600 tabular-nums whitespace-nowrap">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
-
         </div>
 
-        {/* Footer — subtotal + buttons */}
+        {/* Footer */}
         {items.length > 0 && (
-          <div style={{ borderTop: '1px solid #e5e5e5', padding: '20px 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <span style={{ fontSize: '26px', fontWeight: 700, color: '#222' }}>Subtotal</span>
-              <span style={{ fontSize: '20px', fontWeight: 600, color: '#222' }}>{formatPrice(subtotal)} USD</span>
+          <div
+            className="border-t border-neutral-100 bg-white/95 backdrop-blur-md shrink-0 px-[18px] pt-[12px] sm:px-[20px] sm:pt-[14px] shadow-[0_-6px_20px_rgba(0,0,0,0.04)]"
+            style={{
+              paddingBottom: 'max(1.4rem, env(safe-area-inset-bottom, 1.4rem))',
+            }}
+          >
+            {/* Subtotal row */}
+            <div className="flex items-baseline justify-between mb-[2px]">
+              <span className="text-[1.4rem] font-medium text-neutral-600">Subtotal</span>
+              <span className="text-[1.9rem] font-extrabold text-neutral-900 tracking-tight tabular-nums">
+                {formatPrice(subtotal)}
+              </span>
             </div>
-            <p style={{ fontSize: '15px', color: '#777', marginBottom: '18px' }}>Taxes and shipping calculated at checkout</p>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
+            {/* Shipping Note */}
+            <div className="flex items-center gap-[6px] text-[1.15rem] text-neutral-500 mb-[10px]">
+              <IconTruck size={13} className="text-neutral-400 shrink-0" />
+              <span>Shipping calculated at checkout</span>
+            </div>
+
+            {/* Action buttons with reduced height */}
+            <div className="grid grid-cols-2 gap-[10px]">
               <Link
                 href="/cart"
                 onClick={closeDrawer}
-                style={{
-                  flex: 1, textAlign: 'center', padding: '14px 0', border: '1.5px solid #222',
-                  borderRadius: '40px', fontSize: '15px', fontWeight: 600, color: '#222',
-                  textDecoration: 'none', transition: 'all 250ms ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#222'; }}
+                className="h-[40px] flex items-center justify-center border border-neutral-300 hover:border-neutral-400 bg-white hover:bg-neutral-50 text-neutral-800 rounded-lg text-[1.35rem] font-semibold active:scale-[0.98] transition-all text-center"
               >
                 View cart
               </Link>
               <Link
                 href="/checkout"
                 onClick={closeDrawer}
-                style={{
-                  flex: 1, textAlign: 'center', padding: '14px 0', backgroundColor: '#F15B41',
-                  color: '#fff', border: 'none', borderRadius: '40px', fontSize: '15px',
-                  fontWeight: 600, textDecoration: 'none', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  transition: 'background-color 250ms ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#000'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#F15B41'; }}
+                className="h-[40px] flex items-center justify-center gap-[6px] bg-[#F15B41] hover:bg-[#d94a32] text-white rounded-lg text-[1.35rem] font-semibold shadow-sm hover:shadow active:scale-[0.98] transition-all text-center"
               >
-                Check out
+                <span>Check out</span>
+                <IconArrowRight size={14} />
               </Link>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="flex items-center justify-center gap-[10px] pt-[8px] mt-[8px] text-[1.1rem] text-neutral-400 border-t border-neutral-100">
+              <span className="flex items-center gap-[4px]">
+                <IconShield size={11} className="text-neutral-400" />
+                <span>Secure Checkout</span>
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-[4px]">
+                <IconTruck size={12} className="text-neutral-400" />
+                <span>Fast Delivery</span>
+              </span>
             </div>
           </div>
         )}
-      </div>
+      </aside>
+
+      {/* Clean minimal scrollbar styling */}
+      <style jsx global>{`
+        .cart-drawer-scroll::-webkit-scrollbar {
+          width: 5px;
+        }
+        .cart-drawer-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .cart-drawer-scroll::-webkit-scrollbar-thumb {
+          background: #e5e7eb;
+          border-radius: 9999px;
+        }
+        .cart-drawer-scroll::-webkit-scrollbar-thumb:hover {
+          background: #d1d5db;
+        }
+      `}</style>
     </>
   );
 }

@@ -97,12 +97,21 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
   const { addItem } = useCartStore();
 
   const handleAddToCart = (product: typeof items[0]) => {
-    const variant = product.variants[0];
-    if (!variant) return;
+    const variant = product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
     addItem({
-      productId: product.id, variantId: variant.id, name: product.name, slug: product.slug,
-      image: variant.image, color: variant.color, size: variant.size,
-      price: product.price, compareAtPrice: product.compareAtPrice, quantity: 1, vendor: product.vendor,
+      productId: product.id,
+      variantId,
+      name: product.name,
+      slug: product.slug,
+      image,
+      color: variant?.color || '',
+      size: variant?.size || '',
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      quantity: 1,
+      vendor: product.vendor,
     });
   };
 

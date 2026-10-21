@@ -39,7 +39,7 @@ export default function PodHomePage() {
         <TestimonialSection heading="Customers Feedback" backgroundColor="transparent" sectionPadding="0" />
       </div>
       <PodInstagram />
-      <PodTrustBadges />
+      {/* <PodTrustBadges /> (Removed as requested) */}
       <style>{`
         .pod-home-sections {
           padding-bottom: 80px;
