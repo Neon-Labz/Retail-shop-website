@@ -10,8 +10,6 @@ import { GroceryProductCard } from '@/features/grocery-shop/components/GroceryPr
 
 import 'swiper/css';
 
-/* ── Nav Icons (same as Categories) ── */
-
 function IconArrowLeftS({ size = 20 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
@@ -28,32 +26,21 @@ function IconArrowRightS({ size = 20 }: { size?: number }) {
   );
 }
 
-/* ── Component ── */
-
-/** Theme + layout overrides passed through to each HomeProductCard. */
 export interface FeaturedCardTheme {
   showCountdown?: boolean;
   showScrollText?: boolean;
   imageHeight?: string;
   themeColor?: string;
   countdownBg?: string;
-  /** Force the compact (mobile-style) layout at every breakpoint. */
   compact?: boolean;
 }
 
 interface FeaturedSliderProps {
-  /** API endpoint for products. Default: /api/products (fashion). Pass /api/grocery-products for grocery. */
   apiEndpoint?: string;
-  /** Card design variant. Default: 'home'. */
   cardVariant?: 'home' | 'grocery';
-  /** Base href for product detail links. */
   productHrefBase?: string;
-  /** Optional card theming for non-fashion storefronts (pet-food etc.). */
   cardTheme?: FeaturedCardTheme;
-  /** Section heading. Default: 'Featured Collection'. */
   title?: string;
-  /** Cap the number of slides shown. Default: no cap (existing behavior —
-   *  up to 12 products). Pass e.g. 6 for a smaller catalog storefront. */
   count?: number;
 }
 
@@ -61,10 +48,6 @@ export function FeaturedSlider({ apiEndpoint, cardVariant = 'home', productHrefB
   const { data } = useProducts({ limit: 30 }, apiEndpoint ? { endpoint: apiEndpoint } : undefined);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const all = data?.products ?? [];
-  // Fashion catalog has >27 items — prefer the tail so the slider shows different
-  // products than the grid above. Catalogs too small for a full tail slice
-  // (pet-food, nutrition, megastore's 16 items, etc.) fall back to the first
-  // 12 so the slider isn't empty or, worse, left with just 1-7 leftover items.
   const tail = all.slice(15, 27);
   const basePool = tail.length >= 8 ? tail : all.slice(0, 12);
   const products = count ? basePool.slice(0, count) : basePool;
@@ -72,12 +55,10 @@ export function FeaturedSlider({ apiEndpoint, cardVariant = 'home', productHrefB
   return (
     <section className="fs-section">
       <div className="container-main">
-        {/* Heading */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 600, color: '#222' }}>{title}</h2>
+        <div className="mb-[32px] text-left">
+          <h2 className="text-[clamp(22px,3vw,28px)] font-semibold text-[#222]">{title}</h2>
         </div>
 
-        {/* Slider */}
         <div style={{ position: 'relative' }}>
           {products.length > 0 ? (
             <Swiper
@@ -120,7 +101,6 @@ export function FeaturedSlider({ apiEndpoint, cardVariant = 'home', productHrefB
             </div>
           )}
 
-          {/* Nav arrows — same style as Categories, hidden by default */}
           <button onClick={() => swiperInstance?.slidePrev()} aria-label="Previous" className="fs-nav-prev">
             <IconArrowLeftS size={20} />
           </button>
@@ -166,8 +146,7 @@ export function FeaturedSlider({ apiEndpoint, cardVariant = 'home', productHrefB
           }
         }
 
-        /* Hide nav arrows on mobile — swipe is the primary interaction there,
-           and the hover state that reveals the buttons doesn't exist on touch. */
+        
         @media (max-width: 749px) {
           .fs-nav-prev,
           .fs-nav-next { display: none !important; }

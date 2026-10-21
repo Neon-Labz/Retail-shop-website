@@ -8,7 +8,7 @@
     {
         "id": "nav-shop",
         "label": "Shop",
-        "href": "/shop",
+        "href": "/products",
         "type": "megamenu",
         "megaMenu": [
             {
@@ -17,32 +17,32 @@
                     {
                         "id": "shop-1",
                         "label": "Filter sidebar",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "shop-2",
                         "label": "Filter drawer",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "shop-3",
                         "label": "Filter horizontal",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "shop-4",
                         "label": "Full width",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "shop-5",
                         "label": "Product 4 columns",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "shop-6",
                         "label": "Product 3 columns",
-                        "href": "/shop"
+                        "href": "/products"
                     }
                 ]
             },
@@ -87,32 +87,32 @@
                     {
                         "id": "col-1",
                         "label": "Collection list",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "col-2",
                         "label": "New Collection",
-                        "href": "/shop?sort=newest"
+                        "href": "/products?sort=newest"
                     },
                     {
                         "id": "col-3",
                         "label": "Trending Collection",
-                        "href": "/shop?sort=best-selling"
+                        "href": "/products?sort=best-selling"
                     },
                     {
                         "id": "col-4",
                         "label": "Featured Collection",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "col-5",
                         "label": "On Sale",
-                        "href": "/shop?availability=in-stock"
+                        "href": "/products?availability=in-stock"
                     },
                     {
                         "id": "col-6",
                         "label": "Bestseller",
-                        "href": "/shop?sort=best-selling"
+                        "href": "/products?sort=best-selling"
                     }
                 ]
             },
@@ -122,32 +122,32 @@
                     {
                         "id": "exp-1",
                         "label": "Collection banner",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "exp-2",
                         "label": "Collection sorting",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "exp-3",
                         "label": "Advanced filters",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "exp-4",
                         "label": "Price Slider",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "exp-5",
                         "label": "Slider input",
-                        "href": "/shop"
+                        "href": "/products"
                     },
                     {
                         "id": "exp-6",
                         "label": "Ajax Filter",
-                        "href": "/shop"
+                        "href": "/products"
                     }
                 ]
             }
@@ -170,35 +170,35 @@
                 "label": "Knit Wears",
                 "itemCount": 17,
                 "image": "/fashion/categories-mega-menu/categories-mega-menu1.webp",
-                "href": "/shop?category=Knitwear"
+                "href": "/products?category=Knitwear"
             },
             {
                 "id": "ccard-2",
                 "label": "Formal Wear",
                 "itemCount": 16,
                 "image": "/fashion/categories-mega-menu/categories-mega-menu2.webp",
-                "href": "/shop?category=Dresses"
+                "href": "/products?category=Dresses"
             },
             {
                 "id": "ccard-3",
                 "label": "Casual Wear",
                 "itemCount": 22,
                 "image": "/fashion/categories-mega-menu/categories-mega-menu3.webp",
-                "href": "/shop?category=Tops"
+                "href": "/products?category=Tops"
             },
             {
                 "id": "ccard-4",
                 "label": "Activewear",
                 "itemCount": 12,
                 "image": "/fashion/categories-mega-menu/categories-mega-menu4.webp",
-                "href": "/shop?category=Activewear"
+                "href": "/products?category=Activewear"
             },
             {
                 "id": "ccard-5",
                 "label": "Accessories",
                 "itemCount": 19,
                 "image": "/fashion/categories-mega-menu/categories-mega-menu5.webp",
-                "href": "/shop?category=Accessories"
+                "href": "/products?category=Accessories"
             }
         ]
     },

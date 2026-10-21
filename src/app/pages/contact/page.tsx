@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 
 function IconPhone() {
@@ -33,85 +34,167 @@ function IconSocial({ children }: { children: React.ReactNode }) {
 }
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    comment: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to submit form');
+      }
+      setSuccess('Thank you! Your message has been sent successfully. We will be in touch shortly.');
+      setFormData({ name: '', email: '', phone: '', comment: '' });
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
-      {/* Page Header */}
       <div className="fa-contact-page-header">
         <div className="container-main">
           <h1 className="fa-contact-h1">Contact</h1>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px' }}>
-            <Link href="/" style={{ color: '#777', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Home</Link>
-            <span style={{ color: '#bbb' }}>/</span>
-            <span style={{ color: '#222' }}>Contact</span>
+          <div className="flex items-center justify-center gap-[8px] text-[14px]">
+            <Link href="/" className="text-[#777] underline underline-offset-[3px]">Home</Link>
+            <span className="text-[#bbb]">/</span>
+            <span className="text-[#222]">Contact</span>
           </div>
         </div>
       </div>
 
-      {/* Section 1 — Form + Contact Info */}
       <div className="container-main fa-contact-section">
         <h2 className="fa-contact-h2">Get in touch</h2>
         <div className="fa-contact-grid">
-          {/* Form */}
           <div className="fa-contact-form-card">
-            <form>
-              <div className="fa-contact-form-row">
-                <div>
-                  <label className="fa-contact-label">Name *</label>
-                  <input type="text" placeholder="Name" className="fa-contact-input" />
+            {success ? (
+              <div className="p-[20px] bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46] rounded-[8px] text-[15px] mb-[20px]">
+                {success}
+                <button
+                  type="button"
+                  onClick={() => setSuccess('')}
+                  className="block mt-[12px] text-[13px] text-[#047857] font-semibold underline"
+                >
+                  Send another message
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="p-[14px] bg-[#fef2f2] border border-[#fecaca] text-[#b91c1c] rounded-[8px] text-[14px] mb-[18px]">
+                    {error}
+                  </div>
+                )}
+                <div className="fa-contact-form-row">
+                  <div>
+                    <label className="fa-contact-label">Name *</label>
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                      className="fa-contact-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="fa-contact-label">Email *</label>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                      className="fa-contact-input"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="fa-contact-label">Email *</label>
-                  <input type="email" placeholder="Email" className="fa-contact-input" />
+                <div className="mb-[20px]">
+                  <label className="fa-contact-label">Phone number</label>
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="fa-contact-input"
+                  />
                 </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label className="fa-contact-label">Phone number *</label>
-                <input type="tel" placeholder="Phone number" className="fa-contact-input" />
-              </div>
-              <div style={{ marginBottom: '28px' }}>
-                <label className="fa-contact-label">Comment *</label>
-                <textarea placeholder="Comment" rows={5} className="fa-contact-input fa-contact-textarea" />
-              </div>
-              <button type="submit" className="fa-contact-send-btn">Send</button>
-            </form>
+                <div className="mb-[28px]">
+                  <label className="fa-contact-label">Comment *</label>
+                  <textarea
+                    placeholder="Comment"
+                    rows={5}
+                    value={formData.comment}
+                    onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                    required
+                    className="fa-contact-input fa-contact-textarea"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`fa-contact-send-btn ${loading ? 'opacity-70 cursor-wait' : 'cursor-pointer'}`}
+                >
+                  {loading ? 'Sending...' : 'Send'}
+                </button>
+              </form>
+            )}
           </div>
 
-          {/* Contact Info */}
           <div className="fa-contact-info">
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <span style={{ color: '#222' }}><IconPhone /></span>
-                <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Phone</h3>
+            <div className="mb-[32px]">
+              <div className="flex items-center gap-[10px] mb-[10px]">
+                <span className="text-[#222]"><IconPhone /></span>
+                <h3 className="text-[24px] font-bold text-[#222]">Phone</h3>
               </div>
-              <div style={{ paddingLeft: '32px' }}>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>(372) 587-2335</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>(372) 555-4665</p>
-              </div>
-            </div>
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <span style={{ color: '#222' }}><IconEmail /></span>
-                <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Email</h3>
-              </div>
-              <div style={{ paddingLeft: '32px' }}>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>example@gmail.com</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>demo@gmail.com</p>
+              <div className="pl-[32px]">
+                <p className="text-[17px] text-[#666] leading-[1.7]">(372) 587-2335</p>
+                <p className="text-[17px] text-[#666] leading-[1.7]">(372) 555-4665</p>
               </div>
             </div>
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <span style={{ color: '#222' }}><IconAddress /></span>
-                <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Address</h3>
+            <div className="mb-[32px]">
+              <div className="flex items-center gap-[10px] mb-[10px]">
+                <span className="text-[#222]"><IconEmail /></span>
+                <h3 className="text-[24px] font-bold text-[#222]">Email</h3>
               </div>
-              <div style={{ paddingLeft: '32px' }}>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>123 MOUNT STREET</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>LONDON</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>W1K 3NB</p>
+              <div className="pl-[32px]">
+                <p className="text-[17px] text-[#666] leading-[1.7]">example@gmail.com</p>
+                <p className="text-[17px] text-[#666] leading-[1.7]">demo@gmail.com</p>
+              </div>
+            </div>
+            <div className="mb-[32px]">
+              <div className="flex items-center gap-[10px] mb-[10px]">
+                <span className="text-[#222]"><IconAddress /></span>
+                <h3 className="text-[24px] font-bold text-[#222]">Address</h3>
+              </div>
+              <div className="pl-[32px]">
+                <p className="text-[17px] text-[#666] leading-[1.7]">123 MOUNT STREET</p>
+                <p className="text-[17px] text-[#666] leading-[1.7]">LONDON</p>
+                <p className="text-[17px] text-[#666] leading-[1.7]">W1K 3NB</p>
               </div>
             </div>
             <div>
-              <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>Follow Us</h3>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <h3 className="text-[24px] font-bold text-[#222] mb-[14px]">Follow Us</h3>
+              <div className="flex gap-[10px]">
                 <IconSocial>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                 </IconSocial>
@@ -133,23 +216,22 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Section 2 — Map */}
       <div className="fa-contact-map-section">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9541.0!2d-6.2603!3d53.3498!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48670e80ea27ac2f%3A0xa00c7a9973171a0!2sDublin!5e0!3m2!1sen!2sie!4v1"
           width="100%"
           height="550"
-          style={{ border: 0, display: 'block' }}
+          className="border-0 block"
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />
         <div className="fa-contact-map-overlay">
-          <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>Find Our Store</h3>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '6px' }}>Address</p>
-          <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, marginBottom: '16px' }}>South Street road,<br />SUITE Connaught Street Suite 232.</p>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '6px' }}>Opening hours</p>
-          <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, marginBottom: '20px' }}>
+          <h3 className="text-[24px] font-bold text-[#222] mb-[14px]">Find Our Store</h3>
+          <p className="text-[13px] font-semibold text-[#222] mb-[6px]">Address</p>
+          <p className="text-[13px] text-[#666] leading-[1.6] mb-[16px]">South Street road,<br />SUITE Connaught Street Suite 232.</p>
+          <p className="text-[13px] font-semibold text-[#222] mb-[6px]">Opening hours</p>
+          <p className="text-[13px] text-[#666] leading-[1.6] mb-[20px]">
             Mon - Fri, 7:00am - 04:00pm<br />
             Saturday, 8:30am - 06:30pm<br />
             Sunday, 10:00am - 6:00pm
@@ -162,7 +244,7 @@ export default function ContactPage() {
         .fa-contact-page-header { background-color: rgb(247, 248, 252); padding: 40px 0 50px; text-align: center; }
         .fa-contact-h1 { font-size: 40px; font-weight: 600; color: #222; margin-bottom: 10px; }
         .fa-contact-section { padding-block: 80px; }
-        .fa-contact-h2 { font-size: 32px; font-weight: 700; color: #222; text-align: center; margin-bottom: 50px; }
+        .fa-contact-h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 600; color: #222; text-align: left; margin-bottom: 32px; }
         .fa-contact-grid { display: grid; grid-template-columns: 60% 40%; gap: 50px; align-items: start; }
         .fa-contact-form-card { padding: 36px 40px; box-shadow: 0 2px 20px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; border-radius: 12px; }
         .fa-contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }

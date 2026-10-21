@@ -13,23 +13,7 @@ const ACCENT = '#c96742';
 
 const SHIP_COUNTRIES = [
   { value: 'LK', label: 'Sri Lanka' },
-  /* Other countries commented out as requested:
-  { value: '', label: '---' },
-  { value: 'US', label: 'United States' },
-  { value: 'GB', label: 'United Kingdom' },
-  { value: 'CA', label: 'Canada' },
-  { value: 'AU', label: 'Australia' },
-  { value: 'BD', label: 'Bangladesh' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'FR', label: 'France' },
-  { value: 'IN', label: 'India' },
-  { value: 'JP', label: 'Japan' },
-  { value: 'SG', label: 'Singapore' },
-  { value: 'AE', label: 'United Arab Emirates' },
-  */
 ];
-
-/* ── Icons ───────────────────────────────────────────────────── */
 
 function IcoTruck({ size = 26 }: { size?: number }) {
   return (
@@ -122,20 +106,18 @@ function IcoChevron({ open }: { open: boolean }) {
   return (
     <svg
       width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-      style={{ transform: open ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s ease', flexShrink: 0 }}
+      className={`shrink-0 transition-transform duration-300 ease-in-out ${open ? 'rotate-0' : 'rotate-180'}`}
     >
       <polyline points="18 15 12 9 6 15" />
     </svg>
   );
 }
 
-/* ── Shared sub-components ───────────────────────────────────── */
-
 function TrustBadges() {
   const badges = [
-    { Icon: IcoTruck, title: 'Free Shipping', desc: 'On orders over $100' },
-    { Icon: IcoReturn, title: 'Easy Returns', desc: '30-day return policy' },
-    { Icon: IcoShield, title: 'Secure Payment', desc: 'SSL encrypted' },
+    { Icon: IcoTruck, title: 'Islandwide Delivery', desc: 'Fast delivery across Sri Lanka' },
+    { Icon: IcoReturn, title: 'Easy Returns', desc: '7-day return policy' },
+    { Icon: IcoShield, title: 'Secure Ordering', desc: 'Cash on Delivery & Bank Transfer' },
   ];
   return (
     <div className="cp-trust">
@@ -187,12 +169,8 @@ function AccordionSection({
         <span className="cp-accord-title">{title}</span>
         <IcoChevron open={open} />
       </button>
-      <div style={{
-        display: 'grid',
-        gridTemplateRows: open ? '1fr' : '0fr',
-        transition: 'grid-template-rows 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      }}>
-        <div style={{ overflow: 'hidden' }}>
+      <div className={`grid transition-[grid-template-rows] duration-[320ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
           <div className="cp-accord-body">{children}</div>
         </div>
       </div>
@@ -200,38 +178,62 @@ function AccordionSection({
   );
 }
 
-/* ── Main component ──────────────────────────────────────────── */
-
 export function CartPageContent() {
-  const { items, removeItem, updateQuantity, getSubtotal, getFreeShippingRemaining } = useCartStore();
-  const [promoCode, setPromoCode] = useState('');
-  /* Original default country state commented out:
-  const [country, setCountry] = useState('');
-  */
+  const {
+    items,
+    removeItem,
+    updateQuantity,
+    getSubtotal,
+    getFreeShippingRemaining,
+    orderNote,
+    setOrderNote,
+    couponCode,
+    discount,
+    applyCoupon,
+    removeCoupon,
+  } = useCartStore();
+
+  const [promoCode, setPromoCode] = useState(couponCode);
+  const [couponMsg, setCouponMsg] = useState('');
+  const [isCouponError, setIsCouponError] = useState(false);
   const [country, setCountry] = useState('LK');
   const [postalCode, setPostalCode] = useState('');
-  const [instructions, setInstructions] = useState('');
+  const [shippingMsg, setShippingMsg] = useState('');
+  const [instructions, setInstructions] = useState(orderNote);
   const [giftWrap, setGiftWrap] = useState(false);
 
   const subtotal = getSubtotal();
   const shippingRemaining = getFreeShippingRemaining();
   const giftTotal = giftWrap ? items.reduce((s, i) => s + i.quantity, 0) * GIFT_WRAP_PRICE : 0;
-  const total = subtotal + giftTotal;
+  const discountAmount = Math.min(subtotal, discount || 0);
+  const total = Math.max(0, subtotal - discountAmount + giftTotal);
   const shippingPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
-  /* ── Empty state ─────────────────────────────────── */
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) return;
+    const res = applyCoupon(promoCode);
+    setIsCouponError(!res.success);
+    setCouponMsg(res.message);
+  };
+
+  const handleInstructionsChange = (val: string) => {
+    const clean = val.slice(0, 500);
+    setInstructions(clean);
+    setOrderNote(clean);
+  };
+
   if (items.length === 0) {
     return (
       <>
-        <div className="container-main" style={{ paddingTop: '3.6rem', paddingBottom: '8rem' }}>
+        <div className="container-main pt-[36px] pb-[80px]">
           <h1 className="cp-page-title">Your Shopping Cart</h1>
 
           <div className="cp-empty-center">
-            <Link href="/shop" className="cp-return-btn">Return to shop</Link>
+            <Link href="/products" className="cp-return-btn">Return to shop</Link>
             <div className="cp-account-block">
               <h2 className="cp-account-heading">Have an account?</h2>
               <p className="cp-account-text">
-                <Link href="#" className="cp-login-link">Log in</Link>{' '}to check out faster.
+                <Link href="/login" className="cp-login-link">Log in</Link>{' '}to check out faster.
               </p>
             </div>
           </div>
@@ -240,7 +242,7 @@ export function CartPageContent() {
           <GiftOptions checked={false} onChange={() => {}} />
         </div>
 
-        <div style={{ paddingBottom: '8rem' }}>
+        <div className="pb-[80px]">
           <FeaturedSlider title="You may also like" />
         </div>
         <style>{cpStyles}</style>
@@ -248,18 +250,15 @@ export function CartPageContent() {
     );
   }
 
-  /* ── Filled cart ─────────────────────────────────── */
   return (
     <>
-      <div className="container-main" style={{ paddingTop: '3.6rem', paddingBottom: '8rem' }}>
+      <div className="container-main pt-[36px] pb-[80px]">
         <h1 className="cp-page-title">Your Shopping Cart</h1>
 
         <div className="cp-layout">
 
-          {/* ── Left column ── */}
           <div className="cp-left">
 
-            {/* Cart items box */}
             <div className="cp-cart-box">
               <div className="cp-cart-head">
                 <span className="cp-cart-label">Your cart</span>
@@ -267,14 +266,14 @@ export function CartPageContent() {
               </div>
 
               {items.map((item) => (
-                <div key={`${item.productId}-${item.variantId}`} className="cp-item" style={{ position: 'relative' }}>
+                <div key={`${item.productId}-${item.variantId}`} className="cp-item relative">
                   <Link href={`/products/${item.slug}`} className="cp-item-img">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
                       sizes="100px"
-                      style={{ objectFit: 'contain' }}
+                      className="object-contain"
                     />
                   </Link>
                   <div className="cp-item-body">
@@ -294,9 +293,8 @@ export function CartPageContent() {
                   </div>
                   <button
                     onClick={() => removeItem(item.productId, item.variantId)}
-                    className="cp-item-x"
+                    className="cp-item-x absolute top-[18px] right-[20px]"
                     aria-label="Remove item"
-                    style={{ position: 'absolute', top: '1.8rem', right: '2rem' }}
                   >
                     <IcoClose />
                   </button>
@@ -305,29 +303,47 @@ export function CartPageContent() {
             </div>
 
             <TrustBadges />
-            {/* Gift wrap options commented out as requested:
-            <GiftOptions checked={giftWrap} onChange={setGiftWrap} />
-            */}
           </div>
 
-          {/* ── Right sidebar ── */}
           <div className="cp-right">
 
-            {/* Promo code */}
             <AccordionSection icon={<IcoPercent />} title="Promo Code">
-              <div className="cp-promo-row">
-                <input
-                  type="text"
-                  placeholder="Enter discount code"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="cp-promo-input"
-                />
-                <button className="cp-apply-btn">Apply</button>
-              </div>
+              {couponCode ? (
+                <div className="p-[14px] bg-[#ecfdf5] border border-[#a7f3d0] rounded-[6px] text-[13px] flex items-center justify-between text-[#065f46]">
+                  <span>Applied: <strong>{couponCode}</strong> ({formatPrice(discountAmount)} off)</span>
+                  <button
+                    onClick={() => {
+                      removeCoupon();
+                      setPromoCode('');
+                      setCouponMsg('');
+                    }}
+                    className="text-[12px] text-[#dc2626] font-semibold underline cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="cp-promo-row">
+                    <input
+                      type="text"
+                      placeholder="Enter discount code"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      className="cp-promo-input"
+                    />
+                    <button onClick={handleApplyPromo} className="cp-apply-btn">Apply</button>
+                  </div>
+                  {couponMsg && (
+                    <p className={`text-[12px] mt-[8px] font-medium ${isCouponError ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>
+                      {couponMsg}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-[#888] mt-[6px]">Tip: Try <strong>WELCOME10</strong> or <strong>RKF500</strong></p>
+                </>
+              )}
             </AccordionSection>
 
-            {/* Estimate shipping */}
             <AccordionSection icon={<IcoTruck size={14} />} title="Estimate Shipping">
               <div className="cp-ship-fields">
                 <label className="cp-field-label">Country/region</label>
@@ -351,17 +367,26 @@ export function CartPageContent() {
                   />
                   <span className="cp-input-icon"><IcoKeyboard /></span>
                 </div>
-                <button className="cp-calc-btn">Calculate Shipping</button>
+                <button
+                  onClick={() => setShippingMsg(shippingRemaining === 0 ? 'FREE Islandwide Delivery qualified!' : 'Standard Islandwide Fast Delivery calculated at checkout.')}
+                  className="cp-calc-btn"
+                >
+                  Calculate Shipping
+                </button>
+                {shippingMsg && (
+                  <p className="text-[12px] text-[#0f172a] bg-[#f8fafc] border border-[#e2e8f0] p-[10px] rounded-[6px] mt-[8px]">
+                    {shippingMsg}
+                  </p>
+                )}
               </div>
             </AccordionSection>
 
-            {/* Order instructions */}
             <AccordionSection icon={<IcoDoc />} title="Order Special Instructions" defaultOpen={false}>
               <div className="cp-notes-wrap">
                 <textarea
                   value={instructions}
-                  onChange={(e) => setInstructions(e.target.value.slice(0, 500))}
-                  placeholder="Add a note to your order (optional)"
+                  onChange={(e) => handleInstructionsChange(e.target.value)}
+                  placeholder="Add a note to your order (delivery preferences, gift notes, etc.)"
                   className="cp-notes-area"
                   rows={4}
                 />
@@ -369,31 +394,20 @@ export function CartPageContent() {
               </div>
             </AccordionSection>
 
-            {/* Order summary */}
             <div className="cp-summary">
               <h3 className="cp-summary-title">Order Summary</h3>
-
-              {/* Free shipping progress bar commented out as requested:
-              <p className="cp-ship-msg">
-                {shippingRemaining > 0
-                  ? <>{formatPrice(shippingRemaining)} away from Free Standard Shipping.</>
-                  : 'You qualify for free standard shipping!'
-                }
-              </p>
-
-              <div className="cp-progress-track">
-                <div className="cp-progress-fill" style={{ width: `${shippingPct}%` }} />
-                <div className="cp-progress-thumb" style={{ left: `calc(${shippingPct}% - 1.4rem)` }}>
-                  <IcoTruck size={11} />
-                </div>
-              </div>
-              */}
 
               <div className="cp-totals">
                 <div className="cp-total-row">
                   <span>Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="cp-total-row text-[#059669]">
+                    <span>Discount ({couponCode})</span>
+                    <span>-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 {giftWrap && (
                   <div className="cp-total-row">
                     <span>Gift wrapping</span>
@@ -402,15 +416,15 @@ export function CartPageContent() {
                 )}
                 <div className="cp-total-row cp-total-bold">
                   <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                  <span className="text-[#F15B41] font-bold">{formatPrice(total)}</span>
                 </div>
               </div>
 
-              <p className="cp-tax-note">Taxes and shipping calculated at checkout</p>
+              <p className="cp-tax-note">Taxes and delivery fee calculated at checkout</p>
 
-              <button className="cp-checkout-btn">
+              <Link href="/checkout" className="cp-checkout-btn inline-flex items-center justify-center gap-[8px] no-underline">
                 <IcoLock /> Secure Checkout
-              </button>
+              </Link>
             </div>
 
           </div>
@@ -422,8 +436,6 @@ export function CartPageContent() {
     </>
   );
 }
-
-/* ── Styles ──────────────────────────────────────────────────── */
 
 const cpStyles = `
   /* page title */

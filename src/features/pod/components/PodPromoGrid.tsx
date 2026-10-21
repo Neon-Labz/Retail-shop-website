@@ -39,7 +39,7 @@ export function PodPromoGrid() {
               src="/pod/banners/banner-1.webp"
               alt="Personalize Your Everyday"
               fill
-              style={{ objectFit: 'cover', objectPosition: 'right center' }}
+              className="object-cover object-[right_center]"
               sizes="50vw"
             />
             <div className="pd-pg-content pd-pg-content--top">
@@ -58,7 +58,7 @@ export function PodPromoGrid() {
                 src="/pod/banners/banner-2.webp"
                 alt="Personalized Décor Made Easy"
                 fill
-                style={{ objectFit: 'cover', objectPosition: 'right center' }}
+                className="object-cover object-[right_center]"
                 sizes="50vw"
               />
               <div className="pd-pg-content pd-pg-content--split">
@@ -72,7 +72,7 @@ export function PodPromoGrid() {
                 src="/pod/banners/banner-3.webp"
                 alt="Custom Gifts That Stand Out"
                 fill
-                style={{ objectFit: 'cover', objectPosition: 'right center' }}
+                className="object-cover object-[right_center]"
                 sizes="50vw"
               />
               <div className="pd-pg-content pd-pg-content--split">

@@ -1,10 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-/* ── FAQ Accordion ── */
 
 function FaqAccordion({ items, defaultOpen = 0 }: { items: { question: string; answer: string }[]; defaultOpen?: number | null }) {
   const [openIndex, setOpenIndex] = useState<number | null>(defaultOpen);
@@ -21,42 +19,31 @@ function FaqAccordion({ items, defaultOpen = 0 }: { items: { question: string; a
         const isFirst = i === 0;
         const isLast = i === items.length - 1;
         return (
-          <div key={i} style={{ borderTop: isFirst ? 'none' : '1px solid #e5e5e5', borderBottom: isLast ? 'none' : undefined }}>
+          <div key={i} className={`${isFirst ? 'border-t-0' : 'border-t border-[#e5e5e5]'} ${isLast ? 'border-b-0' : ''}`}>
             <button
               onClick={() => toggle(i)}
-              className="fa-faq-btn"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                width: '100%', padding: '22px 0', fontSize: '24px', fontWeight: 600,
-                color: '#222', background: 'none', border: 'none', cursor: 'pointer',
-                textAlign: 'left', gap: '16px',
-              }}
+              className="fa-faq-btn flex items-center justify-between w-full py-[22px] text-[24px] font-semibold text-[#222] bg-transparent border-none cursor-pointer text-left gap-[16px]"
             >
-              <span style={{ flex: 1 }}>{item.question}</span>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, width: '24px', height: '24px', position: 'relative',
-              }}>
+              <span className="flex-1">{item.question}</span>
+              <span className="inline-flex items-center justify-center shrink-0 w-[24px] h-[24px] relative">
                 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="none" viewBox="0 0 10 10" width="20" height="20"
-                  style={{ position: 'absolute', transition: 'opacity 350ms ease, transform 350ms ease', opacity: isOpen ? 0 : 1, transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                  className={`absolute transition-[opacity,transform] duration-[350ms] ease-in-out ${isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'}`}>
                   <path fillRule="evenodd" clipRule="evenodd" d="M1 4.51a.5.5 0 000 1h3.5l.01 3.5a.5.5 0 001-.01V5.5l3.5-.01a.5.5 0 00-.01-1H5.5L5.49.99a.5.5 0 00-1 .01v3.5l-3.5.01H1z" fill="currentColor" />
                 </svg>
                 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="none" viewBox="0 0 10 2" width="20" height="20"
-                  style={{ position: 'absolute', transition: 'opacity 350ms ease, transform 350ms ease', opacity: isOpen ? 1 : 0, transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+                  className={`absolute transition-[opacity,transform] duration-[350ms] ease-in-out ${isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'}`}>
                   <path fillRule="evenodd" clipRule="evenodd" d="M.5 1C.5.7.7.5 1 .5h8a.5.5 0 110 1H1A.5.5 0 01.5 1z" fill="currentColor" />
                 </svg>
               </span>
             </button>
             <div
               ref={(el) => { faqRefs.current[i] = el; }}
+              className={`overflow-hidden transition-[max-height,opacity] duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${isOpen ? 'opacity-100' : 'opacity-0'}`}
               style={{
                 maxHeight: isOpen ? `${faqRefs.current[i]?.scrollHeight || 500}px` : '0',
-                opacity: isOpen ? 1 : 0,
-                overflow: 'hidden',
-                transition: 'max-height 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               }}
             >
-              <div style={{ paddingBottom: '22px', fontSize: '14px', color: '#555', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
+              <div className="pb-[22px] text-[14px] text-[#555] leading-[1.7] whitespace-pre-line">
                 {item.answer}
               </div>
             </div>
@@ -67,24 +54,20 @@ function FaqAccordion({ items, defaultOpen = 0 }: { items: { question: string; a
   );
 }
 
-/* ── Page ── */
-
 export default function FAQPage() {
   return (
     <>
-      {/* Page Header */}
       <div className="fa-faq-page-header">
         <div className="container-main">
           <h1 className="fa-faq-h1">FAQ</h1>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px' }}>
-            <Link href="/" style={{ color: '#777', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Home</Link>
-            <span style={{ color: '#bbb' }}>/</span>
-            <span style={{ color: '#222' }}>FAQ</span>
+          <div className="flex items-center justify-center gap-[8px] text-[14px]">
+            <Link href="/" className="text-[#777] underline underline-offset-[3px]">Home</Link>
+            <span className="text-[#bbb]">/</span>
+            <span className="text-[#222]">FAQ</span>
           </div>
         </div>
       </div>
 
-      {/* Section 1 — Shopping Information */}
       <div className="container-main fa-faq-section">
         <h2 className="fa-faq-section-h2">Shopping Information</h2>
         <div className="fa-faq-grid">
@@ -116,14 +99,13 @@ export default function FAQPage() {
               src="/fashion/faq/faq2.webp"
               alt="Shopping Information"
               fill
-              style={{ objectFit: 'contain', objectPosition: 'center' }}
+              className="object-contain object-center"
               sizes="(max-width: 991px) 100vw, 50vw"
             />
           </div>
         </div>
       </div>
 
-      {/* Section 2 — Payment Information */}
       <div className="fa-faq-section-2">
         <div className="container-main fa-faq-section">
           <h2 className="fa-faq-section-h2">Payment Information</h2>
@@ -156,7 +138,7 @@ export default function FAQPage() {
                 src="/fashion/faq/faq1.webp"
                 alt="Payment Information"
                 fill
-                style={{ objectFit: 'contain', objectPosition: 'center' }}
+                className="object-contain object-center"
                 sizes="(max-width: 991px) 100vw, 50vw"
               />
             </div>
@@ -164,7 +146,6 @@ export default function FAQPage() {
         </div>
       </div>
 
-      {/* Section 3 — Order & Returns */}
       <div className="container-main fa-faq-section">
         <h2 className="fa-faq-section-h2">Order &amp; Returns</h2>
         <div className="fa-faq-full-width">
@@ -196,7 +177,7 @@ export default function FAQPage() {
         .fa-faq-page-header { background-color: rgb(247, 248, 252); padding: 40px 0 50px; text-align: center; }
         .fa-faq-h1 { font-size: 40px; font-weight: 600; color: #222; margin-bottom: 10px; }
         .fa-faq-section { padding-block: 80px; }
-        .fa-faq-section-h2 { font-size: 36px; font-weight: 700; color: #222; text-align: center; margin-bottom: 50px; }
+        .fa-faq-section-h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 600; color: #222; text-align: left; margin-bottom: 32px; }
         .fa-faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
         .fa-faq-img-wrap { position: relative; width: 100%; min-height: 710px; }
         .fa-faq-section-2 { background-color: rgb(247, 248, 252); }

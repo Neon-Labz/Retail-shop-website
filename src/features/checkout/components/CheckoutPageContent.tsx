@@ -36,7 +36,7 @@ function IcoCheck() {
 }
 
 export function CheckoutPageContent() {
-  const { items, getSubtotal, clearCart } = useCartStore();
+  const { items, getSubtotal, clearCart, orderNote, couponCode, discount } = useCartStore();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -45,8 +45,7 @@ export function CheckoutPageContent() {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [notes, setNotes] = useState('');
-  // const [discountCode, setDiscountCode] = useState('');
+  const [notes, setNotes] = useState(orderNote || '');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,7 +56,12 @@ export function CheckoutPageContent() {
   } | null>(null);
 
   useEffect(() => {
-    // 1. Immediately prefill from 1-day user cookie if available (fast feedback)
+    if (orderNote && !notes) {
+      setNotes(orderNote);
+    }
+  }, [orderNote, notes]);
+
+  useEffect(() => {
     try {
       const savedCheckout = localStorage.getItem('customer_checkout_details');
       const cookieUser = getClientCookie(USER_COOKIE_NAME);
@@ -76,12 +80,10 @@ export function CheckoutPageContent() {
       // Ignore parse errors
     }
 
-    // Clean up any legacy long-lived localStorage user data
     try {
       localStorage.removeItem('customer_user');
     } catch {}
 
-    // 2. Fetch fresh details of authenticated customer from /api/auth/me
     let isMounted = true;
     async function loadCustomer() {
       try {
@@ -214,6 +216,9 @@ export function CheckoutPageContent() {
           paymentMethod,
           items,
           subtotal,
+          discount: Math.min(subtotal, discount || 0),
+          total: Math.max(0, subtotal - Math.min(subtotal, discount || 0)),
+          couponCode: couponCode || '',
         }),
       });
 
@@ -225,7 +230,6 @@ export function CheckoutPageContent() {
         return;
       }
 
-      // Save checkout details for next time so address, city, country are remembered
       try {
         localStorage.setItem(
           'customer_checkout_details',
@@ -241,7 +245,6 @@ export function CheckoutPageContent() {
         );
       } catch {}
 
-      // Clear the cart
       clearCart();
 
       setOrderSuccess({
@@ -259,14 +262,12 @@ export function CheckoutPageContent() {
 
   return (
     <>
-      {/* ── Hero Banner ── */}
       <div className="co-hero">
         <h1 className="co-hero-title">Check Out</h1>
       </div>
 
-      {/* ── Main Content ── */}
       {orderSuccess ? (
-        <div className="container-main" style={{ paddingTop: '6rem', paddingBottom: '8rem' }}>
+        <div className="container-main pt-[60px] pb-[80px]">
           <div className="co-success-card">
             <div className="co-success-icon-wrap">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -296,23 +297,21 @@ export function CheckoutPageContent() {
                 <p>Order Total: <strong>{formatPrice(subtotal)}</strong></p>
               </div>
             </div>
-            <div style={{ marginTop: '3.5rem', textAlign: 'center' }}>
-              <Link href="/shop" className="co-continue-btn">
+            <div className="mt-[35px] text-center">
+              <Link href="/products" className="co-continue-btn">
                 Continue Shopping
               </Link>
             </div>
           </div>
         </div>
       ) : (
-        <div className="container-main" style={{ paddingTop: '6rem', paddingBottom: '8rem' }}>
+        <div className="container-main pt-[60px] pb-[80px]">
           <div className="co-layout">
 
-            {/* ── LEFT: Billing Details ── */}
             <section>
               <h2 className="co-section-title">Billing details</h2>
               <div className="co-fields">
 
-                {/* First + Last name */}
                 <div className="co-row-2">
                   <div className="co-field">
                     <label className="co-label">First Name<span className="co-req">*</span></label>
@@ -335,7 +334,6 @@ export function CheckoutPageContent() {
                   </div>
                 </div>
 
-                {/* Country/Region */}
                 <div className="co-field">
                   <label className="co-label">Country/Region<span className="co-req">*</span></label>
                   <select
@@ -349,7 +347,6 @@ export function CheckoutPageContent() {
                   </select>
                 </div>
 
-                {/* Town/City */}
                 <div className="co-field">
                   <label className="co-label">Town/City<span className="co-req">*</span></label>
                   <input
@@ -360,7 +357,6 @@ export function CheckoutPageContent() {
                   />
                 </div>
 
-                {/* Address */}
                 <div className="co-field">
                   <label className="co-label">Address<span className="co-req">*</span></label>
                   <input
@@ -371,7 +367,6 @@ export function CheckoutPageContent() {
                   />
                 </div>
 
-                {/* Phone Number */}
                 <div className="co-field">
                   <label className="co-label">Phone Number<span className="co-req">*</span></label>
                   <input
@@ -383,7 +378,6 @@ export function CheckoutPageContent() {
                   />
                 </div>
 
-                {/* Email */}
                 <div className="co-field">
                   <label className="co-label">Email<span className="co-req">*</span></label>
                   <input
@@ -395,7 +389,6 @@ export function CheckoutPageContent() {
                   />
                 </div>
 
-                {/* Order notes */}
                 <div className="co-field">
                   <label className="co-label">Order notes (optional)<span className="co-req">*</span></label>
                   <textarea
@@ -409,16 +402,14 @@ export function CheckoutPageContent() {
               </div>
             </section>
 
-            {/* ── RIGHT: Your Order ── */}
             <aside className="co-order-aside">
               <h2 className="co-section-title">Your order</h2>
 
-              {/* Cart items card */}
               <div className="co-order-card">
                 {items.length === 0 ? (
                   <div className="co-empty-state">
                     <p className="co-empty-text">Your shop cart is empty</p>
-                    <Link href="/shop" className="co-explore-btn">Explore Products!</Link>
+                    <Link href="/products" className="co-explore-btn">Explore Products!</Link>
                   </div>
                 ) : (
                   <>
@@ -439,30 +430,21 @@ export function CheckoutPageContent() {
                       <span>Subtotal</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
+                    {discount > 0 && (
+                      <div className="co-order-subtotal text-[#059669]">
+                        <span>Discount ({couponCode})</span>
+                        <span>-{formatPrice(Math.min(subtotal, discount))}</span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
 
-              {/* Discount code — merged bottom edge of order card
-              <div className="co-discount-row">
-                <input
-                  type="text"
-                  placeholder="Discount code"
-                  value={discountCode}
-                  onChange={(e) => setDiscountCode(e.target.value)}
-                  className="co-discount-input"
-                />
-                <button className="co-discount-apply">Apply</button>
-              </div>
-              */}
-
-              {/* Total */}
               <div className="co-total-bar">
                 <span className="co-total-label">Total</span>
-                <span className="co-total-amount">{formatPrice(subtotal)}</span>
+                <span className="co-total-amount">{formatPrice(Math.max(0, subtotal - Math.min(subtotal, discount || 0)))}</span>
               </div>
 
-              {/* Payment methods */}
               <div className="co-payment-wrap">
                 {(
                   [
@@ -483,7 +465,6 @@ export function CheckoutPageContent() {
                 ))}
               </div>
 
-              {/* Privacy text */}
               <p className="co-privacy">
                 Your personal data will be used to process your order, support your
                 experience throughout this website, and for other purposes described in
@@ -494,7 +475,6 @@ export function CheckoutPageContent() {
                 .
               </p>
 
-              {/* Terms checkbox */}
               <label className="co-terms">
                 <input
                   type="checkbox"
@@ -508,14 +488,12 @@ export function CheckoutPageContent() {
                 </span>
               </label>
 
-              {/* Error Alert */}
               {orderError && (
                 <div className="co-alert-error" role="alert">
                   <span>{orderError}</span>
                 </div>
               )}
 
-              {/* Place order */}
               <button
                 type="button"
                 className="co-place-order"
@@ -534,8 +512,6 @@ export function CheckoutPageContent() {
     </>
   );
 }
-
-/* ── Styles ──────────────────────────────────────────────────── */
 
 const coStyles = `
   /* ── Hero ── */

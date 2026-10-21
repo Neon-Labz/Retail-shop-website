@@ -32,17 +32,12 @@ const AW_CATEGORY_IMAGE = (i: number) => `/active-wear/categories-mega-menu/cate
 const AW_SLUGS = activeWearProducts.map((p) => p.slug);
 const AW_SLIDER_PRODUCTS = activeWearProducts as SliderProduct[];
 
-/* Backpack / Basketball reuse the fashion nav structure but swap the Shop promo
-   image and Categories card images for their own assets. (Note the backpack shop
-   image filename carries a "sjop" typo that exists on disk — preserve it.) */
 const BP_SHOP_MEGA_IMAGE = '/backpack/shop-mega-menu/sjop-mega-menu-1.webp';
 const BP_CATEGORY_IMAGE = (i: number) => `/backpack/categories-mega-menu/categories-mega-menu-${i + 1}.webp`;
 
 const BB_SHOP_MEGA_IMAGE = '/basketball/shop-mega-menu/shop-mega-menu-1.webp';
 const BB_CATEGORY_IMAGE = (i: number) => `/basketball/categories-mega-menu/categories-mega-menu-${i + 1}.webp`;
 
-/* Swap only the Shop mega image and Categories card images to storefront assets;
-   the Products mega-menu is left untouched. Every other storefront is unaffected. */
 function withMegaMenuImages(
   items: NavigationItem[],
   shopImage: string,
@@ -62,9 +57,6 @@ function withMegaMenuImages(
   });
 }
 
-/* Active Wear reuses the fashion nav structure but with its own data:
-   Shop promo image, Categories card images, and the Products mega-menu links/
-   slider point at active-wear assets/products. Isolated like withSingleProductData. */
 function withActiveWearData(items: NavigationItem[]): NavigationItem[] {
   return items.map((item) => {
     if (item.megaImage) {
@@ -92,10 +84,6 @@ function withActiveWearData(items: NavigationItem[]): NavigationItem[] {
   });
 }
 
-/* Single Product reuses the fashion nav structure but with its own data:
-   Shop promo image, Categories card images, and the Products mega-menu links/
-   slider point at single-product products. Every other storefront sharing this
-   nav is untouched. */
 function withSingleProductData(items: NavigationItem[]): NavigationItem[] {
   return items.map((item) => {
     if (item.megaImage) {
@@ -131,49 +119,6 @@ function IconChevronDown() {
   );
 }
 
-const FALLBACK_CATEGORY_COLUMNS: MegaMenuColumn[] = [
-  {
-    title: 'Electronics',
-    links: [
-      { id: 'el-1', label: 'Audio & Headphones', href: '/shop?category=Electronics&subcategory=Audio+%26+Headphones' },
-      { id: 'el-2', label: 'Laptops & Computers', href: '/shop?category=Electronics&subcategory=Laptops+%26+Computers' },
-      { id: 'el-3', label: 'Smart Watches', href: '/shop?category=Electronics&subcategory=Smart+Watches' },
-      { id: 'el-4', label: 'Smartphones', href: '/shop?category=Electronics&subcategory=Smartphones' },
-      { id: 'el-5', label: 'Television', href: '/shop?category=Electronics&subcategory=Television' },
-    ],
-  },
-  {
-    title: 'Home & Kitchen',
-    links: [
-      { id: 'hk-1', label: 'Kitchen Appliances', href: '/shop?category=Home+%26+Kitchen&subcategory=Kitchen+Appliances' },
-      { id: 'hk-2', label: 'Cookware & Dining', href: '/shop?category=Home+%26+Kitchen&subcategory=Cookware+%26+Dining' },
-      { id: 'hk-3', label: 'Coffee Makers', href: '/shop?category=Home+%26+Kitchen&subcategory=Coffee+Makers' },
-      { id: 'hk-4', label: 'Home Decor', href: '/shop?category=Home+%26+Kitchen&subcategory=Home+Decor' },
-      { id: 'hk-5', label: 'Cleaning & Care', href: '/shop?category=Home+%26+Kitchen&subcategory=Cleaning+%26+Care' },
-    ],
-  },
-  {
-    title: 'Fashion',
-    links: [
-      { id: 'fa-1', label: "Men's Clothing", href: "/shop?category=Fashion&subcategory=Men's+Clothing" },
-      { id: 'fa-2', label: "Women's Clothing", href: "/shop?category=Fashion&subcategory=Women's+Clothing" },
-      { id: 'fa-3', label: 'Footwear', href: '/shop?category=Fashion&subcategory=Footwear' },
-      { id: 'fa-4', label: 'Accessories', href: '/shop?category=Fashion&subcategory=Accessories' },
-      { id: 'fa-5', label: 'Eyewear & Accessories', href: '/shop?category=Fashion&subcategory=Eyewear+%26+Accessories' },
-    ],
-  },
-  {
-    title: 'Sports & Outdoors',
-    links: [
-      { id: 'sp-1', label: 'Fitness & Gym', href: '/shop?category=Sports+%26+Outdoors&subcategory=Fitness+%26+Gym' },
-      { id: 'sp-2', label: 'Strength Training', href: '/shop?category=Sports+%26+Outdoors&subcategory=Strength+Training' },
-      { id: 'sp-3', label: 'Cycling', href: '/shop?category=Sports+%26+Outdoors&subcategory=Cycling' },
-      { id: 'sp-4', label: 'Camping & Hiking', href: '/shop?category=Sports+%26+Outdoors&subcategory=Camping+%26+Hiking' },
-      { id: 'sp-5', label: 'Yoga & Fitness', href: '/shop?category=Sports+%26+Outdoors&subcategory=Yoga+%26+Fitness' },
-    ],
-  },
-];
-
 export function DesktopNav() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [dbCategoryColumns, setDbCategoryColumns] = useState<MegaMenuColumn[]>([]);
@@ -195,7 +140,7 @@ export function DesktopNav() {
             links: (cat.subcategories || []).map((sub: string, idx: number) => ({
               id: `${cat.slug || cat.id}-${idx}`,
               label: sub,
-              href: `/shop?category=${encodeURIComponent(cat.name)}&subcategory=${encodeURIComponent(sub)}`,
+              href: `/products?category=${encodeURIComponent(cat.name)}&subcategory=${encodeURIComponent(sub)}`,
             })),
           }));
           setDbCategoryColumns(cols);
@@ -209,7 +154,7 @@ export function DesktopNav() {
     };
   }, []);
 
-  const productMegaColumns = dbCategoryColumns.length > 0 ? dbCategoryColumns : FALLBACK_CATEGORY_COLUMNS;
+  const productMegaColumns = dbCategoryColumns;
   const storefront = getStorefrontFromPath(pathname);
   const isSingleProduct = storefront === 'single-product';
   const isActiveWear = storefront === 'active-wear';
@@ -242,8 +187,6 @@ export function DesktopNav() {
     return base;
   }, [isSingleProduct, isActiveWear, isBackpack, isBasketball, isGlasses, isPlumbingSupplies, isBook, isJewelry2, isCoffee, isCraftDecore, isToys, isSocks, isPod]);
 
-  /* Plumbing Supplies themes its nav in the brand navy instead of the default
-     black text + coral accent. Other storefronts keep the fashion defaults. */
   const navColor = isPlumbingSupplies ? '#0a2540' : '#222';
   const navAccent = isPlumbingSupplies ? '#3a5f8a' : '#F15B41';
 
@@ -256,50 +199,39 @@ export function DesktopNav() {
     timeoutRef.current = setTimeout(() => setActiveMenu(null), 150);
   };
 
+  const handleClose = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setActiveMenu(null);
+  };
+
+  useEffect(() => {
+    handleClose();
+  }, [pathname]);
+
   return (
-    <nav
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '32px',
-      }}
-    >
+    <nav className="flex items-center gap-[32px]">
       {navItems.map((item) => {
-        /* Shop button commented out as requested because Shop and Products navigate to the same page:
-        if (item.id === 'nav-shop') { ... }
-        */
         if (item.id === 'nav-shop') return null;
 
-        /* Blog button commented out as requested:
-        if (item.id === 'nav-blog') return null;
-        */
         if (item.id === 'nav-blog') return null;
 
-        // Only Home, Categories, Products, and About us are shown per request:
         const isAboutUs = item.id === 'nav-pages';
         const itemLabel = isAboutUs ? 'About us' : item.label;
-        const itemHref = isAboutUs ? '/pages/about' : (item.id === 'nav-products' ? '/shop' : item.href);
+        const itemHref = isAboutUs ? '/pages/about' : (item.id === 'nav-products' ? '/products' : item.href);
 
         return (
           <div
             key={item.id}
-            style={{ position: 'static' }}
+            className="static"
             onMouseEnter={() => handleMouseEnter(item.id)}
             onMouseLeave={handleMouseLeave}
           >
           <Link
             href={itemHref}
+            onClick={handleClose}
+            className="flex items-center gap-[4px] text-[17px] font-medium no-underline py-[8px] px-0 transition-[color] duration-150 ease-in-out whitespace-nowrap"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '17px',
-              fontWeight: 500,
               color: activeMenu === item.id ? navAccent : navColor,
-              textDecoration: 'none',
-              padding: '8px 0',
-              transition: 'color 150ms ease',
-              whiteSpace: 'nowrap',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = navAccent; }}
             onMouseLeave={(e) => {
@@ -307,39 +239,23 @@ export function DesktopNav() {
             }}
           >
             {itemLabel}
-            {/* Show chevron only for items that have dropdown/megamenu. Categories and About us are direct navigation links */}
             {!isAboutUs && item.id !== 'nav-categories' && (item.type === 'dropdown' || item.type === 'megamenu') && (
               <span
-                style={{
-                  display: 'inline-flex',
-                  transition: 'transform 300ms ease',
-                  transform: activeMenu === item.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                }}
+                className={`inline-flex transition-transform duration-300 ease-in-out ${
+                  activeMenu === item.id ? 'rotate-180' : 'rotate-0'
+                }`}
               >
                 <IconChevronDown />
               </span>
             )}
           </Link>
 
-          {/* Original Categories cascading menu inside navbar commented out; moved to dedicated button near logo per request:
-          {item.id === 'nav-categories' && activeMenu === item.id && (
-            <CategoriesCascadingMenu onClose={() => setActiveMenu(null)} />
-          )}
-          */}
-
-          {/* Mega Menu (Preserved for non-categories, do not remove) */}
           {item.id !== 'nav-categories' && item.type === 'megamenu' && (item.megaMenu || item.megaCategoryCards) && activeMenu === item.id && (
             <MegaMenu
-              /* Original dummy template columns commented out; replaced with real categories as requested:
-              columns={item.megaMenu}
-              */
               columns={item.id === 'nav-products' ? productMegaColumns : item.megaMenu}
               promoImage={item.megaImage}
               showProductSlider={item.megaProductSlider}
               categoryCards={item.megaCategoryCards}
-              /* Previous undefined sliderProducts fallback commented out as requested:
-              sliderProducts={isSingleProduct ? SP_SLIDER_PRODUCTS : isActiveWear ? AW_SLIDER_PRODUCTS : undefined}
-              */
               sliderProducts={isSingleProduct ? SP_SLIDER_PRODUCTS : isActiveWear ? AW_SLIDER_PRODUCTS : [
                 {
                   id: '6ad5f6860e445000414fa0d5',
@@ -375,16 +291,12 @@ export function DesktopNav() {
                 },
               ]}
               sliderHrefBase={isSingleProduct || isActiveWear ? '/products' : undefined}
+              onClose={handleClose}
             />
           )}
 
-          {/* Dropdown: Pages dropdown items (Contact, FAQ, Store Location, Wishlist, Compare, 404, Privacy, Terms, Refund) commented out as requested to show only About us:
-          {item.type === 'dropdown' && item.children && activeMenu === item.id && (
-            <DropdownMenu items={item.children} />
-          )}
-          */}
           {!isAboutUs && item.type === 'dropdown' && item.children && activeMenu === item.id && (
-            <DropdownMenu items={item.children} />
+            <DropdownMenu items={item.children} onClose={handleClose} />
           )}
         </div>
         );

@@ -4,14 +4,9 @@ import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { MegaMenuColumn, MegaCategoryCard } from '@/types/common';
-/* Previous productsData import with unlisted template products commented out as requested:
-import productsData from '@/data/products.json';
-*/
 import type { Product } from '@/types/product';
 import { formatPrice } from '@/utils/formatPrice';
 import { HOME_DEMO_COLUMNS } from '@/data/homeDemoMenu';
-
-/* ── Remix Icon arrows for product slider ── */
 
 function IconArrowLeftS({ size = 18 }: { size?: number }) {
   return (
@@ -28,8 +23,6 @@ function IconArrowRightS({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
-
-/* ── Theme system ── */
 
 export interface MegaMenuTheme {
   bg?: string;
@@ -67,42 +60,31 @@ function resolveTheme(t?: MegaMenuTheme): Required<MegaMenuTheme> {
   return { ...DEFAULT_THEME, ...t };
 }
 
-/* ── Shared column renderer ── */
-
-function MegaMenuColumns({ columns, t }: { columns: MegaMenuColumn[]; t: Required<MegaMenuTheme> }) {
+function MegaMenuColumns({ columns, t, onClose }: { columns: MegaMenuColumn[]; t: Required<MegaMenuTheme>; onClose?: () => void }) {
   return (
     <>
       {columns.map((column, i) => (
         <div key={i}>
           <h4
-            style={{
-              fontSize: '15px',
-              fontWeight: 700,
-              color: t.headingColor,
-              marginBottom: '18px',
-            }}
+            className="text-[15px] font-bold mb-[18px]"
+            style={{ color: t.headingColor }}
           >
             {column.title}
           </h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <ul className="list-none p-0 m-0 flex flex-col gap-[18px]">
             {column.links.map((link) => (
               <li key={link.id}>
                 <Link
                   href={link.href}
-                  style={{
-                    fontSize: '14px',
-                    color: t.linkColor,
-                    textDecoration: 'none',
-                    transition: 'color 150ms ease',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    cursor: link.comingSoon ? 'default' : undefined,
-                  }}
+                  className={`text-[14px] no-underline transition-[color] duration-150 ease-in-out inline-flex items-center gap-[8px] ${
+                    link.comingSoon ? 'cursor-default' : ''
+                  }`}
+                  style={{ color: t.linkColor }}
                   onClick={(e) => {
                     if (link.comingSoon) {
                       e.preventDefault();
                     } else {
+                      onClose?.();
                       window.scrollTo({ top: 0, behavior: 'instant' });
                     }
                   }}
@@ -111,19 +93,7 @@ function MegaMenuColumns({ columns, t }: { columns: MegaMenuColumn[]; t: Require
                 >
                   {link.label}
                   {link.comingSoon && (
-                    <span
-                      style={{
-                        fontSize: '10px',
-                        fontWeight: 600,
-                        color: '#fff',
-                        backgroundColor: 'rgba(107, 114, 128, 0.8)',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        letterSpacing: '0.3px',
-                        lineHeight: 1.4,
-                        flexShrink: 0,
-                      }}
-                    >
+                    <span className="text-[10px] font-semibold text-white bg-[rgba(107,114,128,0.8)] py-[2px] px-[6px] rounded-[4px] tracking-[0.3px] leading-[1.4] shrink-0">
                       Coming Soon
                     </span>
                   )}
@@ -137,8 +107,6 @@ function MegaMenuColumns({ columns, t }: { columns: MegaMenuColumn[]; t: Require
   );
 }
 
-/* ── Product Slider for Products mega menu ── */
-
 export interface SliderProduct {
   id: string;
   slug: string;
@@ -148,64 +116,9 @@ export interface SliderProduct {
   images: { src: string }[];
 }
 
-// Real live store products from MongoDB for Featured Collection slider in Mega Menu
-const realStoreFeaturedProducts: SliderProduct[] = [
-  {
-    id: '6ad5f6860e445000414fa0d5',
-    slug: 'gold-silver-plated-granted-charm-bracelet',
-    name: 'Gold & Silver Plated Granted Charm Bracelet (European Pandora Style)',
-    price: 1250,
-    compareAtPrice: 1550,
-    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484317347-7da77223-4a96-4b72-b8e6-9cd39b1aa356.png' }],
-  },
-  {
-    id: '6ad5f6820e445000414fa0cf',
-    slug: 'mini-handheld-fan-daisy-flower-accent-with-removable-stand',
-    name: 'Mini Handheld Fan (Daisy Flower Accent with Removable Stand)',
-    price: 450,
-    compareAtPrice: 650,
-    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407158549-a3f3ec62-1010-46dc-8868-547b807584d4.png' }],
-  },
-  {
-    id: '6ad5f67e0e445000414fa0c9',
-    slug: 'portable-desktop-fan-ultra-thin-folding-stand',
-    name: 'Portable Desktop Fan (Ultra-Thin Folding Stand)',
-    price: 475,
-    compareAtPrice: 600,
-    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407167386-42072d33-a778-40dc-9045-1879d3235c02.png' }],
-  },
-  {
-    id: '6ad5f6750e445000414fa0c4',
-    slug: 'sweet-bunny-kids-stationery-set-with-coin-purse',
-    name: 'Sweet Bunny Kids Stationery Set with Coin Purse',
-    price: 240,
-    compareAtPrice: 320,
-    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407140539-02d7d3ca-9078-4b58-9d90-dbd2c5dadc8a.png' }],
-  },
-  {
-    id: '6ad5f66d0e445000414fa0bf',
-    slug: 'space-astronaut-stationery-set-no-907-dream-space-edition',
-    name: 'Space Astronaut Stationery Set No. 907 (Dream Space Edition)',
-    price: 225,
-    compareAtPrice: 290,
-    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407149657-c8a210e8-62df-45ff-853b-f821ebe9f6df.png' }],
-  },
-  {
-    id: '6ad5f6640e445000414fa0b2',
-    slug: 'heavy-duty-foldable-step-ladder-model-8935',
-    name: 'Heavy Duty Foldable Step Ladder (Model 8935)',
-    price: 8935,
-    compareAtPrice: 11000,
-    images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484380387-7310740e-b8ef-4b14-a5c4-5c194b845b5a.png' }],
-  },
-];
-
-function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }: { products?: SliderProduct[]; hrefBase?: string; t: Required<MegaMenuTheme> }) {
+function ProductSlider({ products: overrideProducts, hrefBase = '/products', t, onClose }: { products?: SliderProduct[]; hrefBase?: string; t: Required<MegaMenuTheme>; onClose?: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  /* Previous empty initial state commented out as requested:
   const [dbProducts, setDbProducts] = useState<SliderProduct[]>([]);
-  */
-  const [dbProducts, setDbProducts] = useState<SliderProduct[]>(realStoreFeaturedProducts);
 
   useEffect(() => {
     if (overrideProducts && overrideProducts.length > 0) return;
@@ -237,18 +150,9 @@ function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }
     };
   }, [overrideProducts]);
 
-  /* Previous fallback to unlisted productsData commented out as requested:
   const products: SliderProduct[] = (overrideProducts && overrideProducts.length > 0)
     ? overrideProducts
-    : dbProducts.length > 0
-    ? dbProducts
-    : (productsData as Product[]).slice(0, 6);
-  */
-  const products: SliderProduct[] = (overrideProducts && overrideProducts.length > 0)
-    ? overrideProducts
-    : dbProducts.length > 0
-    ? dbProducts
-    : realStoreFeaturedProducts;
+    : dbProducts;
 
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return;
@@ -259,16 +163,16 @@ function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }
 
   return (
     <div>
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <h4 style={{ fontSize: '18px', fontWeight: 700, color: t.headingColor }}>Featured Collection</h4>
-        <div style={{ display: 'flex', gap: '6px' }}>
+      <div className="flex items-center justify-between mb-[20px]">
+        <h4 className="text-[18px] font-bold" style={{ color: t.headingColor }}>Featured Collection</h4>
+        <div className="flex gap-[6px]">
           <button
             onClick={() => scroll('left')}
+            className="w-[36px] h-[36px] rounded-full border flex items-center justify-center cursor-pointer transition-colors duration-150"
             style={{
-              width: '36px', height: '36px', borderRadius: '50%', border: `1px solid ${t.sliderBtnBorder}`,
-              background: t.sliderBtnBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: t.sliderBtnColor, transition: 'border-color 150ms ease',
+              borderColor: t.sliderBtnBorder,
+              background: t.sliderBtnBg,
+              color: t.sliderBtnColor,
             }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.sliderBtnHoverBorder; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = t.sliderBtnBorder; }}
@@ -278,10 +182,11 @@ function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }
           </button>
           <button
             onClick={() => scroll('right')}
+            className="w-[36px] h-[36px] rounded-full border flex items-center justify-center cursor-pointer transition-colors duration-150"
             style={{
-              width: '36px', height: '36px', borderRadius: '50%', border: `1px solid ${t.sliderBtnBorder}`,
-              background: t.sliderBtnBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: t.sliderBtnColor, transition: 'border-color 150ms ease',
+              borderColor: t.sliderBtnBorder,
+              background: t.sliderBtnBg,
+              color: t.sliderBtnColor,
             }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.sliderBtnHoverBorder; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = t.sliderBtnBorder; }}
@@ -292,69 +197,52 @@ function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }
         </div>
       </div>
 
-      {/* Scrollable product cards — exactly 2 fully visible, snap-aligned (no peek) */}
       <div
         ref={scrollRef}
-        style={{
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gridAutoColumns: 'calc(50% - 8px)',
-          gap: '16px',
-          overflowX: 'auto',
-          scrollBehavior: 'smooth',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          scrollSnapType: 'x mandatory',
-        }}
+        className="grid grid-flow-col auto-cols-[calc(50%-8px)] gap-[16px] overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] snap-x snap-mandatory"
       >
         {products.map((product) => {
-          /* Previous imgSrc extraction commented out as requested:
-          const imgSrc = product.images?.[0]?.src || '';
-          */
           const rawImg = product.images?.[0] as any;
           const imgSrc = (typeof rawImg === 'string' ? rawImg : rawImg?.src) || '';
           return (
             <Link
               key={product.id}
               href={`${hrefBase}/${product.slug}`}
-              style={{ textDecoration: 'none', color: 'inherit', scrollSnapAlign: 'start' }}
+              onClick={() => onClose?.()}
+              className="no-underline text-inherit snap-start"
             >
               <div
-                style={{
-                  width: '100%',
-                  height: '385px',
-                  backgroundColor: t.cardBg,
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  marginBottom: '10px',
-                }}
+                className="w-full h-[385px] rounded-[6px] overflow-hidden relative mb-[10px]"
+                style={{ backgroundColor: t.cardBg }}
               >
                 {imgSrc ? (
                   <Image
                     src={imgSrc}
                     alt={product.name}
                     fill
-                    style={{ objectFit: 'cover' }}
+                    className="object-cover"
                     sizes="220px"
                     unoptimized
                   />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '13px', backgroundColor: '#f0f0f0' }}>
+                  <div className="w-full h-full flex items-center justify-center text-[#999] text-[13px] bg-[#f0f0f0]">
                     No image
                   </div>
                 )}
               </div>
-              <p style={{ fontSize: '14px', fontWeight: 600, color: t.linkColor, marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <p
+                className="text-[14px] font-semibold mb-[4px] whitespace-nowrap overflow-hidden text-ellipsis"
+                style={{ color: t.linkColor }}
+              >
                 {product.name}
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div className="flex items-center gap-[6px]">
                 {product.compareAtPrice && product.compareAtPrice > product.price && (
-                  <span style={{ fontSize: '13px', color: t.sliderOldPriceColor, textDecoration: 'line-through' }}>
+                  <span className="text-[13px] line-through" style={{ color: t.sliderOldPriceColor }}>
                     {formatPrice(product.compareAtPrice)}
                   </span>
                 )}
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#F15B41' }}>
+                <span className="text-[14px] font-bold text-[#F15B41]">
                   {formatPrice(product.price)}
                 </span>
               </div>
@@ -365,8 +253,6 @@ function ProductSlider({ products: overrideProducts, hrefBase = '/products', t }
     </div>
   );
 }
-
-/* ── Main MegaMenu Component ── */
 
 interface MegaMenuProps {
   columns?: MegaMenuColumn[];
@@ -379,82 +265,62 @@ interface MegaMenuProps {
   showProductSlider?: boolean;
   categoryCards?: MegaCategoryCard[];
   sliderProducts?: SliderProduct[];
-  /** Base href for slider product links. Default: "/products". */
   sliderHrefBase?: string;
   theme?: MegaMenuTheme;
+  onClose?: () => void;
 }
 
-export function MegaMenu({ columns, promoImage, showProductSlider, categoryCards, sliderProducts, sliderHrefBase, theme }: MegaMenuProps) {
+export function MegaMenu({ columns, promoImage, showProductSlider, categoryCards, sliderProducts, sliderHrefBase, theme, onClose }: MegaMenuProps) {
   const t = resolveTheme(theme);
 
-  /* Layout: Categories mega menu = 5 image cards */
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('a')) {
+      onClose?.();
+    }
+  };
+
   if (categoryCards && categoryCards.length > 0) {
     return (
       <div
-        style={{
-          position: 'absolute',
-          top: '100%',
-          left: 'calc(50% - 50vw)',
-          right: 'calc(50% - 50vw)',
-          backgroundColor: t.bg,
-          borderTop: 'none',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-          zIndex: 300,
-          animation: 'menuSlideDown 300ms ease-out',
-        }}
+        onClick={handleContainerClick}
+        className="absolute top-full left-[calc(50%-50vw)] right-[calc(50%-50vw)] border-t-0 shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[300] animate-[menuSlideDown_300ms_ease-out]"
+        style={{ backgroundColor: t.bg }}
       >
-        <div className="container-main" style={{ height: '420px', paddingTop: '30px', paddingBottom: '30px', display: 'flex', alignItems: 'center' }}>
+        <div className="container-main h-[420px] py-[30px] flex items-center">
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${categoryCards.length}, 1fr)`,
-              gap: '24px',
-              width: '100%',
-            }}
+            className="grid gap-[24px] w-full"
+            style={{ gridTemplateColumns: `repeat(${categoryCards.length}, 1fr)` }}
           >
             {categoryCards.map((card) => (
               <Link
                 key={card.id}
                 href={card.href}
-                className="category-card-link"
-                style={{ textDecoration: 'none', color: 'inherit', textAlign: 'left' }}
+                onClick={() => onClose?.()}
+                className="category-card-link no-underline text-inherit text-left"
               >
                 <div
-                  style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: '280px',
-                    backgroundColor: t.cardBg,
-                    overflow: 'hidden',
-                    marginBottom: '14px',
-                  }}
+                  className="relative w-full h-[280px] overflow-hidden mb-[14px]"
+                  style={{ backgroundColor: t.cardBg }}
                 >
                   <Image
                     src={card.image}
                     alt={card.label}
                     fill
-                    style={{ objectFit: 'cover', transition: 'transform 400ms ease' }}
+                    className="object-cover transition-transform duration-400 ease-in-out"
                     sizes="(max-width: 1200px) 33vw, 20vw"
                   />
                 </div>
 
                 <span
-                  className="category-card-label"
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 700,
-                    color: t.headingColor,
-                    position: 'relative',
-                    display: 'inline-block',
-                    paddingBottom: '4px',
-                    lineHeight: 1.3,
-                  }}
+                  className="category-card-label text-[18px] font-bold relative inline-block pb-[4px] leading-[1.3]"
+                  style={{ color: t.headingColor }}
                 >
                   {card.label}
                 </span>
 
                 {card.itemCount !== undefined && (
-                  <p style={{ fontSize: '14px', color: t.categoryCountColor, marginTop: '4px', fontWeight: 400 }}>
+                  <p className="text-[14px] mt-[4px] font-normal" style={{ color: t.categoryCountColor }}>
                     {card.itemCount} Items
                   </p>
                 )}
@@ -486,67 +352,52 @@ export function MegaMenu({ columns, promoImage, showProductSlider, categoryCards
     );
   }
 
-  /* Layout: Products mega menu = 70/30 split */
   if (showProductSlider && columns) {
     return (
       <div
-        style={{
-          position: 'absolute',
-          top: '100%',
-          left: 'calc(50% - 50vw)',
-          right: 'calc(50% - 50vw)',
-          backgroundColor: t.bg,
-          borderTop: 'none',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-          zIndex: 300,
-          animation: 'menuSlideDown 300ms ease-out',
-        }}
+        onClick={handleContainerClick}
+        className="absolute top-full left-[calc(50%-50vw)] right-[calc(50%-50vw)] border-t-0 shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[300] animate-[menuSlideDown_300ms_ease-out]"
+        style={{ backgroundColor: t.bg }}
       >
-        <div className="container-main" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '60% 40%', gap: '40px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-              <MegaMenuColumns columns={columns} t={t} />
+        <div className="container-main py-[32px]">
+          <div className="grid grid-cols-[60%_40%] gap-[40px]">
+            <div className="grid grid-cols-4 gap-[24px]">
+              <MegaMenuColumns columns={columns} t={t} onClose={onClose} />
             </div>
-            <ProductSlider products={sliderProducts} hrefBase={sliderHrefBase} t={t} />
+            <ProductSlider products={sliderProducts} hrefBase={sliderHrefBase} t={t} onClose={onClose} />
           </div>
         </div>
       </div>
     );
   }
 
-  /* Layout: Shop mega menu = text columns + promo image */
   if (promoImage && columns) {
     return (
       <div
-        style={{
-          position: 'absolute',
-          top: '100%',
-          left: 'calc(50% - 50vw)',
-          right: 'calc(50% - 50vw)',
-          backgroundColor: t.bg,
-          borderTop: 'none',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-          zIndex: 300,
-          animation: 'menuSlideDown 300ms ease-out',
-        }}
+        onClick={handleContainerClick}
+        className="absolute top-full left-[calc(50%-50vw)] right-[calc(50%-50vw)] border-t-0 shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[300] animate-[menuSlideDown_300ms_ease-out]"
+        style={{ backgroundColor: t.bg }}
       >
-        <div className="container-main" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns.length}, 1fr) 1fr`, gap: '24px' }}>
-            <MegaMenuColumns columns={columns} t={t} />
+        <div className="container-main py-[40px]">
+          <div className="grid gap-[24px]" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr) 1fr` }}>
+            <MegaMenuColumns columns={columns} t={t} onClose={onClose} />
 
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', backgroundColor: t.cardBg, borderRadius: '4px', overflow: 'hidden' }}>
+            <div className="flex flex-col">
+              <div
+                className="relative w-full aspect-square rounded-[4px] overflow-hidden"
+                style={{ backgroundColor: t.cardBg }}
+              >
                 <Image
                   src={promoImage.src}
                   alt={promoImage.alt}
                   fill
-                  style={{ objectFit: 'cover' }}
+                  className="object-cover"
                   sizes="280px"
                 />
               </div>
-              <div style={{ textAlign: 'center', paddingTop: '16px' }}>
-                <p style={{ fontSize: '16px', fontWeight: 700, color: t.promoTitleColor, letterSpacing: '1px' }}>{promoImage.title}</p>
-                <p style={{ fontSize: '13px', color: t.promoSubtitleColor, marginTop: '4px', letterSpacing: '1px' }}>{promoImage.subtitle}</p>
+              <div className="text-center pt-[16px]">
+                <p className="text-[16px] font-bold tracking-[1px]" style={{ color: t.promoTitleColor }}>{promoImage.title}</p>
+                <p className="text-[13px] mt-[4px] tracking-[1px]" style={{ color: t.promoSubtitleColor }}>{promoImage.subtitle}</p>
               </div>
             </div>
           </div>
@@ -555,39 +406,32 @@ export function MegaMenu({ columns, promoImage, showProductSlider, categoryCards
     );
   }
 
-  /* Layout: Default (Home) = equal columns, no image */
   if (!columns) return null;
 
-  /* Check if this is the Home demo lists menu */
   const isDemoMenu = columns.some((c) => c.title && c.title.toLowerCase().startsWith('demo list'));
   const effectiveColumns = isDemoMenu ? HOME_DEMO_COLUMNS : columns;
 
   return (
     <div
+      onClick={handleContainerClick}
+      className="absolute top-full left-[calc(50%-50vw)] right-[calc(50%-50vw)] border-t shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[300] animate-[menuSlideDown_300ms_ease-out]"
       style={{
-        position: 'absolute',
-        top: '100%',
-        left: 'calc(50% - 50vw)',
-        right: 'calc(50% - 50vw)',
         backgroundColor: t.bg,
-        borderTop: `1px solid ${t.sliderBtnBorder}`,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-        zIndex: 300,
-        animation: 'menuSlideDown 300ms ease-out',
+        borderTopColor: t.sliderBtnBorder,
       }}
     >
-      <div className="container-main" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
+      <div className="container-main py-[32px]">
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns:
-              effectiveColumns.length <= 2
-                ? 'repeat(auto-fit, minmax(220px, 280px))'
-                : `repeat(${effectiveColumns.length}, 1fr)`,
-            gap: '32px',
-          }}
+          className={`grid gap-[32px] ${
+            effectiveColumns.length <= 2 ? 'grid-cols-[repeat(auto-fit,minmax(220px,280px))]' : ''
+          }`}
+          style={
+            effectiveColumns.length > 2
+              ? { gridTemplateColumns: `repeat(${effectiveColumns.length}, 1fr)` }
+              : undefined
+          }
         >
-          <MegaMenuColumns columns={effectiveColumns} t={t} />
+          <MegaMenuColumns columns={effectiveColumns} t={t} onClose={onClose} />
         </div>
       </div>
     </div>

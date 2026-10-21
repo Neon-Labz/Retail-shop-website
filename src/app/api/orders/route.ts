@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Support both flat fields and nested customer object
     const customerObj = body.customer || {};
     const firstName = body.firstName || customerObj.firstName || '';
     const lastName = body.lastName || customerObj.lastName || '';
@@ -28,7 +27,6 @@ export async function POST(request: NextRequest) {
     const discount = body.discount || 0;
     const total = body.total || subtotal;
 
-    // Validation
     if (!firstName || typeof firstName !== 'string' || !firstName.trim()) {
       return NextResponse.json(
         { success: false, error: 'First name is required' },
@@ -76,7 +74,6 @@ export async function POST(request: NextRequest) {
     const cleanEmail = email ? email.toLowerCase().trim() : '';
     const fullName = `${firstName.trim()} ${typeof lastName === 'string' ? lastName.trim() : ''}`.trim() || cleanEmail.split('@')[0] || 'Customer';
 
-    // Check token from cookie or authorization header
     let userId: string | null = null;
     const token =
       request.cookies.get('auth_token')?.value ||
@@ -91,7 +88,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Find customer by ID or email
     let customer = userId ? await User.findById(userId) : null;
     if (!customer && cleanEmail) {
       customer = await User.findOne({ email: cleanEmail });
@@ -106,23 +102,19 @@ export async function POST(request: NextRequest) {
     };
 
     if (customer) {
-      // Update customer details if empty or updated
       if (firstName.trim()) customer.firstName = firstName.trim();
       if (typeof lastName === 'string' && lastName.trim()) customer.lastName = lastName.trim();
       if (phone.trim()) customer.phone = phone.trim();
       customer.name = fullName;
 
-      // Update addresses list
       if (!Array.isArray(customer.addresses)) {
         customer.addresses = [];
       }
 
-      // Demote existing defaults
       customer.addresses.forEach((a: ICustomerAddress) => {
         a.isDefault = false;
       });
 
-      // Check if address already exists
       const existingIdx = customer.addresses.findIndex(
         (a: ICustomerAddress) =>
           a.line1?.trim().toLowerCase() === orderAddress.line1?.toLowerCase() &&
@@ -143,7 +135,6 @@ export async function POST(request: NextRequest) {
 
       await customer.save();
     } else if (cleanEmail) {
-      // Create customer record so details are remembered next time
       customer = await User.create({
         name: fullName,
         firstName: firstName.trim(),
@@ -159,7 +150,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Format items for order
     const formattedItems = items.map((item: any) => ({
       product: mongoose.Types.ObjectId.isValid(item.productId)
         ? new mongoose.Types.ObjectId(item.productId)
@@ -229,7 +219,6 @@ export async function POST(request: NextRequest) {
       notes: typeof notes === 'string' ? notes.trim() : '',
     });
 
-    // Attempt to decrement stock in MongoDB products if applicable
     for (const item of items) {
       if (item.productId && mongoose.Types.ObjectId.isValid(item.productId)) {
         try {
@@ -274,12 +263,19 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '20'));
     const status = searchParams.get('status');
+    const customerId = searchParams.get('customerId') || searchParams.get('userId');
+    const email = searchParams.get('email');
 
     await connectDB();
 
     const query: Record<string, any> = {};
     if (status && status !== 'all') {
       query.status = status;
+    }
+    if (customerId && mongoose.Types.ObjectId.isValid(customerId)) {
+      query.customer = new mongoose.Types.ObjectId(customerId);
+    } else if (email) {
+      query['customer.email'] = new RegExp(`^${email.trim()}$`, 'i');
     }
 
     const total = await Order.countDocuments(query);

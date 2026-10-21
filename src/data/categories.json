@@ -1,8 +1,1 @@
-[
-  { "id": "6ad5f26d8c37efc3ddcb1a03", "name": "Toys & Games", "slug": "toys-games", "image": "/pod/shop-by-categories-slider/shop-by-categories-1.webp", "description": "Fun, creative, and action-packed toys, vehicles, collectibles, and outdoor games for kids of all ages.", "productCount": 8 },
-  { "id": "6ad5f2708c37efc3ddcb1a08", "name": "Party & Celebrations", "slug": "party-celebrations", "image": "/pod/shop-by-categories-slider/shop-by-categories-1.webp", "description": "Everything you need for unforgettable birthdays, weddings, anniversaries, and festive celebrations.", "productCount": 6 },
-  { "id": "6ad5f2738c37efc3ddcb1a0b", "name": "Home & Living", "slug": "home-living", "image": "/pod/shop-by-categories-slider/shop-by-categories-1.webp", "description": "Quality tableware, storage solutions, furniture, and practical home accessories for modern living.", "productCount": 6 },
-  { "id": "6ad5f2758c37efc3ddcb1a0f", "name": "Stationery & School", "slug": "stationery-school", "image": "/pod/shop-by-categories-slider/shop-by-categories-1.webp", "description": "Cute and functional stationery sets, pencil cases, and school supplies for kids and students.", "productCount": 3 },
-  { "id": "6ad5f2788c37efc3ddcb1a11", "name": "Electronics & Gadgets", "slug": "electronics-gadgets", "image": "/pod/shop-by-categories-slider/shop-by-categories-1.webp", "description": "Portable fans, personal cooling devices, and everyday smart gadgets.", "productCount": 2 },
-  { "id": "6ad5f27a8c37efc3ddcb1a13", "name": "Fashion & Accessories", "slug": "fashion-accessories", "image": "/pod/shop-by-categories-slider/shop-by-categories-1.webp", "description": "Trendy jewelry, stylish bracelets, and fashion accessories.", "productCount": 1 }
-]
+[]

@@ -37,18 +37,6 @@ function IconArrowRightLong({ size = 20 }: { size?: number }) {
 
 /* ── Category Data ── */
 
-/* Original static mock categories commented out as requested:
-const categories = [
-  { id: 'knit', label: 'Knit Wears', items: 17, image: '/fashion/categories-mega-menu/categories-mega-menu1.webp', href: '/shop?category=Knitwear' },
-  { id: 'glasses', label: 'Glasses', items: 11, image: '/fashion/categories-mega-menu/categories-mega-menu2.webp', href: '/shop?category=Accessories' },
-  { id: 'sweaters', label: 'Sweaters', items: 19, image: '/fashion/categories-mega-menu/categories-mega-menu3.webp', href: '/shop?category=Knitwear' },
-  { id: 'formal', label: 'Formal Wear', items: 16, image: '/fashion/categories-mega-menu/categories-mega-menu4.webp', href: '/shop?category=Dresses' },
-  { id: 'activewear', label: 'Activewear', items: 12, image: '/fashion/categories-mega-menu/categories-mega-menu5.webp', href: '/shop?category=Activewear' },
-  { id: 'tops', label: 'Tops', items: 14, image: '/fashion/categories-mega-menu/categories-mega-menu1.webp', href: '/shop?category=Tops' },
-  { id: 'dresses', label: 'Dresses', items: 22, image: '/fashion/categories-mega-menu/categories-mega-menu3.webp', href: '/shop?category=Dresses' },
-];
-*/
-
 interface CategoryItem {
   id: string;
   label: string;

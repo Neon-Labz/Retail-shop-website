@@ -25,10 +25,6 @@ import { HomeProductCard } from '@/features/home/components/HomeProductCard';
 import { GroceryProductCard } from '@/features/grocery-shop/components/GroceryProductCard';
 import type { Product } from '@/types/product';
 
-/* ══════════════════════════════════
-   ICONS
-   ══════════════════════════════════ */
-
 function IconBag({ size = 18 }: { size?: number }) {
   return (<svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}><path d="M9 6H15C15 4.34315 13.6569 3 12 3C10.3431 3 9 4.34315 9 6ZM7 6C7 3.23858 9.23858 1 12 1C14.7614 1 17 3.23858 17 6H20C20.5523 6 21 6.44772 21 7V21C21 21.5523 20.5523 22 20 22H4C3.44772 22 3 21.5523 3 21V7C3 6.44772 3.44772 6 4 6H7ZM5 8V20H19V8H5ZM9 10C9 11.6569 10.3431 13 12 13C13.6569 13 15 11.6569 15 10H17C17 12.7614 14.7614 15 12 15C9.23858 15 7 12.7614 7 10H9Z" /></svg>);
 }
@@ -41,10 +37,6 @@ function IconArrowLeft({ size = 16 }: { size?: number }) {
 function IconArrowRight({ size = 16 }: { size?: number }) {
   return (<svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z" /></svg>);
 }
-
-/* ══════════════════════════════════
-   IMAGE GALLERY (with thumbnail slider)
-   ══════════════════════════════════ */
 
 function ProductGallery({ images, onActiveChange }: { images: { id: string; src: string; alt: string }[]; onActiveChange?: (index: number) => void }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -78,7 +70,6 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
     });
   };
 
-  // Measure main image height for thumbnail container
   useEffect(() => {
     const el = mainWrapRef.current;
     if (!el) return;
@@ -87,7 +78,6 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
     return () => ro.disconnect();
   }, []);
 
-  // Auto-scroll thumbnails to keep active one visible
   useEffect(() => {
     if (!thumbContainerRef.current) return;
     const activeThumb = thumbContainerRef.current.children[activeIndex] as HTMLElement;
@@ -120,7 +110,6 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
     lightboxSwiperRef.current?.slideTo(newIdx);
   };
 
-  // Keyboard navigation for lightbox
   useEffect(() => {
     if (!lightboxOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -134,10 +123,8 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
 
   return (
     <div className="pdp-gallery-flex">
-      {/* Thumbnails — vertical desktop, horizontal mobile (≤749) */}
       {images.length > 1 && (
         <div className="pdp-thumb-wrap">
-          {/* Mobile-only horizontal scroll arrows (hidden ≥750 via CSS) */}
           <button
             type="button"
             aria-label="Previous thumbnails"
@@ -148,29 +135,18 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
           </button>
           <div
             ref={thumbContainerRef}
-            className="pdp-thumb-vertical"
-            style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: mainHeight > 0 ? `${mainHeight}px` : '700px', overflowY: 'auto' }}
+            className="pdp-thumb-vertical flex flex-col gap-[10px] overflow-y-auto"
+            style={{ maxHeight: mainHeight > 0 ? `${mainHeight}px` : '700px' }}
           >
             {images.map((img, i) => (
-              <button key={img.id} onClick={() => handleThumbClick(i)} className="pdp-thumb-btn" style={{
-                position: 'relative', width: '100%',
-                /* Previous 3:4 aspect ratio commented out as requested
-                aspectRatio: '3 / 4',
-                */
-                aspectRatio: '1 / 1',
-                overflow: 'hidden', flexShrink: 0,
-                border: activeIndex === i ? '2px solid #222' : '2px solid transparent',
-                cursor: 'pointer', backgroundColor: '#fff', padding: 0,
-                borderRadius: '4px',
-                transition: 'border-color 200ms ease',
-              }}>
-                {/* Previous cover objectFit commented out as requested
-                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 100px, 90px" />
-                */}
-                {/* Previous contain objectFit commented out as requested
-                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'contain', padding: '4px' }} sizes="(max-width: 749px) 100px, 90px" />
-                */}
-                <Image src={img.src} alt={img.alt} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 100px, 90px" />
+              <button
+                key={img.id}
+                onClick={() => handleThumbClick(i)}
+                className={`pdp-thumb-btn relative w-full aspect-square overflow-hidden shrink-0 border-[2px] border-solid cursor-pointer bg-[#fff] p-0 rounded-[4px] transition-colors duration-200 ease-in-out ${
+                  activeIndex === i ? 'border-[#222]' : 'border-transparent'
+                }`}
+              >
+                <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="(max-width: 749px) 100px, 90px" />
               </button>
             ))}
           </div>
@@ -185,24 +161,19 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
         </div>
       )}
 
-      {/* Main Image Swiper + Zoom Panel */}
       <div className="pdp-main-col">
-        {/* Aspect ratio wrapper — gives Swiper a real height (overridden to explicit height ≤749) */}
         <div
           ref={mainWrapRef}
           onMouseEnter={() => setZooming(true)}
           onMouseLeave={() => setZooming(false)}
           onMouseMove={handleMouseMove}
-          className="pdp-main-image-wrap"
-          style={{ position: 'relative', width: '100%', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #f0f0f0', overflow: 'hidden', cursor: zooming ? 'crosshair' : 'default' }}
+          className={`pdp-main-image-wrap relative w-full bg-[#fff] rounded-[8px] border border-solid border-[#f0f0f0] overflow-hidden ${
+            zooming ? 'cursor-crosshair' : 'cursor-default'
+          }`}
         >
-          {/* Previous 3:4 aspect ratio spacer commented out as requested
-          <div className="pdp-main-image-spacer" style={{ width: '100%', paddingBottom: '133.33%' }} />
-          */}
-          <div className="pdp-main-image-spacer" style={{ width: '100%', paddingBottom: '100%' }} />
+          <div className="pdp-main-image-spacer w-full pb-[100%]" />
 
-          {/* Swiper fills spacer via absolute positioning */}
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+          <div className="absolute top-0 left-0 w-full h-full">
             <Swiper
               modules={[Navigation]}
               navigation={{
@@ -211,30 +182,21 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
               }}
               onSwiper={(swiper) => { swiperRef.current = swiper; }}
               onSlideChange={(swiper) => { setActiveIndex(swiper.activeIndex); onActiveChange?.(swiper.activeIndex); }}
-              className="pdp-gallery-swiper"
-              style={{ width: '100%', height: '100%' }}
+              className="pdp-gallery-swiper w-full h-full"
               speed={400}
             >
               {images.map((img, idx) => (
-                <SwiperSlide key={img.id} style={{ width: '100%', height: '100%' }}>
-                  {/* Previous contain objectFit with padding commented out as requested
+                <SwiperSlide key={img.id} className="w-full h-full">
                   <img
                     src={img.src} alt={img.alt}
                     onClick={() => openLightbox(idx)}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '20px', display: 'block', cursor: 'pointer' }}
-                  />
-                  */}
-                  <img
-                    src={img.src} alt={img.alt}
-                    onClick={() => openLightbox(idx)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', cursor: 'pointer' }}
+                    className="w-full h-full object-cover object-center block cursor-pointer"
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
 
-          {/* Navigation Arrows — stop zoom on hover */}
           <button className="pdp-swiper-prev pdp-swiper-arrow" aria-label="Previous image"
             onMouseEnter={() => setZooming(false)} onMouseLeave={() => setZooming(true)}>
             <IconArrowLeft size={16} />
@@ -244,96 +206,68 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
             <IconArrowRight size={16} />
           </button>
 
-          {/* Hover lens indicator (hidden ≤749) */}
           {zooming && (
-            <div className="pdp-zoom-lens" style={{
-              position: 'absolute', width: '120px', height: '120px',
-              border: '1.5px solid rgba(0,0,0,0.15)', backgroundColor: 'rgba(255,255,255,0.2)',
-              pointerEvents: 'none', zIndex: 10,
-              left: `clamp(0px, calc(${zoomPos.x}% - 60px), calc(100% - 120px))`,
-              top: `clamp(0px, calc(${zoomPos.y}% - 60px), calc(100% - 120px))`,
-            }} />
+            <div
+              className="pdp-zoom-lens absolute w-[120px] h-[120px] border-[1.5px] border-solid border-[rgba(0,0,0,0.15)] bg-[rgba(255,255,255,0.2)] pointer-events-none z-10"
+              style={{
+                left: `clamp(0px, calc(${zoomPos.x}% - 60px), calc(100% - 120px))`,
+                top: `clamp(0px, calc(${zoomPos.y}% - 60px), calc(100% - 120px))`,
+              }}
+            />
           )}
         </div>
 
-        {/* Zoom Panel — absolute inside the main image column, confined to its bounds (hidden ≤749) */}
         {zooming && images[activeIndex] && (
-          <div className="pdp-zoom-panel" style={{
-            position: 'absolute',
-            top: 0,
-            left: 'calc(100% + 30px)',
-            width: '520px',
-            height: `${Math.min(520, mainHeight)}px`,
-            backgroundColor: '#fff', overflow: 'hidden', zIndex: 9999,
-            border: '1px solid #e5e5e5', boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-            pointerEvents: 'none',
-          }}>
-            <div style={{
-              width: '100%', height: '520px',
-              /* Quote the URL so paths with spaces (e.g. "/grocery shop img/...") stay intact */
-              backgroundImage: `url("${encodeURI(images[activeIndex].src)}")`,
-              backgroundSize: '250%',
-              backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
-              backgroundRepeat: 'no-repeat',
-            }} />
+          <div
+            className="pdp-zoom-panel absolute top-0 left-[calc(100%+30px)] w-[520px] bg-[#fff] overflow-hidden z-[9999] border border-solid border-[#e5e5e5] shadow-[0_4px_20px_rgba(0,0,0,0.08)] pointer-events-none"
+            style={{
+              height: `${Math.min(520, mainHeight)}px`,
+            }}
+          >
+            <div
+              className="w-full h-[520px] bg-[length:250%] bg-no-repeat"
+              style={{
+                backgroundImage: `url("${encodeURI(images[activeIndex].src)}")`,
+                backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+              }}
+            />
           </div>
         )}
       </div>
 
-      {/* ══ LIGHTBOX — rendered via portal to document.body ══ */}
       {lightboxOpen && typeof document !== 'undefined' && createPortal(
         <div
           onClick={closeLightbox}
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999,
-            backgroundColor: 'rgba(0, 0, 0, 0.88)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            animation: 'pdpLightboxIn 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          }}
+          className="fixed inset-0 z-[999999] bg-[rgba(0,0,0,0.88)] backdrop-blur-[10px] flex items-center justify-center animate-[pdpLightboxIn_350ms_cubic-bezier(0.16,1,0.3,1)_forwards]"
         >
-          {/* Counter — top left */}
-          <span style={{ position: 'absolute', top: '18px', left: '24px', color: 'rgba(255,255,255,0.6)', fontSize: '14px', fontWeight: 500, zIndex: 10 }}>
+          <span className="absolute top-[18px] left-[24px] text-[rgba(255,255,255,0.6)] text-[14px] font-medium z-10">
             {lightboxIndex + 1} / {images.length}
           </span>
 
-          {/* Close — top right */}
-          <button onClick={closeLightbox} className="pdp-lightbox-close" style={{ position: 'absolute', top: '14px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: '8px', display: 'flex', zIndex: 10 }}>
+          <button onClick={closeLightbox} className="pdp-lightbox-close absolute top-[14px] right-[20px] bg-transparent border-none cursor-pointer text-[#fff] p-[8px] flex z-10">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
 
-          {/* Prev arrow */}
-          <button onClick={(e) => { e.stopPropagation(); lightboxPrev(); }} className="pdp-lightbox-arrow" style={{
-            position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', zIndex: 10,
-            width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer',
-            transition: 'background-color 200ms ease',
-          }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+            className="pdp-lightbox-arrow absolute left-[20px] top-1/2 -translate-y-1/2 z-10 w-[50px] h-[50px] flex items-center justify-center bg-[rgba(255,255,255,0.1)] border-none rounded-full text-[#fff] cursor-pointer transition-colors duration-200 ease-in-out"
+          >
             <IconArrowLeft size={22} />
           </button>
 
-          {/* Next arrow */}
-          <button onClick={(e) => { e.stopPropagation(); lightboxNext(); }} className="pdp-lightbox-arrow" style={{
-            position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', zIndex: 10,
-            width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer',
-            transition: 'background-color 200ms ease',
-          }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+            className="pdp-lightbox-arrow absolute right-[20px] top-1/2 -translate-y-1/2 z-10 w-[50px] h-[50px] flex items-center justify-center bg-[rgba(255,255,255,0.1)] border-none rounded-full text-[#fff] cursor-pointer transition-colors duration-200 ease-in-out"
+          >
             <IconArrowRight size={22} />
           </button>
 
-          {/* Center — Main image, full height */}
           <img
             key={images[lightboxIndex]?.id}
             src={images[lightboxIndex]?.src || ''}
             alt={images[lightboxIndex]?.alt || ''}
             onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: 'calc(100vw - 140px)', maxHeight: 'calc(100vh - 40px)',
-              objectFit: 'contain', display: 'block',
-              animation: 'pdpLightboxFade 250ms ease',
-            }}
+            className="max-w-[calc(100vw-140px)] max-h-[calc(100vh-40px)] object-contain block animate-[pdpLightboxFade_250ms_ease]"
           />
         </div>,
         document.body
@@ -342,31 +276,23 @@ function ProductGallery({ images, onActiveChange }: { images: { id: string; src:
   );
 }
 
-/* ══════════════════════════════════
-   ACCORDION (general — FAQ, Reviews etc.)
-   ══════════════════════════════════ */
-
 function DetailAccordion({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div style={{ borderBottom: '1px solid #e5e5e5' }}>
-      <button onClick={() => setOpen(!open)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '18px 0', fontSize: '16px', fontWeight: 600, color: '#222', background: 'none', border: 'none', cursor: 'pointer' }}>
+    <div className="border-b border-solid border-[#e5e5e5]">
+      <button onClick={() => setOpen(!open)} className="flex items-center justify-between w-full py-[18px] px-0 text-[16px] font-semibold text-[#222] bg-transparent border-none cursor-pointer">
         {title}
-        <span style={{ transition: 'transform 300ms ease', transform: open ? 'rotate(180deg)' : 'rotate(0)', display: 'inline-flex' }}><IconChevronDown /></span>
+        <span className={`transition-transform duration-300 ease-in-out inline-flex ${open ? 'rotate-180' : 'rotate-0'}`}><IconChevronDown /></span>
       </button>
-      <div style={{ maxHeight: open ? '500px' : '0', overflow: 'hidden', transition: 'max-height 400ms ease' }}>
-        <div style={{ paddingBottom: '18px', fontSize: '15px', color: '#555', lineHeight: 1.7 }}>{children}</div>
+      <div className={`overflow-hidden transition-[max-height] duration-[400ms] ease-in-out ${open ? 'max-h-[500px]' : 'max-h-0'}`}>
+        <div className="pb-[18px] text-[15px] text-[#555] leading-[1.7]">{children}</div>
       </div>
     </div>
   );
 }
 
-/* ══════════════════════════════════
-   PRODUCT INFO ACCORDION (right panel — Description, Shipping, Returns)
-   ══════════════════════════════════ */
-
 function ProductInfoAccordion({ items }: { items: { title: string; content: React.ReactNode }[] }) {
-  const [openIndex, setOpenIndex] = useState(0); // first open by default
+  const [openIndex, setOpenIndex] = useState(0); 
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const toggle = (i: number) => {
@@ -378,21 +304,17 @@ function ProductInfoAccordion({ items }: { items: { title: string; content: Reac
       {items.map((item, i) => {
         const isOpen = openIndex === i;
         return (
-          <div key={i} style={{ borderTop: i === 0 ? '1px solid #e5e5e5' : 'none', borderBottom: '1px solid #e5e5e5' }}>
+          <div key={i} className={`border-b border-solid border-[#e5e5e5] ${i === 0 ? 'border-t border-solid border-[#e5e5e5]' : 'border-t-0'}`}>
             <button
               onClick={() => toggle(i)}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                width: '100%', padding: '20px 0', fontSize: '20px', fontWeight: 600,
-                color: '#222', background: 'none', border: 'none', cursor: 'pointer',
-              }}
+              className="flex items-center justify-between w-full py-[20px] px-0 text-[20px] font-semibold text-[#222] bg-transparent border-none cursor-pointer"
             >
               {item.title}
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              }}>
+              <span
+                className={`inline-flex items-center justify-center transition-transform duration-[350ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                  isOpen ? 'rotate-180' : 'rotate-0'
+                }`}
+              >
                 <svg aria-hidden="true" focusable="false" role="presentation" viewBox="0 0 10 6" width="12" height="12">
                   <path fillRule="evenodd" clipRule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor" />
                 </svg>
@@ -400,13 +322,12 @@ function ProductInfoAccordion({ items }: { items: { title: string; content: Reac
             </button>
             <div
               ref={(el) => { contentRefs.current[i] = el; }}
+              className="overflow-hidden transition-[max-height] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
               style={{
                 maxHeight: isOpen ? `${contentRefs.current[i]?.scrollHeight || 1000}px` : '0',
-                overflow: 'hidden',
-                transition: 'max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
-              <div style={{ paddingBottom: '22px', fontSize: '15px', color: '#555', lineHeight: 1.7 }}>
+              <div className="pb-[22px] text-[15px] text-[#555] leading-[1.7]">
                 {item.content}
               </div>
             </div>
@@ -416,10 +337,6 @@ function ProductInfoAccordion({ items }: { items: { title: string; content: Reac
     </div>
   );
 }
-
-/* ══════════════════════════════════
-   FAQ ACCORDION (product page — 50/50 layout)
-   ══════════════════════════════════ */
 
 function FaqAccordion({ items }: { items: { question: string; answer: string }[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(3);
@@ -436,35 +353,34 @@ function FaqAccordion({ items }: { items: { question: string; answer: string }[]
         const isFirst = i === 0;
         const isLast = i === items.length - 1;
         return (
-          <div key={i} style={{ borderTop: isFirst ? 'none' : '1px solid #e5e5e5', borderBottom: isLast ? 'none' : undefined }}>
+          <div key={i} className={`${isFirst ? 'border-t-0' : 'border-t border-solid border-[#e5e5e5]'} ${isLast ? 'border-b-0' : ''}`}>
             <button
               onClick={() => toggle(i)}
               className="pdp-faq-q-btn"
             >
-              <span style={{ flex: 1 }}>{item.question}</span>
-              {/* Icon — plus/minus with crossfade */}
+              <span className="flex-1">{item.question}</span>
               <span className="pdp-faq-icon-wrap">
-                {/* Plus icon — fades out when open */}
                 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="none" viewBox="0 0 10 10"
-                  className="pdp-faq-icon"
-                  style={{ position: 'absolute', transition: 'opacity 350ms ease, transform 350ms ease', opacity: isOpen ? 0 : 1, transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                  className={`pdp-faq-icon absolute transition-[opacity,transform] duration-[350ms] ease-in-out ${
+                    isOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'
+                  }`}>
                   <path fillRule="evenodd" clipRule="evenodd" d="M1 4.51a.5.5 0 000 1h3.5l.01 3.5a.5.5 0 001-.01V5.5l3.5-.01a.5.5 0 00-.01-1H5.5L5.49.99a.5.5 0 00-1 .01v3.5l-3.5.01H1z" fill="currentColor" />
                 </svg>
-                {/* Minus icon — fades in when open */}
                 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="none" viewBox="0 0 10 2"
-                  className="pdp-faq-icon"
-                  style={{ position: 'absolute', transition: 'opacity 350ms ease, transform 350ms ease', opacity: isOpen ? 1 : 0, transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+                  className={`pdp-faq-icon absolute transition-[opacity,transform] duration-[350ms] ease-in-out ${
+                    isOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'
+                  }`}>
                   <path fillRule="evenodd" clipRule="evenodd" d="M.5 1C.5.7.7.5 1 .5h8a.5.5 0 110 1H1A.5.5 0 01.5 1z" fill="currentColor" />
                 </svg>
               </span>
             </button>
             <div
               ref={(el) => { faqRefs.current[i] = el; }}
+              className={`overflow-hidden transition-[max-height,opacity] duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+                isOpen ? 'opacity-100' : 'opacity-0'
+              }`}
               style={{
                 maxHeight: isOpen ? `${faqRefs.current[i]?.scrollHeight || 500}px` : '0',
-                opacity: isOpen ? 1 : 0,
-                overflow: 'hidden',
-                transition: 'max-height 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               }}
             >
               <div className="pdp-faq-answer-body">
@@ -478,14 +394,9 @@ function FaqAccordion({ items }: { items: { question: string; answer: string }[]
   );
 }
 
-/* ══════════════════════════════════
-   PAIRS WELL WITH SLIDER
-   ══════════════════════════════════ */
-
 function PairsWellWith({ products, productHrefBase = '/products' }: { products: Product[]; productHrefBase?: string }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const { openQuickView } = useUIStore();
-  // Chunk products into slides of 3 — 3 rows visible at a time
   const chunkSize = 3;
   const slides: Product[][] = [];
   for (let i = 0; i < products.length; i += chunkSize) {
@@ -494,37 +405,33 @@ function PairsWellWith({ products, productHrefBase = '/products' }: { products: 
   const totalDots = slides.length;
 
   return (
-    <div className="pdp-pairs-section" style={{ borderTop: '1px solid #e5e5e5', paddingTop: '24px' }}>
-      <h3 className="pdp-pairs-title" style={{ fontSize: '18px', fontWeight: 600, color: '#222', marginBottom: '16px' }}>Pairs well with</h3>
+    <div className="pdp-pairs-section border-t border-solid border-[#e5e5e5] pt-[24px]">
+      <h3 className="pdp-pairs-title text-[18px] font-semibold text-[#222] mb-[16px]">Pairs well with</h3>
 
-      {/* Slider — CSS transform horizontal slide like hero */}
-      <div className="pdp-pairs-track-wrap" style={{ overflow: 'hidden' }}>
-        <div className="pdp-pairs-track" style={{ display: 'flex', transition: 'transform 500ms ease', transform: `translateX(-${activeSlide * 100}%)` }}>
+      <div className="pdp-pairs-track-wrap overflow-hidden">
+        <div
+          className="pdp-pairs-track flex transition-transform duration-500 ease-in-out"
+          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+        >
           {slides.map((group, gi) => (
-            <div key={gi} className="pdp-pairs-slide" style={{ flex: '0 0 100%', display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <div key={gi} className="pdp-pairs-slide flex-[0_0_100%] flex flex-col gap-0">
               {group.map((p) => (
-                <div key={p.id} className="pdp-pairs-row" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
-                  <Link href={`${productHrefBase}/${p.slug}`} style={{ width: '70px', height: '85px', position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5', flexShrink: 0, display: 'block' }}>
-                    <Image src={p.images[0]?.src || ''} alt={p.name} fill style={{ objectFit: 'cover' }} sizes="70px" />
+                <div key={p.id} className="pdp-pairs-row flex items-center gap-[14px] py-[16px] px-0 border-b border-solid border-[#f0f0f0]">
+                  <Link href={`${productHrefBase}/${p.slug}`} className="w-[70px] h-[85px] relative overflow-hidden bg-[#f5f5f5] shrink-0 block">
+                    <Image src={p.images[0]?.src || ''} alt={p.name} fill className="object-cover" sizes="70px" />
                   </Link>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <Link href={`${productHrefBase}/${p.slug}`} style={{ fontSize: '15px', fontWeight: 600, color: '#222', textDecoration: 'none', display: 'block', marginBottom: '4px' }}>
+                  <div className="flex-1 min-w-0">
+                    <Link href={`${productHrefBase}/${p.slug}`} className="text-[15px] font-semibold text-[#222] no-underline block mb-[4px]">
                       {p.name}
                     </Link>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {p.compareAtPrice && <span style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through' }}>{formatPrice(p.compareAtPrice)}</span>}
-                      <span style={{ fontSize: '14px', fontWeight: 500, color: '#222' }}>{formatPrice(p.price)}</span>
+                    <div className="flex items-center gap-[8px]">
+                      {p.compareAtPrice && <span className="text-[13px] text-[#999] line-through">{formatPrice(p.compareAtPrice)}</span>}
+                      <span className="text-[14px] font-medium text-[#222]">{formatPrice(p.price)}</span>
                     </div>
                   </div>
                   <button
                     onClick={() => openQuickView(p)}
-                    className="pdp-pairs-quick-add"
-                    style={{
-                      padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-                      color: '#222', backgroundColor: '#fff',
-                      border: '1.5px solid #222', cursor: 'pointer',
-                      transition: 'all 200ms ease', flexShrink: 0,
-                    }}
+                    className="pdp-pairs-quick-add py-[10px] px-[20px] text-[13px] font-semibold text-[#222] bg-[#fff] border-[1.5px] border-solid border-[#222] cursor-pointer transition-all duration-200 ease-in-out shrink-0"
                   >
                     Quick Add
                   </button>
@@ -535,17 +442,22 @@ function PairsWellWith({ products, productHrefBase = '/products' }: { products: 
         </div>
       </div>
 
-      {/* Hero-style pagination — exactly 2 dots */}
       {totalDots > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '20px' }}>
+        <div className="flex items-center justify-center gap-[12px] mt-[20px]">
           {Array.from({ length: totalDots }).map((_, i) => (
-            <button key={i} onClick={() => setActiveSlide(i)} aria-label={`Slide ${i + 1}`} style={{
-              width: activeSlide === i ? '18px' : '10px', height: activeSlide === i ? '18px' : '10px',
-              borderRadius: '50%', border: activeSlide === i ? '1.5px solid #222' : 'none',
-              backgroundColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 0, cursor: 'pointer', transition: 'all 300ms ease',
-            }}>
-              <span style={{ width: activeSlide === i ? '8px' : '10px', height: activeSlide === i ? '8px' : '10px', borderRadius: '50%', backgroundColor: activeSlide === i ? '#222' : '#bbb', display: 'block', transition: 'all 300ms ease' }} />
+            <button
+              key={i}
+              onClick={() => setActiveSlide(i)}
+              aria-label={`Slide ${i + 1}`}
+              className={`rounded-full bg-transparent flex items-center justify-center p-0 cursor-pointer transition-all duration-300 ease-in-out ${
+                activeSlide === i ? 'w-[18px] h-[18px] border-[1.5px] border-solid border-[#222]' : 'w-[10px] h-[10px] border-none'
+              }`}
+            >
+              <span
+                className={`rounded-full block transition-all duration-300 ease-in-out ${
+                  activeSlide === i ? 'w-[8px] h-[8px] bg-[#222]' : 'w-[10px] h-[10px] bg-[#bbb]'
+                }`}
+              />
             </button>
           ))}
         </div>
@@ -554,19 +466,11 @@ function PairsWellWith({ products, productHrefBase = '/products' }: { products: 
   );
 }
 
-/* ══════════════════════════════════
-   MAIN COMPONENT
-   ══════════════════════════════════ */
-
 interface ProductDetailContentProps {
   slug: string;
-  /** API endpoint for fetching the single product. Default: "/api/products". */
   apiEndpoint?: string;
-  /** API endpoint for fetching related products listing. Default: "/api/products". */
   relatedEndpoint?: string;
-  /** Base href for related product cards. Default: "/products". */
   productHrefBase?: string;
-  /** Which product card design to render for related/recently viewed. Default: "home". */
   cardVariant?: 'home' | 'grocery';
 }
 
@@ -578,16 +482,10 @@ export function ProductDetailContent({
   cardVariant = 'home',
 }: ProductDetailContentProps) {
   const { data, isLoading } = useProduct(slug, { endpoint: apiEndpoint });
-  /* Original relatedData fetch without category filter commented out as requested
-  const { data: relatedData } = useProducts({ limit: 10 }, { endpoint: relatedEndpoint ?? apiEndpoint });
-  */
   const { data: relatedData } = useProducts({
     limit: 12,
     category: data?.product?.category || undefined,
   }, { endpoint: relatedEndpoint ?? apiEndpoint });
-  /* Original addItem extraction commented out:
-  const { addItem } = useCartStore();
-  */
   const { addItem, closeDrawer } = useCartStore();
   const router = useRouter();
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlistStore();
@@ -597,7 +495,6 @@ export function ProductDetailContent({
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [askModalOpen, setAskModalOpen] = useState(false);
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [compareLoading, setCompareLoading] = useState(false);
@@ -610,13 +507,62 @@ export function ProductDetailContent({
 
   const product = data?.product;
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [reviewsList, setReviewsList] = useState<any[]>([]);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [avgRating, setAvgRating] = useState(5);
+  const [starCounts, setStarCounts] = useState<Record<number, number>>({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [likedReviewIds, setLikedReviewIds] = useState<Record<string, boolean>>({});
+
+  const handleLikeReview = async (reviewId: string) => {
+    if (likedReviewIds[reviewId]) return;
+    setLikedReviewIds((prev) => ({ ...prev, [reviewId]: true }));
+    setReviewsList((prev) =>
+      prev.map((r) => (r.id === reviewId ? { ...r, likes: (r.likes || 0) + 1 } : r))
+    );
+    try {
+      await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'like', reviewId }),
+      });
+    } catch (e) {
+      console.error('Failed to like review:', e);
+    }
+  };
+
+  const maskAuthor = (name: string) => {
+    if (!name) return 'Customer';
+    const trimmed = name.trim();
+    if (trimmed.length <= 2) return `${trimmed[0]}***`;
+    return `${trimmed[0]}***${trimmed[trimmed.length - 1]}`;
+  };
+
+  useEffect(() => {
+    if (!product) return;
+    setReviewsList(product.reviews || []);
+    setReviewCount(product.reviewCount || (product.reviews?.length ?? 0));
+    setAvgRating(product.rating || 5);
+
+    const q = product.slug ? `slug=${encodeURIComponent(product.slug)}` : `productId=${encodeURIComponent(product.id)}`;
+    fetch(`/api/reviews?${q}`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && Array.isArray(res.reviews)) {
+          setReviewsList(res.reviews);
+          setReviewCount(res.count ?? res.reviews.length);
+          if (typeof res.averageRating === 'number') setAvgRating(res.averageRating);
+          if (res.starCounts) setStarCounts(res.starCounts);
+        }
+      })
+      .catch((err) => console.error('Error fetching reviews:', err));
+  }, [product]);
 
   useEffect(() => {
     if (product) {
       setSelectedColor(product.colors[0]?.name || '');
       setSelectedSize(product.sizes[0] || '');
 
-      // Record product view in server-side MongoDB history
       if (product.id && product.id.length === 24) {
         fetch('/api/recommendations/recently-viewed', {
           method: 'POST',
@@ -625,7 +571,6 @@ export function ProductDetailContent({
         }).catch(() => {});
       }
 
-      // Fetch customer's recently viewed products
       fetch('/api/recommendations/recently-viewed?limit=5')
         .then((r) => r.json())
         .then((res) => {
@@ -638,7 +583,6 @@ export function ProductDetailContent({
     }
   }, [product]);
 
-  // Hide sticky bar as soon as the footer enters the viewport
   useEffect(() => {
     const footer = document.querySelector('footer');
     if (!footer) return;
@@ -651,9 +595,7 @@ export function ProductDetailContent({
     return () => observer.disconnect();
   }, []);
 
-  // Sticky cart: callback ref to observe Add to Cart section
   const addToCartCallbackRef = useCallback((node: HTMLDivElement | null) => {
-    // Disconnect previous observer
     if (observerRef.current) {
       observerRef.current.disconnect();
       observerRef.current = null;
@@ -670,7 +612,7 @@ export function ProductDetailContent({
   }, []);
 
   if (isLoading || !product) {
-    return (<div className="container-main" style={{ padding: '60px 0', textAlign: 'center', fontSize: '16px', color: '#888' }}>Loading product...</div>);
+    return (<div className="container-main py-[60px] px-0 text-center text-[16px] text-[#888]">Loading product...</div>);
   }
 
   const activeColor = selectedColor || product.colors[0]?.name || '';
@@ -678,9 +620,6 @@ export function ProductDetailContent({
   const discount = calculateDiscount(product.price, product.compareAtPrice);
   const inWishlist = isInWishlist(product.id);
   const inCompare = isInCompare(product.id);
-  /* Original relatedProducts without self-exclusion commented out as requested
-  const relatedProducts = relatedData?.products?.slice(0, 6) || [];
-  */
   const relatedProducts = (relatedData?.products || [])
     .filter((p) => p.id !== product.id && p.slug !== product.slug)
     .slice(0, 6);
@@ -700,18 +639,6 @@ export function ProductDetailContent({
       setCompareLoading(false);
     }, 500);
   };
-
-  /* Original handleAddToCart commented out:
-  const handleAddToCart = () => {
-    const variant = product.variants.find(v => v.color === activeColor && v.size === activeSize) || product.variants[0];
-    if (!variant) return;
-    setAddingToCart(true);
-    setTimeout(() => {
-      addItem({ productId: product.id, variantId: variant.id, name: product.name, slug: product.slug, image: variant.image, color: activeColor, size: activeSize, price: product.price, compareAtPrice: product.compareAtPrice, quantity, vendor: product.vendor });
-      setAddingToCart(false);
-    }, 800);
-  };
-  */
 
   const getActiveVariant = () => {
     if (!product) return null;
@@ -774,119 +701,155 @@ export function ProductDetailContent({
     router.push('/checkout');
   };
 
-  // TEMP: focus on Product Section only while building responsive — flip to true to restore
   const SHOW_EXTRA_SECTIONS = false;
 
   return (
     <>
-      {/* ── Breadcrumb ── */}
-      <div className="container-main" style={{ paddingBlock: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-          <Link href="/" style={{ color: '#777', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Home</Link>
-          <span style={{ color: '#bbb', fontSize: '11px' }}>›</span>
-          <span style={{ color: '#222' }}>{product.name}</span>
-        </div>
+      <div className="container-main py-[16px]">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-[8px] text-[14px] min-w-0 max-w-full flex-wrap">
+          <Link href="/" className="text-[#666] hover:text-[#222] underline underline-offset-[3px] shrink-0 transition-colors">
+            Home
+          </Link>
+          <span className="text-[#bbb] text-[11px] shrink-0">›</span>
+          <Link href="/products" className="text-[#666] hover:text-[#222] underline underline-offset-[3px] shrink-0 transition-colors">
+            Products
+          </Link>
+          {product.category && (
+            <>
+              <span className="text-[#bbb] text-[11px] shrink-0">›</span>
+              <Link
+                href={`/products?category=${encodeURIComponent(product.category)}`}
+                className="text-[#666] hover:text-[#222] underline underline-offset-[3px] shrink-0 transition-colors"
+              >
+                {product.category}
+              </Link>
+            </>
+          )}
+          {product.subcategory && product.subcategory !== product.category && (
+            <>
+              <span className="text-[#bbb] text-[11px] shrink-0">›</span>
+              <Link
+                href={`/products?category=${encodeURIComponent(product.category)}&subcategory=${encodeURIComponent(product.subcategory)}`}
+                className="text-[#666] hover:text-[#222] underline underline-offset-[3px] shrink-0 transition-colors"
+              >
+                {product.subcategory}
+              </Link>
+            </>
+          )}
+          <span className="text-[#bbb] text-[11px] shrink-0">›</span>
+          <span
+            title={product.name}
+            className="text-[#222] font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[clamp(180px,45vw,450px)] inline-block"
+          >
+            {product.name}
+          </span>
+        </nav>
       </div>
 
-      {/* ── Product Section — gallery sticky, info scrolls (stacks ≤749) ── */}
       <div className="container-main pdp-product-section">
         <div className="pdp-product-grid">
 
-          {/* ═══ LEFT: Gallery (sticky on desktop, dropped ≤991) ═══ */}
           <div className="pdp-product-gallery-col">
             <div className="pdp-gallery-sticky">
               <ProductGallery images={product.images} onActiveChange={setActiveGalleryIndex} />
             </div>
           </div>
 
-          {/* ═══ RIGHT: Info (scrolls) ═══ */}
           <div className="pdp-product-info">
             <div>
-              {/* Vendor */}
-              <p className="pdp-info-vendor" style={{ fontSize: '12px', color: '#888', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '6px' }}>{product.vendor}</p>
+              <p className="pdp-info-vendor text-[12px] text-[#888] uppercase tracking-[1.5px] mb-[6px]">{product.vendor}</p>
 
-              {/* Title */}
-              <h1 className="pdp-info-title" style={{ fontSize: '32px', fontWeight: 600, color: '#222', marginBottom: '12px' }}>{product.name}</h1>
+              <h1 className="pdp-info-title text-[32px] font-semibold text-[#222] mb-[12px]">{product.name}</h1>
 
-              {/* Rating */}
-              <div className="pdp-info-rating" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
-                {Array.from({ length: 5 }).map((_, i) => (<span key={i} className="pdp-info-star" style={{ fontSize: '16px', color: i < Math.floor(product.rating) ? '#F5C518' : '#ddd' }}>★</span>))}
-                <span className="pdp-info-review-count" style={{ fontSize: '14px', color: '#888' }}>{product.reviewCount} Reviews</span>
+              <div className="pdp-info-rating flex items-center gap-[6px] mb-[16px]">
+                {Array.from({ length: 5 }).map((_, i) => (<span key={i} className={`pdp-info-star text-[16px] ${i < Math.floor(avgRating) ? 'text-[#F5C518]' : 'text-[#ddd]'}`}>★</span>))}
+                <span className="pdp-info-review-count text-[14px] text-[#888]">{reviewCount} {reviewCount === 1 ? 'Review' : 'Reviews'}</span>
               </div>
 
-              {/* Price */}
-              <div className="pdp-info-price-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                {product.compareAtPrice && <span className="pdp-info-compare-at" style={{ fontSize: '18px', color: '#999', textDecoration: 'line-through' }}>{formatPrice(product.compareAtPrice)}</span>}
-                <span className="pdp-info-price product-price-text" style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>{formatPrice(product.price)}</span>
-                {product.badge === 'sale' && <span style={{ backgroundColor: '#F15B41', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '3px' }}>Sale</span>}
-                {discount > 0 && <span style={{ backgroundColor: '#222', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '3px' }}>-{discount}%</span>}
+              <div className="pdp-info-price-row flex items-center gap-[12px] mb-[20px]">
+                {product.compareAtPrice && <span className="pdp-info-compare-at text-[18px] text-[#999] line-through">{formatPrice(product.compareAtPrice)}</span>}
+                <span className="pdp-info-price product-price-text text-[24px] font-bold text-[#222]">{formatPrice(product.price)}</span>
+                {product.badge === 'sale' && <span className="bg-[#F15B41] text-[#fff] text-[12px] font-semibold py-[4px] px-[10px] rounded-[3px]">Sale</span>}
+                {discount > 0 && <span className="bg-[#222] text-[#fff] text-[12px] font-semibold py-[4px] px-[10px] rounded-[3px]">-{discount}%</span>}
               </div>
 
-              {/* Top description commented out as requested (accordion description tab below already contains full description):
-              <p className="pdp-info-description" style={{ fontSize: '15px', color: '#666', lineHeight: 1.7, marginBottom: '24px' }}>{product.description}</p>
-              */}
-
-              {/* Color */}
               {product.colors.length > 0 && (
-                <div className="pdp-info-color" style={{ marginBottom: '20px' }}>
-                  <p className="pdp-info-field-label" style={{ fontSize: '15px', fontWeight: 600, color: '#222', marginBottom: '10px' }}>Color: <span style={{ fontWeight: 400, color: '#555' }}>{activeColor}</span></p>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="pdp-info-color mb-[20px]">
+                  <p className="pdp-info-field-label text-[15px] font-semibold text-[#222] mb-[10px]">Color: <span className="font-normal text-[#555]">{activeColor}</span></p>
+                  <div className="flex gap-[8px]">
                     {product.colors.map((c) => (
-                      <button key={c.name} onClick={() => setSelectedColor(c.name)} className="pdp-info-color-swatch" style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: c.value, border: activeColor === c.name ? '3px solid #222' : '2px solid #e0e0e0', cursor: 'pointer', transition: 'border-color 200ms ease' }} aria-label={c.name} />
+                      <button
+                        key={c.name}
+                        onClick={() => setSelectedColor(c.name)}
+                        className={`pdp-info-color-swatch w-[32px] h-[32px] rounded-full border-solid cursor-pointer transition-colors duration-200 ease-in-out ${
+                          activeColor === c.name ? 'border-[3px] border-[#222]' : 'border-[2px] border-[#e0e0e0]'
+                        }`}
+                        style={{ backgroundColor: c.value }}
+                        aria-label={c.name}
+                      />
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Size */}
               {product.sizes.length > 0 && (
-                <div className="pdp-info-size" style={{ marginBottom: '20px' }}>
-                  <p className="pdp-info-field-label" style={{ fontSize: '15px', fontWeight: 600, color: '#222', marginBottom: '10px' }}>Size: <span style={{ fontWeight: 400, color: '#555' }}>{activeSize}</span></p>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div className="pdp-info-size mb-[20px]">
+                  <p className="pdp-info-field-label text-[15px] font-semibold text-[#222] mb-[10px]">Size: <span className="font-normal text-[#555]">{activeSize}</span></p>
+                  <div className="flex gap-[8px] flex-wrap">
                     {product.sizes.map((s) => (
-                      <button key={s} onClick={() => setSelectedSize(s)} className="pdp-info-size-btn" style={{ minWidth: '44px', height: '44px', padding: '0 14px', borderRadius: '4px', fontSize: '14px', fontWeight: 500, border: activeSize === s ? '2px solid #222' : '1px solid #e0e0e0', backgroundColor: activeSize === s ? '#222' : '#fff', color: activeSize === s ? '#fff' : '#222', cursor: 'pointer', transition: 'all 200ms ease' }}>{s}</button>
+                      <button
+                        key={s}
+                        onClick={() => setSelectedSize(s)}
+                        className={`pdp-info-size-btn min-w-[44px] h-[44px] py-0 px-[14px] rounded-[4px] text-[14px] font-medium border-solid cursor-pointer transition-all duration-200 ease-in-out ${
+                          activeSize === s
+                            ? 'border-[2px] border-[#222] bg-[#222] text-[#fff]'
+                            : 'border border-[#e0e0e0] bg-[#fff] text-[#222]'
+                        }`}
+                      >
+                        {s}
+                      </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Quantity + Add to Cart */}
-              <div ref={addToCartCallbackRef} className="pdp-info-qty-block" style={{ marginBottom: '16px' }}>
-                <p className="pdp-info-field-label" style={{ fontSize: '15px', fontWeight: 600, color: '#222', marginBottom: '10px' }}>Quantity</p>
-                <div className="pdp-info-qty-row" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div className="pdp-qty-stepper" style={{ display: 'inline-flex', border: '1px solid #e5e5e5', borderRadius: '4px' }}>
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="pdp-qty-step-btn" style={{ width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#222' }}>−</button>
-                    <span className="pdp-qty-value" style={{ width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 500, borderLeft: '1px solid #e5e5e5', borderRight: '1px solid #e5e5e5' }}>{quantity}</span>
-                    <button onClick={() => setQuantity(quantity + 1)} className="pdp-qty-step-btn" style={{ width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#222' }}>+</button>
+              <div ref={addToCartCallbackRef} className="pdp-info-qty-block mb-[16px]">
+                <p className="pdp-info-field-label text-[15px] font-semibold text-[#222] mb-[10px]">Quantity</p>
+                <div className="pdp-info-qty-row flex items-center gap-[14px]">
+                  <div className="pdp-qty-stepper inline-flex border border-solid border-[#e5e5e5] rounded-[4px]">
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="pdp-qty-step-btn w-[40px] h-[44px] flex items-center justify-center bg-transparent border-none cursor-pointer text-[18px] text-[#222]">−</button>
+                    <span className="pdp-qty-value w-[40px] h-[44px] flex items-center justify-center text-[15px] font-medium border-l border-r border-solid border-[#e5e5e5]">{quantity}</span>
+                    <button onClick={() => setQuantity(quantity + 1)} className="pdp-qty-step-btn w-[40px] h-[44px] flex items-center justify-center bg-transparent border-none cursor-pointer text-[18px] text-[#222]">+</button>
                   </div>
-                  <button onClick={handleAddToCart} disabled={addingToCart} className="pdp-add-to-cart-btn" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 0', backgroundColor: addingToCart ? '#555' : '#222', color: '#fff', fontSize: '16px', fontWeight: 600, border: 'none', borderRadius: '0', cursor: addingToCart ? 'wait' : 'pointer', transition: 'background-color 250ms ease', opacity: addingToCart ? 0.8 : 1 }}
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={addingToCart}
+                    className={`pdp-add-to-cart-btn flex-1 flex items-center justify-center gap-[10px] py-[14px] px-0 text-[#fff] text-[16px] font-semibold border-none rounded-none transition-colors duration-[250ms] ease-in-out ${
+                      addingToCart ? 'bg-[#555] cursor-wait opacity-80' : 'bg-[#222] cursor-pointer opacity-100'
+                    }`}
                     onMouseEnter={(e) => { if (!addingToCart) e.currentTarget.style.backgroundColor = '#F15B41'; }}
                     onMouseLeave={(e) => { if (!addingToCart) e.currentTarget.style.backgroundColor = '#222'; }}
                   >{addingToCart ? 'Adding...' : <><IconBag size={18} /> Add to cart</>}</button>
                 </div>
               </div>
 
-              {/* Buy it now */}
-              {/* Original button without onClick commented out:
-              <button className="pdp-buy-now-btn" style={{ width: '100%', padding: '14px 0', backgroundColor: '#fff', color: '#222', fontSize: '16px', fontWeight: 600, border: '1.5px solid #222', borderRadius: '0', cursor: 'pointer', marginBottom: '20px', transition: 'all 250ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
-              >Buy it now</button>
-              */}
-              <button onClick={handleBuyNow} className="pdp-buy-now-btn" style={{ width: '100%', padding: '14px 0', backgroundColor: '#fff', color: '#222', fontSize: '16px', fontWeight: 600, border: '1.5px solid #222', borderRadius: '0', cursor: 'pointer', marginBottom: '20px', transition: 'all 250ms ease' }}
+              <button
+                onClick={handleBuyNow}
+                className="pdp-buy-now-btn w-full py-[14px] px-0 bg-[#fff] text-[#222] text-[16px] font-semibold border-[1.5px] border-solid border-[#222] rounded-none cursor-pointer mb-[20px] transition-all duration-[250ms] ease-in-out"
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
               >Buy it now</button>
 
-              {/* Wishlist + Compare */}
-              <div className="pdp-info-actions-row" style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '24px' }}>
+              <div className="pdp-info-actions-row flex items-center gap-[24px] mb-[24px]">
                 <button
                   onClick={handleWishlistClick}
                   disabled={wishlistLoading}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: wishlistLoading ? 'wait' : 'pointer', color: inWishlist ? '#F15B41' : '#555', fontSize: '16px', padding: 0, transition: 'color 200ms ease', opacity: wishlistLoading ? 0.5 : 1 }}
+                  className={`inline-flex items-center gap-[8px] bg-transparent border-none text-[16px] p-0 transition-colors duration-200 ease-in-out ${
+                    wishlistLoading ? 'cursor-wait opacity-50' : 'cursor-pointer opacity-100'
+                  } ${inWishlist ? 'text-[#F15B41]' : 'text-[#555]'}`}
                 >
                   {wishlistLoading ? (
-                    <span className="pdp-btn-spinner" style={{ width: '18px', height: '18px' }} />
+                    <span className="pdp-btn-spinner w-[18px] h-[18px]" />
                   ) : inWishlist ? (
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18" height="18">
                       <path fill="currentColor" d="M417.84 448a15.94 15.94 0 01-11.35-4.72L40.65 75.26a16 16 0 0122.7-22.56l365.83 368a16 16 0 01-11.34 27.3zM364.92 80c-48.09 0-80 29.55-96.92 51-16.88-21.48-48.83-51-96.92-51a107.37 107.37 0 00-31 4.55L168 112c22.26 0 45.81 9 63.94 26.67a123 123 0 0121.75 28.47 16 16 0 0028.6 0 123 123 0 0121.77-28.51C322.19 121 342.66 112 364.92 112c43.15 0 78.62 36.33 79.07 81 .54 53.69-22.75 99.55-57.38 139.52l22.63 22.77c3-3.44 5.7-6.64 8.14-9.6 40-48.75 59.15-98.8 58.61-153C475.37 130.52 425.54 80 364.92 80zM268 432C180.38 372.51 91 297.6 92 193a83.69 83.69 0 012.24-18.39L69 149.14a115.1 115.1 0 00-9 43.49c-.54 54.22 18.63 104.27 58.61 153 18.77 22.87 52.8 59.45 131.39 112.8a31.84 31.84 0 0036 0c20.35-13.81 37.7-26.5 52.58-38.11l-22.66-22.81C300.25 409.6 284.09 421.05 268 432z" />
@@ -898,61 +861,33 @@ export function ProductDetailContent({
                   )}
                   {wishlistLoading ? 'Loading...' : inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </button>
-                {/* Add to Compare button removed/commented out as requested
-                <button
-                  onClick={handleCompareClick}
-                  disabled={compareLoading}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: compareLoading ? 'wait' : 'pointer', color: inCompare ? '#F15B41' : '#555', fontSize: '16px', padding: 0, transition: 'color 200ms ease', opacity: compareLoading ? 0.5 : 1 }}
-                >
-                  {compareLoading ? (
-                    <span className="pdp-btn-spinner" style={{ width: '18px', height: '18px' }} />
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <line x1="17" y1="3" x2="17" y2="21" />
-                      <path d="M10 18l-3 3l-3 -3" />
-                      <line x1="7" y1="21" x2="7" y2="3" />
-                      <path d="M20 6l-3 -3l-3 3" />
-                    </svg>
-                  )}
-                  {compareLoading ? 'Loading...' : inCompare ? 'Remove from Compare' : 'Add to Compare'}
-                </button>
-                */}
               </div>
 
-              {/* Share */}
-              <div className="pdp-share-row" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px', position: 'relative' }}>
-                {/* Facebook */}
+              <div className="pdp-share-row flex items-center gap-[20px] mb-[30px] relative">
                 <button
                   onClick={() => { const url = encodeURIComponent(window.location.href); window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400'); }}
-                  className="pdp-share-btn"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: '14px', padding: 0, transition: 'color 200ms ease' }}
+                  className="pdp-share-btn inline-flex items-center gap-[6px] bg-transparent border-none cursor-pointer text-[#555] text-[14px] p-0 transition-colors duration-200 ease-in-out"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C18.34 21.21 22 17.06 22 12.06C22 6.53 17.5 2.04 12 2.04Z" /></svg>
                   Facebook
                 </button>
 
-                {/* Twitter / X */}
                 <button
                   onClick={() => { const url = encodeURIComponent(window.location.href); const text = encodeURIComponent(product.name); window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400'); }}
-                  className="pdp-share-btn"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: '14px', padding: 0, transition: 'color 200ms ease' }}
+                  className="pdp-share-btn inline-flex items-center gap-[6px] bg-transparent border-none cursor-pointer text-[#555] text-[14px] p-0 transition-colors duration-200 ease-in-out"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                   Twitter
                 </button>
 
-                {/* Pinterest */}
                 <button
                   onClick={() => { const url = encodeURIComponent(window.location.href); const media = encodeURIComponent(window.location.origin + (product.images[0]?.src || '')); const desc = encodeURIComponent(product.name); window.open(`https://pinterest.com/pin/create/button/?url=${url}&media=${media}&description=${desc}`, '_blank', 'width=600,height=400'); }}
-                  className="pdp-share-btn"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: '14px', padding: 0, transition: 'color 200ms ease' }}
+                  className="pdp-share-btn inline-flex items-center gap-[6px] bg-transparent border-none cursor-pointer text-[#555] text-[14px] p-0 transition-colors duration-200 ease-in-out"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9.04 21.54C10 21.83 10.97 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2C6.48 2 2 6.48 2 12C2 15.72 3.97 18.97 6.91 20.73C6.81 19.71 6.19 17.15 6.19 17.15L7.85 10.34C7.85 10.34 7.41 9.47 7.41 8.18C7.41 6.15 8.59 4.63 10.06 4.63C11.3 4.63 11.9 5.56 11.9 6.68C11.9 7.94 11.11 9.84 10.69 11.59C10.34 13.06 11.44 14.26 12.89 14.26C15.52 14.26 17.13 10.91 17.13 7.32C17.13 4.46 15.15 2.42 12.08 2.42C8.5 2.42 6.31 5.09 6.31 8.03C6.31 9.13 6.63 9.85 7.16 10.41C7.39 10.67 7.43 10.78 7.35 11.08L7.06 12.23C6.97 12.58 6.72 12.68 6.4 12.54C4.48 11.7 3.54 9.63 3.54 7.74C3.54 4.03 6.52 0.15 12.42 0.15C17.15 0.15 20.28 3.66 20.28 7.42C20.28 12.28 17.46 15.94 13.42 15.94C11.93 15.94 10.53 15.14 10.06 14.23L9.21 17.53C8.93 18.6 8.27 19.94 7.78 20.78C8.81 21.09 9.9 21.26 11.03 21.26" /></svg>
                   Pin it
                 </button>
 
-                {/* Share (native) */}
                 <button
                   onClick={() => {
                     if (navigator.share) {
@@ -961,49 +896,36 @@ export function ProductDetailContent({
                       setShareMenuOpen(!shareMenuOpen);
                     }
                   }}
-                  className="pdp-share-btn"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: '14px', padding: 0, transition: 'color 200ms ease' }}
+                  className="pdp-share-btn inline-flex items-center gap-[6px] bg-transparent border-none cursor-pointer text-[#555] text-[14px] p-0 transition-colors duration-200 ease-in-out"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" /></svg>
                   Share
                 </button>
 
-                {/* Share dropdown panel */}
                 {shareMenuOpen && (
                   <div
-                    className="pdp-share-dropdown"
-                    style={{
-                      position: 'absolute', top: 'calc(100% + 10px)', left: 0, zIndex: 100,
-                      backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '8px',
-                      boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: '20px 24px',
-                      width: '320px',
-                      animation: 'pdpShareDropIn 250ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
-                    }}
+                    className="pdp-share-dropdown absolute top-[calc(100%+10px)] left-0 z-[100] bg-[#fff] border border-solid border-[#e5e5e5] rounded-[8px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-[20px] px-[24px] w-[320px] animate-[pdpShareDropIn_250ms_cubic-bezier(0.4,0,0.2,1)_forwards]"
                   >
-                    {/* Header */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: 600, color: '#222' }}>Share link</span>
-                      <button onClick={() => setShareMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', padding: '2px' }}>
+                    <div className="flex items-center justify-between mb-[16px]">
+                      <span className="text-[14px] font-semibold text-[#222]">Share link</span>
+                      <button onClick={() => setShareMenuOpen(false)} className="bg-transparent border-none cursor-pointer text-[#888] flex p-[2px]">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                       </button>
                     </div>
 
-                    {/* Product preview */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: '#f7f7f7', borderRadius: '6px', marginBottom: '18px' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '6px', overflow: 'hidden', flexShrink: 0, position: 'relative', backgroundColor: '#eee' }}>
-                        <Image src={product.images[0]?.src || ''} alt={product.name} fill style={{ objectFit: 'cover' }} sizes="44px" />
+                    <div className="flex items-center gap-[12px] p-[12px] bg-[#f7f7f7] rounded-[6px] mb-[18px]">
+                      <div className="w-[44px] h-[44px] rounded-[6px] overflow-hidden shrink-0 relative bg-[#eee]">
+                        <Image src={product.images[0]?.src || ''} alt={product.name} fill className="object-cover" sizes="44px" />
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name} - {formatPrice(product.price)}</p>
-                        <p style={{ fontSize: '11px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{typeof window !== 'undefined' ? window.location.href : ''}</p>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-semibold text-[#222] whitespace-nowrap overflow-hidden text-ellipsis">{product.name} - {formatPrice(product.price)}</p>
+                        <p className="text-[11px] text-[#888] whitespace-nowrap overflow-hidden text-ellipsis">{typeof window !== 'undefined' ? window.location.href : ''}</p>
                       </div>
                     </div>
 
-                    {/* Share options label */}
-                    <p style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>Share using</p>
+                    <p className="text-[12px] text-[#888] mb-[12px]">Share using</p>
 
-                    {/* Share grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                    <div className="grid grid-cols-4 gap-[12px]">
                       {[
                         { name: 'Nearby Sharing', icon: (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2" /><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" /></svg>), action: () => { if (navigator.share) navigator.share({ title: product.name, url: window.location.href }); } },
                         { name: 'WhatsApp', icon: (<svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>), action: () => { window.open(`https://wa.me/?text=${encodeURIComponent(product.name + ' ' + window.location.href)}`, '_blank'); } },
@@ -1014,12 +936,15 @@ export function ProductDetailContent({
                         { name: 'Twitter', icon: (<svg width="20" height="20" viewBox="0 0 24 24" fill="#555"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>), action: () => { window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(product.name)}`, '_blank', 'width=600,height=400'); } },
                         { name: 'Copy link', icon: (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>), action: () => { navigator.clipboard.writeText(window.location.href); setShareMenuOpen(false); } },
                       ].map((item) => (
-                        <button key={item.name} onClick={() => { item.action(); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 4px', borderRadius: '8px', transition: 'background-color 150ms ease' }}
+                        <button
+                          key={item.name}
+                          onClick={() => { item.action(); }}
+                          className="flex flex-col items-center gap-[6px] bg-transparent border-none cursor-pointer py-[8px] px-[4px] rounded-[8px] transition-colors duration-150 ease-in-out"
                           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f5f5'; }}
                           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                         >
                           {item.icon}
-                          <span style={{ fontSize: '11px', color: '#555', whiteSpace: 'nowrap' }}>{item.name}</span>
+                          <span className="text-[11px] text-[#555] whitespace-nowrap">{item.name}</span>
                         </button>
                       ))}
                     </div>
@@ -1027,49 +952,21 @@ export function ProductDetailContent({
                 )}
               </div>
 
-              {/* Pairs Well With — Slider with hero pagination */}
               {relatedProducts.length > 0 && <PairsWellWith products={relatedProducts} productHrefBase={productHrefBase} />}
 
-              {/* ── Size Guide & Ask About This Product ── */}
-              <div className="pdp-info-links" style={{ borderTop: '1px solid #e5e5e5', marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '6px' }}>
-                {/* Size Guide button commented out as requested
-                <button className="pdp-info-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px', color: '#222', fontWeight: 400 }}>
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M18.9836 5.32852L14.6715 1.01638L1.01638 14.6715L5.32852 18.9836L18.9836 5.32852ZM15.3902 0.297691C14.9933 -0.0992303 14.3497 -0.0992303 13.9528 0.297691L0.297691 13.9528C-0.0992301 14.3497 -0.0992305 14.9932 0.297691 15.3902L4.60983 19.7023C5.00675 20.0992 5.65029 20.0992 6.04721 19.7023L19.7023 6.04721C20.0992 5.65029 20.0992 5.00675 19.7023 4.60983L15.3902 0.297691Z" fillRule="evenodd" />
-                    <path d="M11.7863 2.67056C11.9848 2.4721 12.3065 2.4721 12.505 2.67056L14.4237 4.58927C14.6222 4.78774 14.6222 5.1095 14.4237 5.30796C14.2252 5.50642 13.9035 5.50642 13.705 5.30796L11.7863 3.38925C11.5878 3.19079 11.5878 2.86902 11.7863 2.67056Z" />
-                    <path d="M8.93891 5.36331C9.13737 5.16485 9.45914 5.16485 9.6576 5.36331L11.5763 7.28202C11.7748 7.48048 11.7748 7.80225 11.5763 8.00071C11.3779 8.19917 11.0561 8.19917 10.8576 8.00071L8.93891 6.082C8.74045 5.88354 8.74045 5.56177 8.93891 5.36331Z" />
-                    <path d="M6.24307 8.20742C6.44153 8.00896 6.76329 8.00896 6.96175 8.20742L8.88047 10.1261C9.07893 10.3246 9.07893 10.6464 8.88047 10.8448C8.68201 11.0433 8.36024 11.0433 8.16178 10.8448L6.24307 8.92611C6.0446 8.72765 6.0446 8.40588 6.24307 8.20742Z" />
-                    <path d="M3.37296 10.8776C3.57142 10.6791 3.89319 10.6791 4.09165 10.8776L6.01036 12.7963C6.20882 12.9948 6.20882 13.3165 6.01036 13.515C5.8119 13.7134 5.49013 13.7134 5.29167 13.515L3.37296 11.5963C3.1745 11.3978 3.1745 11.076 3.37296 10.8776Z" />
-                  </svg>
-                  Size Guide
-                </button>
-                */}
-                <button onClick={() => setAskModalOpen(true)} className="pdp-info-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px', color: '#222', fontWeight: 400 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-                  Ask About This product
-                </button>
-              </div>
-
-              {/* ── Accordion: Description, Shipping and Returns, Return Policies ── */}
-              <div className="pdp-info-accordion-wrap" style={{ marginTop: '16px' }}>
+              <div className="pdp-info-accordion-wrap mt-[16px]">
                 <ProductInfoAccordion items={[
                   {
                     title: 'Description',
                     content: (
                       <>
-                        <p style={{ marginBottom: product.features && product.features.length > 0 ? '16px' : '0' }}>{product.description}</p>
-                        {/* Mock skirt and sequin dress description paragraphs commented out as requested:
-                        <p style={{ marginBottom: '16px' }}>A black silk wrap skirt is a versatile and elegant piece. Typically, it features a wrap-around design with a tie or buckle closure at the waist, allowing for an adjustable fit. Made from luxurious silk, it has a smooth, flowing texture that drapes beautifully and moves gracefully. The skirt often falls to a knee-length or mid-calf, though variations in length are common. Its sleek black color makes it suitable for both formal and casual occasions, and it can easily be dressed up with heels and a blouse or worn more casually with flats and a simple top.</p>
-                        <p style={{ marginBottom: '16px' }}>The sequins are meticulously arranged on the dress, often in intricate patterns or artful arrangements that enhance its visual appeal. They create a mesmerizing texture that sparkles and shines, making the dress the center of attention at any event or special occasion.</p>
-                        <p style={{ marginBottom: '16px' }}>The length of the dress can also vary, from mini to midi or even floor-length, providing options for different preferences and occasions. Regardless of the length, the gold sequin dress is designed to make a grand entrance and leave a lasting impression.</p>
-                        <p>To complete the glamorous look, pairing the dress with complementary accessories such as gold heels, a statement clutch, and elegant jewelry can elevate the overall ensemble.</p>
-                        */}
+                        <p className={`text-justify md:text-left ${product.features && product.features.length > 0 ? 'mb-[16px]' : 'mb-0'}`}>{product.description}</p>
                         {product.features && product.features.length > 0 && (
-                          <div style={{ marginTop: '14px' }}>
-                            <p style={{ fontWeight: 600, color: '#222', marginBottom: '8px' }}>Specifications & Features:</p>
-                            <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div className="mt-[14px]">
+                            <p className="font-semibold text-[#222] mb-[8px] text-justify md:text-left">Specifications & Features:</p>
+                            <ul className="pl-[20px] m-0 flex flex-col gap-[6px] text-left">
                               {product.features.map((feat, idx) => (
-                                <li key={idx} style={{ color: '#555', fontSize: '14px' }}>{feat}</li>
+                                <li key={idx} className="text-[#555] text-[14px]">{feat}</li>
                               ))}
                             </ul>
                           </div>
@@ -1079,14 +976,11 @@ export function ProductDetailContent({
                   },
                   {
                     title: 'Shipping and Returns',
-                    /* Original $100 shipping text commented out:
-                    content: <p>Free shipping on orders over $100. Standard shipping takes 3-7 business days. Express shipping is available for an additional fee. 30-day hassle-free return policy on all unworn items.</p>,
-                    */
-                    content: <p>Island-wide delivery available across Sri Lanka. Standard shipping takes 2-4 business days. 7-day return policy on eligible items in original packaging.</p>,
+                    content: <p className="text-justify md:text-left">Island-wide delivery available across Sri Lanka. Standard shipping takes 2-4 business days. 7-day return policy on eligible items in original packaging.</p>,
                   },
                   {
                     title: 'Return Policies',
-                    content: <p>Items must be returned in original condition with all tags attached within 30 days of delivery. Refunds will be processed within 5-7 business days after we receive the returned item.</p>,
+                    content: <p className="text-justify md:text-left">Items must be returned in original condition with all tags attached within 30 days of delivery. Refunds will be processed within 5-7 business days after we receive the returned item.</p>,
                   },
                 ]} />
               </div>
@@ -1095,36 +989,199 @@ export function ProductDetailContent({
         </div>
       </div>
 
-      {/* ── Customer Reviews ── */}
-      <div className="container-main pdp-reviews-section">
-        <h2 style={{ fontSize: 'clamp(22px, 2.4vw, 28px)', fontWeight: 600, color: '#222', textAlign: 'center', marginBottom: 'clamp(22px, 2.4vw, 30px)' }}>Customer Reviews</h2>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: 'clamp(22px, 2.4vw, 30px)' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {Array.from({ length: 5 }).map((_, i) => (<span key={i} style={{ fontSize: 'clamp(15px, 1.5vw, 18px)', color: i < Math.floor(product.rating) ? '#F5C518' : '#ddd' }}>★</span>))}
-              <span style={{ fontSize: 'clamp(14px, 1.3vw, 16px)', fontWeight: 600, color: '#222', marginLeft: '6px' }}>{product.rating} out of 5</span>
-            </div>
-            <p style={{ fontSize: 'clamp(13px, 1.2vw, 14px)', color: '#888', marginTop: '4px' }}>Based on {product.reviewCount} reviews</p>
-          </div>
-          <button style={{ padding: 'clamp(10px, 1vw, 12px) clamp(20px, 2.3vw, 28px)', border: '1.5px solid #222', backgroundColor: '#fff', color: '#222', fontSize: 'clamp(13px, 1.25vw, 15px)', fontWeight: 500, cursor: 'pointer', transition: 'all 250ms ease' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
-          >Write a review</button>
+      <div className="container-main pdp-reviews-section pt-[40px] pb-[60px]">
+        <div className="border-b border-[#e5e7eb] pb-[16px] mb-[28px]">
+          <h2 className="text-[clamp(22px,3vw,28px)] font-semibold text-[#222] m-0">
+            Ratings &amp; Reviews of {product.name}
+          </h2>
         </div>
-        {product.reviews.map((review) => (
-          <div key={review.id} style={{ borderTop: '1px solid #e5e5e5', padding: 'clamp(16px, 1.7vw, 20px) 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', gap: '3px' }}>{Array.from({ length: 5 }).map((_, i) => (<span key={i} style={{ fontSize: 'clamp(13px, 1.2vw, 14px)', color: i < review.rating ? '#F5C518' : '#ddd' }}>★</span>))}</div>
-              <span style={{ fontSize: 'clamp(12px, 1.1vw, 13px)', color: '#888' }}>{review.date}</span>
+
+        <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-[12px] p-[clamp(16px,2.5vw,28px)] mb-[32px]">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-[24px] md:gap-[32px] items-center">
+            <div className="md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left md:border-r md:border-[#e5e7eb] md:pr-[24px]">
+              <div className="flex items-baseline gap-[6px]">
+                <span className="text-[clamp(38px,4.5vw,52px)] font-black text-[#111827] leading-none tracking-tight">
+                  {avgRating.toFixed(1)}
+                </span>
+                <span className="text-[clamp(18px,2vw,22px)] font-medium text-[#6b7280]">/ 5</span>
+              </div>
+              <div className="flex items-center gap-[4px] my-[10px]">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={`text-[clamp(20px,2vw,24px)] leading-none ${
+                      star <= Math.round(avgRating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'
+                    }`}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <p className="text-[14px] text-[#4b5563] font-medium m-0">
+                {reviewCount} {reviewCount === 1 ? 'Rating' : 'Ratings'}
+              </p>
             </div>
-            <h4 style={{ fontSize: 'clamp(14px, 1.4vw, 16px)', fontWeight: 600, color: '#222', marginBottom: '6px' }}>{review.title}</h4>
-            <p style={{ fontSize: 'clamp(13px, 1.3vw, 15px)', color: '#555', lineHeight: 1.6 }}>{review.body}</p>
-            <p style={{ fontSize: 'clamp(12px, 1.1vw, 13px)', color: '#888', marginTop: '8px' }}>— {review.author} {review.verified && '✓ Verified'}</p>
+
+            <div className="md:col-span-7 flex flex-col gap-[8px] w-full">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = starCounts[star] || 0;
+                const percent = reviewCount > 0 ? Math.round((count / reviewCount) * 100) : 0;
+                return (
+                  <div key={star} className="flex items-center gap-[10px] text-[13px]">
+                    <div className="flex items-center gap-[2px] w-[75px] shrink-0 justify-end">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span
+                          key={i}
+                          className={`text-[12px] leading-none ${i < star ? 'text-[#f59e0b]' : 'text-[#e5e7eb]'}`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex-1 h-[8px] bg-[#e5e7eb] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#f59e0b] rounded-full transition-all duration-300"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+
+                    <span className="w-[32px] text-right font-medium text-[#4b5563] shrink-0">
+                      {count}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        ))}
+        </div>
+
+        <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-[14px] mb-[20px]">
+          <h3 className="text-[17px] font-bold text-[#1f2937] m-0">
+            Product Reviews ({reviewCount})
+          </h3>
+        </div>
+
+        {reviewsList.length === 0 ? (
+          <div className="py-[48px] px-[20px] text-center bg-[#f9fafb] rounded-[12px] border border-dashed border-[#d1d5db]">
+            <div className="text-[36px] mb-[10px] text-[#9ca3af]">★</div>
+            <h4 className="text-[16px] font-semibold text-[#374151] mb-[6px]">No reviews yet</h4>
+            <p className="text-[14px] text-[#6b7280] max-w-[420px] mx-auto leading-relaxed m-0">
+              This product hasn&apos;t received any customer reviews yet. Verified buyers will be able to share their reviews after receiving their orders.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col divide-y divide-[#f3f4f6]">
+            {reviewsList.map((review: any) => (
+              <div key={review.id} className="py-[20px] first:pt-0 last:pb-0">
+                <div className="flex items-center justify-between gap-[12px] mb-[8px]">
+                  <div className="flex items-center gap-[2px]">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className={`text-[15px] leading-none ${
+                          i < (review.rating || 5) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'
+                        }`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-[12px] text-[#9ca3af]">{review.date}</span>
+                </div>
+
+                <div className="flex items-center gap-[8px] flex-wrap text-[13px] text-[#4b5563] mb-[10px]">
+                  <span>
+                    by <strong className="text-[#111827] font-semibold">{maskAuthor(review.author)}</strong>
+                  </span>
+                  {review.verified && (
+                    <span className="inline-flex items-center gap-[4px] text-[#16a34a] text-[11px] font-medium bg-[#f0fdf4] px-[8px] py-[2px] rounded-full border border-[#bbf7d0]">
+                      <svg className="w-[11px] h-[11px]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Verified Purchase
+                    </span>
+                  )}
+                </div>
+
+                {review.title && review.title !== 'Customer Review' && (
+                  <h4 className="text-[15px] font-semibold text-[#111827] mb-[6px]">{review.title}</h4>
+                )}
+
+                <p className="text-[14px] text-[#374151] leading-[1.6] mb-[14px] whitespace-pre-line">
+                  {review.body}
+                </p>
+
+                {Array.isArray(review.images) && review.images.length > 0 && (
+                  <div className="flex items-center gap-[10px] flex-wrap mb-[14px]">
+                    {review.images.map((imgUrl: string, idx: number) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setPreviewImage(imgUrl)}
+                        className="group relative w-[76px] h-[76px] rounded-[8px] overflow-hidden border border-[#e5e7eb] hover:border-[#f59e0b] transition-all cursor-pointer p-0 bg-[#f9fafb]"
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`Review photo ${idx + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-[12px] text-[13px] text-[#6b7280]">
+                  <button
+                    type="button"
+                    onClick={() => handleLikeReview(review.id)}
+                    disabled={likedReviewIds[review.id]}
+                    className={`inline-flex items-center gap-[6px] py-[4px] px-[10px] rounded-[6px] border text-[13px] transition-colors ${
+                      likedReviewIds[review.id]
+                        ? 'border-[#111827] bg-[#111827] text-white cursor-default'
+                        : 'border-[#e5e7eb] bg-white text-[#4b5563] hover:border-[#9ca3af] hover:text-[#111827] cursor-pointer'
+                    }`}
+                  >
+                    <span>👍</span>
+                    <span className="font-medium">{review.likes || 0}</span>
+                  </button>
+                  {likedReviewIds[review.id] && (
+                    <span className="text-[12px] text-[#16a34a] font-medium">Thank you for your feedback!</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {previewImage && (
+          <div
+            onClick={() => setPreviewImage(null)}
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-[16px] backdrop-blur-[2px]"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-[90vw] max-h-[85vh] bg-white p-[8px] rounded-[12px] shadow-2xl flex flex-col items-center"
+            >
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="absolute -top-[14px] -right-[14px] w-[32px] h-[32px] rounded-full bg-[#111827] text-white flex items-center justify-center text-[15px] font-bold shadow-lg border-2 border-white hover:bg-[#e11d48] transition-colors cursor-pointer"
+                aria-label="Close image preview"
+              >
+                ✕
+              </button>
+              <img
+                src={previewImage}
+                alt="Customer review photo preview"
+                className="max-w-full max-h-[80vh] object-contain rounded-[8px]"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ── You May Also Like ── */}
       <div className="pdp-related-section">
         {cardVariant === 'grocery' ? (
           <GroceryFeaturedSlider />
@@ -1138,45 +1195,10 @@ export function ProductDetailContent({
         )}
       </div>
 
-      {/* ── Trust Badges (Commented out on product detail page as requested) ──
-      <div className="pdp-trust-section" style={{ marginTop: '80px' }}><TrustBadges /></div>
-      */}
-
-      {/* ── FAQ — 50/50 layout (Commented out on product detail page as requested) ──
-      <div className="container-main pdp-faq-section">
-        <div className="pdp-faq-header">
-          <h2 className="pdp-faq-title">F.A.Q.</h2>
-          <p className="pdp-faq-subtitle">Explore additional details in our FAQ section</p>
-        </div>
-
-        <div className="pdp-faq-grid">
-          <div className="pdp-faq-left">
-            <FaqAccordion items={[
-              { question: 'How can I place an order?', answer: 'To place an order, simply browse our online store and add the desired items to your shopping cart. Proceed to checkout, enter your shipping information, and complete the payment process.' },
-              { question: 'What payment methods do you accept?', answer: 'We accept Visa, Mastercard, American Express, PayPal, and other major payment methods. All transactions are processed securely.' },
-              { question: 'Do you offer international shipping?', answer: 'Yes, we offer international shipping to most countries. Shipping rates and delivery times vary depending on the destination.' },
-              { question: 'What are your shipping times?', answer: '1. Shipping times depend on your location and the shipping method chosen. Generally, we strive to process orders within 1-3 business days, but actual delivery times may vary. During checkout, you\'ll be provided with an estimated delivery date.\n\n2. Express shipping options are available for faster delivery.' },
-            ]} />
-          </div>
-
-          <div className="pdp-faq-right">
-            <Image
-              src={cardVariant === 'grocery' ? '/grocery-shop/faq/faq1.webp' : '/fashion/banners/banners9.webp'}
-              alt="FAQ section"
-              fill
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
-              sizes="(max-width: 991px) 100vw, 50vw"
-            />
-          </div>
-        </div>
-      </div>
-      */}
-
-      {/* ── Recently Viewed ── */}
       <div className="container-main pdp-recently-section">
-        <h2 style={{ fontSize: 'clamp(22px, 2.4vw, 28px)', fontWeight: 600, color: '#222', textAlign: 'center', marginBottom: 'clamp(22px, 2.4vw, 30px)' }}>Recently viewed product</h2>
+        <h2 className="text-[clamp(22px,3vw,28px)] font-semibold text-[#222] text-left mb-[clamp(22px,2.4vw,30px)]">Recently viewed product</h2>
         {(recentlyViewed.length > 0 || relatedData) && (
-          <div className="pdp-recently-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(14px, 1.8vw, 24px)' }}>
+          <div className="pdp-recently-grid grid grid-cols-4 gap-[clamp(14px,1.8vw,24px)]">
             {(recentlyViewed.length > 0
               ? recentlyViewed
               : (relatedData?.products.filter(p => p.id !== product?.id).slice(0, 4) || [])
@@ -1191,116 +1213,34 @@ export function ProductDetailContent({
         )}
       </div>
 
-      {/* ── Ask About This Product Modal ── */}
-      {askModalOpen && (
-        <div
-          className="pdp-ask-overlay"
-          onClick={() => setAskModalOpen(false)}
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 99999,
-            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-            animation: 'pdpOverlayFadeIn 300ms ease forwards',
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="pdp-ask-modal"
-            style={{
-              backgroundColor: '#fff', width: '100%',
-              position: 'relative',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
-              animation: 'pdpModalSlideDown 350ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
-            }}
-          >
-            {/* Close button */}
-            <button
-              onClick={() => setAskModalOpen(false)}
-              style={{
-                position: 'absolute', top: '16px', right: '16px',
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: '#888', padding: '4px', display: 'flex',
-                transition: 'color 200ms ease',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#222'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#888'; }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-            </button>
-
-            {/* Title */}
-            <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#222', marginBottom: '16px' }}>Have a question?</h2>
-            <p style={{ fontSize: '14px', color: '#555', lineHeight: 1.6, marginBottom: '28px' }}>Thanks for contacting us. We&apos;ll get back to you as soon as possible.</p>
-
-            {/* Form */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Name + Email row */}
-              <div className="pdp-ask-fields-row" style={{ display: 'grid', gap: '14px' }}>
-                <input type="text" placeholder="Name *" className="pdp-ask-input" style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1px solid #ddd', outline: 'none', color: '#222', backgroundColor: '#fff', transition: 'border-color 200ms ease' }} />
-                <input type="email" placeholder="Email *" className="pdp-ask-input" style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1px solid #ddd', outline: 'none', color: '#222', backgroundColor: '#fff', transition: 'border-color 200ms ease' }} />
-              </div>
-
-              {/* Phone */}
-              <input type="tel" placeholder="Phone *" className="pdp-ask-input" style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1px solid #ddd', outline: 'none', color: '#222', backgroundColor: '#fff', transition: 'border-color 200ms ease' }} />
-
-              {/* Message */}
-              <textarea placeholder="Write Message *" rows={4} className="pdp-ask-input" style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1px solid #ddd', outline: 'none', color: '#222', backgroundColor: '#fff', resize: 'vertical', transition: 'border-color 200ms ease' }} />
-
-              {/* Send button */}
-              <div>
-                <button
-                  className="pdp-ask-send"
-                  style={{
-                    padding: '12px 36px', fontSize: '14px', fontWeight: 600,
-                    backgroundColor: '#222', color: '#fff', border: 'none',
-                    cursor: 'pointer', transition: 'background-color 200ms ease',
-                  }}
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile spacer — prevents the sticky bar from overlapping the last section / footer */}
       <div className="pdp-sticky-spacer" />
 
-      {/* ── Sticky Bottom Add to Cart Bar ── */}
       <div
-        className="pdp-sticky-bar"
-        style={{
-          position: 'fixed', left: 0, right: 0, zIndex: 9998,
-          backgroundColor: '#fff', borderTop: '1px solid #e5e5e5',
-          boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
-          transform: (stickyCartVisible && !footerVisible) ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
+        className={`pdp-sticky-bar fixed left-0 right-0 z-[9998] bg-[#fff] border-t border-solid border-[#e5e5e5] shadow-[0_-2px_10px_rgba(0,0,0,0.06)] transition-transform duration-[350ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          stickyCartVisible && !footerVisible ? 'translate-y-0' : 'translate-y-full'
+        }`}
       >
         <div className="container-main pdp-sticky-inner">
-          {/* Product thumbnail + name — shows currently active gallery image */}
-          <div className="pdp-sticky-product" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 1.1vw, 14px)', minWidth: 0 }}>
-            <div style={{ width: 'clamp(52px, 6vw, 80px)', height: 'clamp(58px, 7vw, 90px)', overflow: 'hidden', position: 'relative', backgroundColor: '#f5f5f5', flexShrink: 0, borderRadius: '4px' }}>
-              <Image src={product.images[activeGalleryIndex]?.src || product.images[0]?.src || ''} alt={product.name} fill style={{ objectFit: 'cover' }} sizes="(max-width: 1200px) 70px, 80px" />
+          <div className="pdp-sticky-product flex items-center gap-[clamp(10px,1.1vw,14px)] min-w-0">
+            <div className="w-[clamp(52px,6vw,80px)] h-[clamp(58px,7vw,90px)] overflow-hidden relative bg-[#f5f5f5] shrink-0 rounded-[4px] flex items-center justify-center">
+              {(product.images[activeGalleryIndex]?.src || product.images[0]?.src) ? (
+                <Image
+                  src={product.images[activeGalleryIndex]?.src || product.images[0]?.src || ''}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1200px) 70px, 80px"
+                />
+              ) : (
+                <span className="text-[11px] text-[#999]">No img</span>
+              )}
             </div>
-            <span className="pdp-sticky-name" style={{ fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
+            <span className="pdp-sticky-name text-[clamp(12px,1.2vw,14px)] font-semibold text-[#222] overflow-hidden text-ellipsis whitespace-nowrap">{product.name}</span>
           </div>
 
-          {/* Variant selector or Price display */}
-          {/* Original single-option select commented out as requested:
-          <select
-            className="pdp-sticky-variant"
-            value={`${activeColor} / ${activeSize}`}
-            onChange={() => {}}
-            style={{ padding: 'clamp(9px, 1vw, 12px) clamp(24px, 2.5vw, 34px) clamp(9px, 1vw, 12px) clamp(12px, 1.3vw, 16px)', fontSize: 'clamp(12px, 1.1vw, 13px)', border: '1px solid #e0e0e0', borderRadius: '6px', color: '#222', backgroundColor: '#fff', cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\' viewBox=\'0 0 10 6\'%3E%3Cpath fill=\'%23555\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', backgroundSize: '10px 6px' }}
-          >
-            <option>{activeColor.toLowerCase()} / {activeSize.toLowerCase()} - {formatPrice(product.price)}</option>
-          </select>
-          */}
           {product.colors.length > 0 || product.sizes.length > 0 ? (
             <select
-              className="pdp-sticky-variant"
+              className="pdp-sticky-variant py-[clamp(9px,1vw,12px)] pr-[clamp(24px,2.5vw,34px)] pl-[clamp(12px,1.3vw,16px)] text-[clamp(12px,1.1vw,13px)] border border-solid border-[#e0e0e0] rounded-[6px] text-[#222] bg-[#fff] cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2210%22%20height=%226%22%20viewBox=%220%200%2010%206%22%3E%3Cpath%20fill=%22%23555%22%20d=%22M5%206L0%200h10z%22/%3E%3C/svg%3E')] bg-no-repeat bg-[position:right_14px_center] bg-[length:10px_6px]"
               value={`${activeColor}${activeColor && activeSize ? ' / ' : ''}${activeSize}`}
               onChange={(e) => {
                 const val = e.target.value;
@@ -1313,20 +1253,6 @@ export function ProductDetailContent({
                 } else if (product.sizes.includes(val)) {
                   setSelectedSize(val);
                 }
-              }}
-              style={{
-                padding: 'clamp(9px, 1vw, 12px) clamp(24px, 2.5vw, 34px) clamp(9px, 1vw, 12px) clamp(12px, 1.3vw, 16px)',
-                fontSize: 'clamp(12px, 1.1vw, 13px)',
-                border: '1px solid #e0e0e0',
-                borderRadius: '6px',
-                color: '#222',
-                backgroundColor: '#fff',
-                cursor: 'pointer',
-                appearance: 'none',
-                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\' viewBox=\'0 0 10 6\'%3E%3Cpath fill=\'%23555\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 14px center',
-                backgroundSize: '10px 6px',
               }}
             >
               {product.colors.length > 0 && product.sizes.length > 0 ? (
@@ -1352,24 +1278,9 @@ export function ProductDetailContent({
               )}
             </select>
           ) : (
-            <div
-              className="pdp-sticky-price"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: 'clamp(14px, 1.3vw, 16px)',
-                fontWeight: 700,
-                color: '#222',
-                padding: 'clamp(8px, 1vw, 10px) 14px',
-                backgroundColor: '#f8f8f8',
-                borderRadius: '6px',
-                border: '1px solid #e5e5e5',
-                whiteSpace: 'nowrap',
-              }}
-            >
+            <div className="pdp-sticky-price flex items-center gap-[8px] text-[clamp(14px,1.3vw,16px)] font-bold text-[#222] py-[clamp(8px,1vw,10px)] px-[14px] bg-[#f8f8f8] rounded-[6px] border border-solid border-[#e5e5e5] whitespace-nowrap">
               {product.compareAtPrice && (
-                <span style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through', fontWeight: 400 }}>
+                <span className="text-[13px] text-[#999] line-through font-normal">
                   {formatPrice(product.compareAtPrice)}
                 </span>
               )}
@@ -1377,37 +1288,29 @@ export function ProductDetailContent({
             </div>
           )}
 
-          {/* Quantity stepper */}
-          <div className="pdp-sticky-qty" style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #e0e0e0', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
-            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ width: 'clamp(32px, 3.4vw, 40px)', height: 'clamp(38px, 4vw, 46px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(15px, 1.6vw, 18px)', color: '#555' }}>−</button>
-            <span style={{ width: 'clamp(30px, 3vw, 36px)', height: 'clamp(38px, 4vw, 46px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 500, borderLeft: '1px solid #e0e0e0', borderRight: '1px solid #e0e0e0', color: '#222' }}>{quantity}</span>
-            <button onClick={() => setQuantity(quantity + 1)} style={{ width: 'clamp(32px, 3.4vw, 40px)', height: 'clamp(38px, 4vw, 46px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(15px, 1.6vw, 18px)', color: '#555' }}>+</button>
+          <div className="pdp-sticky-qty inline-flex items-center border border-solid border-[#e0e0e0] rounded-[6px] overflow-hidden shrink-0">
+            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-[clamp(32px,3.4vw,40px)] h-[clamp(38px,4vw,46px)] flex items-center justify-center bg-transparent border-none cursor-pointer text-[clamp(15px,1.6vw,18px)] text-[#555]">−</button>
+            <span className="w-[clamp(30px,3vw,36px)] h-[clamp(38px,4vw,46px)] flex items-center justify-center text-[clamp(12px,1.2vw,14px)] font-medium border-l border-r border-solid border-[#e0e0e0] text-[#222]">{quantity}</span>
+            <button onClick={() => setQuantity(quantity + 1)} className="w-[clamp(32px,3.4vw,40px)] h-[clamp(38px,4vw,46px)] flex items-center justify-center bg-transparent border-none cursor-pointer text-[clamp(15px,1.6vw,18px)] text-[#555]">+</button>
           </div>
 
-          {/* Add to Cart */}
-          <button className="pdp-sticky-atc" onClick={handleAddToCart} disabled={addingToCart} style={{ backgroundColor: addingToCart ? '#555' : '#222', color: '#fff', fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, border: 'none', cursor: addingToCart ? 'wait' : 'pointer', transition: 'background-color 200ms ease', whiteSpace: 'nowrap' }}
-            onMouseEnter={(e) => { if (!addingToCart) e.currentTarget.style.backgroundColor = '#F15B41'; }}
-            onMouseLeave={(e) => { if (!addingToCart) e.currentTarget.style.backgroundColor = '#222'; }}
+          <button
+            className={`pdp-sticky-atc text-[#fff] text-[clamp(12px,1.2vw,14px)] font-semibold border-none transition-colors duration-200 ease-in-out whitespace-nowrap ${
+              addingToCart ? 'bg-[#555] cursor-wait' : 'bg-[#222] hover:bg-[#F15B41] cursor-pointer'
+            }`}
+            onClick={handleAddToCart}
+            disabled={addingToCart}
           >{addingToCart ? 'Adding...' : 'Add to cart'}</button>
 
-          {/* Buy it now */}
-          {/* Original sticky buy button without onClick commented out:
-          <button className="pdp-sticky-buy" style={{ backgroundColor: '#fff', color: '#222', fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, border: '1.5px solid #222', cursor: 'pointer', transition: 'all 200ms ease', whiteSpace: 'nowrap' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
-          >Buy it now</button>
-          */}
-          <button onClick={handleBuyNow} className="pdp-sticky-buy" style={{ backgroundColor: '#fff', color: '#222', fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 600, border: '1.5px solid #222', cursor: 'pointer', transition: 'all 200ms ease', whiteSpace: 'nowrap' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
+          <button
+            onClick={handleBuyNow}
+            className="pdp-sticky-buy bg-[#fff] hover:bg-[#222] text-[#222] hover:text-[#fff] text-[clamp(12px,1.2vw,14px)] font-semibold border-[1.5px] border-solid border-[#222] cursor-pointer transition-all duration-200 ease-in-out whitespace-nowrap"
           >Buy it now</button>
         </div>
       </div>
 
-      {/* ── Gallery styles ── */}
       <style>{`
-        /* Recently Viewed: 3-up at the 992–1199 breakpoint so each card
-           has more breathing room than the compressed 4-up layout. */
+        
         @media (min-width: 992px) and (max-width: 1199px) {
           .pdp-recently-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
@@ -1428,26 +1331,21 @@ export function ProductDetailContent({
         .pdp-swiper-prev { left: 16px; }
         .pdp-swiper-next { right: 16px; }
 
-        /* Hide default Swiper navigation */
+        
         .swiper-button-next, .swiper-button-prev { display: none !important; }
 
-        /* Ensure Swiper slides fill the container height */
+        
         .pdp-gallery-swiper, .pdp-gallery-swiper .swiper-wrapper, .pdp-gallery-swiper .swiper-slide {
           height: 100% !important;
         }
 
-        /* Info links hover */
-        .pdp-info-link:hover {
-          color: #F15B41 !important;
-        }
-
-        /* Pairs well with Quick Add button */
+        
         .pdp-pairs-quick-add:hover {
           background-color: #222 !important;
           color: #fff !important;
         }
 
-        /* Lightbox */
+        
         @keyframes pdpLightboxIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -1463,30 +1361,7 @@ export function ProductDetailContent({
           opacity: 0.6;
         }
 
-        /* Ask modal animations */
-        @keyframes pdpOverlayFadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes pdpModalSlideDown {
-          from { opacity: 0; transform: translateY(-40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Ask modal input focus */
-        .pdp-ask-input:focus {
-          border-color: #222 !important;
-        }
-        .pdp-ask-input::placeholder {
-          color: #aaa;
-        }
-
-        /* Ask modal send button hover */
-        .pdp-ask-send:hover {
-          background-color: #F15B41 !important;
-        }
-
-        /* Wishlist/Compare loading spinner */
+        
         .pdp-btn-spinner {
           display: inline-block;
           border: 2px solid #ddd;
@@ -1498,7 +1373,7 @@ export function ProductDetailContent({
           to { transform: rotate(360deg); }
         }
 
-        /* Share buttons — underline text */
+        
         .pdp-share-btn {
           text-decoration: underline !important;
           text-underline-offset: 3px !important;
@@ -1509,17 +1384,14 @@ export function ProductDetailContent({
           text-decoration-color: #222 !important;
         }
 
-        /* Share dropdown animation */
+        
         @keyframes pdpShareDropIn {
           from { opacity: 0; transform: translateY(-8px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* ══════════════════════════════════
-           PRODUCT MAIN SLIDER + CONTENT (top of product detail)
-           Resource MD: blueprint/component/product-main-slider.md
-           ══════════════════════════════════ */
-        /* Base — desktop default (≥992) */
+        
+        
         .pdp-product-section {
           padding-bottom: 80px;
           overflow: visible;
@@ -1544,30 +1416,22 @@ export function ProductDetailContent({
           position: relative;
           z-index: 1;
         }
-        /* Gallery internals (base) */
+        
         .pdp-gallery-flex { display: flex; gap: 16px; }
         .pdp-thumb-wrap { width: 90px; flex-shrink: 0; position: relative; }
         .pdp-main-col { flex: 1; position: relative; }
-        /* Mobile thumb arrows hidden by default */
+        
         .pdp-thumb-arrow { display: none; }
 
-        /* 750–991 — TBD (intentionally untouched until spec confirmed) */
+        
 
-        /* ≤991 — stacked layout: image on top, horizontal thumb strip, info below.
-           Disables the desktop 50/50 grid + sticky gallery + hover-zoom across
-           the entire 320–991 range (per user's "remove that layout adjustment").
-           Image height clamps to 700px at viewports ≥749 (per the calc). */
+        
         @media (max-width: 991px) {
           .pdp-product-section {
             padding-bottom: clamp(40px, 8vw, 60px);
             overflow-x: hidden !important;
           }
 
-          /* 1-column grid.
-             min-width: 0 on the grid items is critical — without it, a grid
-             item's intrinsic min-content width can expand the 1fr track and
-             let nested flex children (like the thumb strip with 64×7 thumbs)
-             break out of the container. */
           .pdp-product-grid {
             grid-template-columns: 1fr;
             gap: clamp(20px, 5vw, 32px);
@@ -1577,7 +1441,7 @@ export function ProductDetailContent({
           .pdp-product-info {
             min-width: 0 !important;
           }
-          /* Drop sticky on mobile so gallery scrolls naturally */
+          
           .pdp-product-gallery-col {
             align-self: auto;
             z-index: auto;
@@ -1587,16 +1451,14 @@ export function ProductDetailContent({
             top: auto;
           }
 
-          /* Reorder: main image on top, thumb strip below
-             — DOM order is thumb-wrap then main-col, so column-reverse flips it visually.
-             min-width: 0 on the flex items so they don't expand to content min-content. */
+          
           .pdp-gallery-flex {
             flex-direction: column-reverse;
             gap: 12px;
             min-width: 0;
           }
 
-          /* Thumb wrap stretches full-width with horizontal scroll arrows */
+          
           .pdp-thumb-wrap {
             width: 100%;
             min-width: 0;
@@ -1607,7 +1469,7 @@ export function ProductDetailContent({
             min-width: 0 !important;
             max-width: 100% !important;
           }
-          /* Horizontal thumb strip with overflow scroll */
+          
           .pdp-thumb-vertical {
             flex-direction: row !important;
             max-height: none !important;
@@ -1621,7 +1483,7 @@ export function ProductDetailContent({
             width: clamp(70px, 18vw, 100px) !important;
             height: auto !important;
           }
-          /* Thumb scroll arrows */
+          
           .pdp-thumb-arrow {
             display: flex;
             align-items: center;
@@ -1644,25 +1506,22 @@ export function ProductDetailContent({
           .pdp-thumb-arrow-prev { left: 0; }
           .pdp-thumb-arrow-next { right: 0; }
 
-          /* Main image: explicit fluid height 400 → 700 across 320 → 749.
-             Algebra: 0.7×vw + 176px. Clamped at the ends. */
+          
           .pdp-main-image-wrap {
             height: clamp(400px, calc(70vw + 176px), 700px);
           }
           .pdp-main-image-spacer { padding-bottom: 0 !important; }
 
-          /* Hide hover-zoom artifacts at touch-device sizes */
+          
           .pdp-zoom-lens, .pdp-zoom-panel { display: none !important; }
 
-          /* Swiper arrows on the main image scale slightly down */
+          
           .pdp-product-gallery-col .pdp-swiper-arrow {
             width: 32px;
             height: 32px;
           }
 
-          /* Info column — fluid scale-down via clamp().
-             All clamps tuned so they hit roughly:
-              320vw → mobile-min  /  749vw → desktop value */
+          
           .pdp-info-vendor {
             font-size: clamp(11px, 3.1vw, 12px) !important;
             letter-spacing: 1.2px !important;
@@ -1704,7 +1563,7 @@ export function ProductDetailContent({
             font-size: clamp(13px, 3.6vw, 14px) !important;
           }
 
-          /* Quantity row — pill stepper + pill add-to-cart */
+          
           .pdp-info-qty-block { margin-bottom: 20px !important; }
           .pdp-info-qty-row { gap: clamp(10px, 2.8vw, 14px) !important; }
           .pdp-qty-stepper {
@@ -1732,14 +1591,14 @@ export function ProductDetailContent({
             margin-bottom: 24px !important;
           }
 
-          /* Wishlist + Compare row */
+          
           .pdp-info-actions-row {
             gap: clamp(16px, 4.6vw, 24px) !important;
             margin-bottom: 24px !important;
             flex-wrap: wrap;
           }
 
-          /* Share row */
+          
           .pdp-share-row {
             gap: clamp(14px, 4vw, 20px) !important;
             margin-bottom: 28px !important;
@@ -1747,34 +1606,19 @@ export function ProductDetailContent({
             row-gap: 12px;
           }
 
-          /* Share dropdown — constrain width so it never overflows the viewport at 320–360vw */
+          
           .pdp-share-dropdown {
             width: min(320px, calc(100vw - 32px)) !important;
             padding: 16px 18px !important;
           }
 
-          /* Bottom info links */
-          .pdp-info-links {
-            margin-top: 24px !important;
-            padding-top: 22px !important;
-            gap: 16px !important;
-          }
-
-          /* PairsWellWith — hidden entirely across 320–991 per user spec */
+          
           .pdp-pairs-section {
             display: none !important;
           }
         }
 
-        /* ≤749 — narrowest band: show exactly 3 thumbs at a time in the strip,
-           sized off viewport so we never overflow the container.
-           Math: usable_w = 100vw − 48px (container-main side gutters)
-                          − 64px (thumb-vertical arrow padding 32×2)
-                          − 16px (two 8px gaps)
-                = 100vw − 128px
-           Each thumb = usable_w / 3.
-           All width / box-sizing / overflow rules are !important so the
-           strip can't escape the container regardless of inheritance. */
+        
         @media (max-width: 749px) {
           .pdp-thumb-wrap {
             width: 100% !important;
@@ -1799,13 +1643,7 @@ export function ProductDetailContent({
           }
         }
 
-        /* ══════════════════════════════════
-           FAQ SECTION (product detail)
-           Resource MD: blueprint/component/faq-section.md
-           ══════════════════════════════════ */
-        /* Base — fluid clamp() values (max out at ≥1200 desktop default).
-           Use padding-block (not the shorthand) so container-main's
-           horizontal padding-inline gutters are preserved. */
+        
         .pdp-faq-section {
           padding-block: clamp(48px, 6vw, 80px);
         }
@@ -1841,7 +1679,7 @@ export function ProductDetailContent({
           height: clamp(560px, 62vw, 750px);
           overflow: hidden;
         }
-        /* FaqAccordion (used only here) */
+        
         .pdp-faq-q-btn {
           display: flex;
           align-items: center;
@@ -1875,13 +1713,13 @@ export function ProductDetailContent({
           white-space: pre-line;
         }
 
-        /* 992–1199 — fixed image height 600, columns stay 50/50 */
+        
         @media (min-width: 992px) and (max-width: 1199px) {
           .pdp-faq-left { min-height: 600px; }
           .pdp-faq-right { height: 600px; }
         }
 
-        /* 750–991 — stacked, image first @ 600 */
+        
         @media (min-width: 750px) and (max-width: 991px) {
           .pdp-faq-section { padding-block: clamp(36px, 5vw, 48px); }
           .pdp-faq-header { margin-bottom: clamp(20px, 3vw, 28px); }
@@ -1907,7 +1745,7 @@ export function ProductDetailContent({
           }
         }
 
-        /* ≤749 — stacked, image first @ 400, fluid scale-down */
+        
         @media (max-width: 749px) {
           .pdp-faq-section { padding-block: 0; }
           .pdp-faq-header { margin-bottom: clamp(16px, 4vw, 24px); }
@@ -1941,12 +1779,7 @@ export function ProductDetailContent({
           }
         }
 
-        /* ── Ask About Product Modal ── */
-        .pdp-ask-overlay { padding-top: 80px; }
-        .pdp-ask-modal { max-width: 560px; padding: 36px 40px; }
-        .pdp-ask-fields-row { grid-template-columns: 1fr 1fr; }
-
-        /* ── Sticky Add to Cart Bar ── */
+        
         .pdp-sticky-bar {
           bottom: 0;
           height: clamp(92px, 10vw, 120px);
@@ -1981,22 +1814,23 @@ export function ProductDetailContent({
           padding: clamp(11px, 1.2vw, 14px) clamp(18px, 2.5vw, 30px);
           flex-shrink: 0;
         }
-        /* Spacer: hidden by default, only present at mobile */
+        
         .pdp-sticky-spacer { display: none; }
 
-        /* ── Section padding — desktop default (moved from inline styles) ── */
+        
         .pdp-reviews-section { padding-bottom: clamp(48px, 6vw, 80px); }
-        .pdp-recently-section { padding-bottom: clamp(48px, 6vw, 80px); }
+        .pdp-recently-section {
+          margin-top: clamp(36px, 4vw, 52px);
+          padding-bottom: clamp(48px, 6vw, 80px);
+        }
 
-        /* TrustBadges marquee section: drop its built-in 70px top/bottom
-           padding when rendered inside the PDP. The shared component still
-           keeps that padding for home-page usage. */
+        
         .pdp-trust-section > section {
           padding-top: 0 !important;
           padding-bottom: 0 !important;
         }
 
-        /* ── Recently Viewed: 3 cards at 750–991px ── */
+        
         @media (min-width: 750px) and (max-width: 991px) {
           .pdp-recently-grid { grid-template-columns: repeat(3, 1fr) !important; }
           .pdp-recently-grid .fc-card > div:not([class]) a { font-size: clamp(13px, 1.6vw, 15px) !important; }
@@ -2004,41 +1838,31 @@ export function ProductDetailContent({
         }
 
         @media (max-width: 749px) {
-          /* Modal overlay — tighter top padding so modal is reachable */
-          .pdp-ask-overlay { padding-top: clamp(20px, 5vw, 50px); }
-          /* Modal box — full width minus 16px each side, reduced padding */
-          .pdp-ask-modal {
-            max-width: calc(100% - 32px);
-            padding: clamp(24px, 5vw, 36px) clamp(20px, 4vw, 32px);
-          }
-
-          /* Sticky bar is hidden at mobile — spacer is not needed */
+          
           .pdp-sticky-spacer { display: none; }
           .pdp-sticky-bar { display: none; }
 
-          /* ── Recently Viewed: 2 cards per row ── */
+          
           .pdp-recently-grid {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: clamp(10px, 2.5vw, 16px) !important;
           }
-          /* Name link scales fluidly with viewport width */
+          
           .pdp-recently-grid .fc-card > div:not([class]) a {
             font-size: clamp(11px, 3.4vw, 14px) !important;
           }
-          /* Price and compare-price spans scale with name */
+          
           .pdp-recently-grid .fc-card > div:not([class]) span {
             font-size: clamp(10px, 3vw, 13px) !important;
           }
-          /* Tighten gap between card image and text below it */
+          
           .pdp-recently-grid .fc-card > a:first-child {
             margin-bottom: clamp(8px, 2vw, 12px) !important;
           }
         }
 
-        /* ── PDP inter-section spacing — mobile 320–749px ── */
-        /* Zero internal section padding; margin-top is the sole gap source.
-           Recently Viewed keeps a 60px padding-bottom so there's a gap
-           between it and the footer (it's the last section). */
+        
+        
         @media (max-width: 749px) {
           .pdp-product-section  { padding-bottom: 0; }
           .pdp-reviews-section  { padding-bottom: 0; margin-top: 60px; }
@@ -2046,12 +1870,6 @@ export function ProductDetailContent({
           .pdp-trust-section    { margin-top: 60px !important; }
           .pdp-faq-section      { margin-top: 60px; }
           .pdp-recently-section { padding-bottom: 60px; margin-top: 60px; }
-        }
-
-        @media (max-width: 499px) {
-          /* Stack Name + Email into a single column */
-          .pdp-ask-fields-row { grid-template-columns: 1fr; }
-          .pdp-ask-modal { max-width: 100%; }
         }
       `}</style>
     </>

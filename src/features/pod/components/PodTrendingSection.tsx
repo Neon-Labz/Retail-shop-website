@@ -4,11 +4,6 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-/* Ported 1:1 from PCTabSection.tsx (Phone Case) — layout, typography,
-   spacing, tab behavior, animations, hover effects, and responsive
-   behavior must stay pixel-identical per spec. Class prefix renamed
-   pctab-* -> pdtab-*; only copy and imagery swapped for POD. */
-
 function IconRadioDot({ size = 13 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" width={size} height={size}>
@@ -34,29 +29,6 @@ function IconArrowRight({ size = 13 }: { size?: number }) {
   );
 }
 
-/* Original POD tabs commented out as requested:
-const tabs = [
-  {
-    id: 'style',
-    title: 'Personalized Products for Every Style',
-    description: 'From apparel to accessories, every piece is printed on demand with vivid, fade-resistant colors — designed around your ideas, not a warehouse shelf.',
-    mediaSrc: '/pod/tab/tab-1.webp',
-  },
-  {
-    id: 'hoodie',
-    title: 'Create a Hoodie that Speaks Volumes',
-    description: 'Bold graphics or subtle monograms — our print process holds fine detail wash after wash, so your design stays sharp no matter how often it gets worn.',
-    mediaSrc: '/pod/tab/tab-2.webp',
-  },
-  {
-    id: 'totes',
-    title: 'Custom Totes for Every Adventure',
-    description: 'Durable canvas, edge-to-edge printing, and a fast turnaround — build a tote that matches your everyday carry and holds up to daily use.',
-    mediaSrc: '/pod/tab/tab-3.webp',
-  },
-];
-*/
-
 const defaultTabs = [
   {
     id: 'wholesale',
@@ -65,7 +37,7 @@ const defaultTabs = [
     stat: 'Up to 40% Wholesale Savings',
     title: 'Wholesale & Bulk Orders at Direct Importer Prices',
     description: 'Special discounted tiers for retail shops, resellers, and bulk buyers across Sri Lanka.',
-    mediaSrc: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484380387-7310740e-b8ef-4b14-a5c4-5c194b845b5a.png',
+    mediaSrc: '',
   },
   {
     id: 'delivery',
@@ -74,7 +46,7 @@ const defaultTabs = [
     stat: 'All 25 Districts Covered',
     title: 'Fast & Safe Islandwide Delivery',
     description: 'Carefully packed and dispatched quickly to your doorstep or business anywhere in Sri Lanka.',
-    mediaSrc: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407167386-42072d33-a778-40dc-9045-1879d3235c02.png',
+    mediaSrc: '',
   },
   {
     id: 'quality',
@@ -83,7 +55,7 @@ const defaultTabs = [
     stat: 'Handpicked Premium Stock',
     title: '100% Quality-Checked Everyday Products',
     description: 'From hardware & home essentials to stationery, jewelry, and electronics—handpicked for durability and value.',
-    mediaSrc: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484317347-7da77223-4a96-4b72-b8e6-9cd39b1aa356.png',
+    mediaSrc: '',
   },
 ];
 
@@ -129,17 +101,13 @@ export function PodTrendingSection() {
       <div className="container-main">
         <div className="pdtab-grid">
 
-          {/* LEFT — content area */}
           <div className="pdtab-content">
 
-            {/* Eyebrow */}
             <div className="pdtab-eyebrow">
               <IconRadioDot size={13} />
-              {/* Original: TRENDING */}
               WHY CHOOSE RKF
             </div>
 
-            {/* Tab list */}
             <div className="pdtab-tabs-list">
               {tabs.map((tab, i) => {
                 const isActive = activeTab === i;
@@ -154,7 +122,7 @@ export function PodTrendingSection() {
                       <span className={`pdtab-step-badge${isActive ? ' is-active' : ''}`}>
                         {tab.step}
                       </span>
-                      <div style={{ flex: 1 }}>
+                      <div className="flex-1">
                         <h3 className="pdtab-row-title">
                           {tab.title}
                         </h3>
@@ -165,53 +133,39 @@ export function PodTrendingSection() {
                         )}
                       </div>
                     </div>
-                    {/* Arrow button removed/commented out as requested:
-                    <span className={`pdtab-arrow-btn${activeTab === i ? ' is-active' : ''}`}>
-                      <IconArrowUpRight size={16} />
-                    </span>
-                    */}
                   </div>
                 );
               })}
             </div>
 
-            {/* CTA navigation link commented out as requested (stay on home page without navigating):
-            <Link href="/shop" className="pdtab-cta">
-              SHOP NOW <IconArrowRight size={13} />
-            </Link>
-            */}
-
           </div>
 
-          {/* RIGHT — database product image showcase */}
           <div className="pdtab-media">
             {tabs.map((tab, i) => (
               <div
                 key={tab.id}
-                className="pdtab-slide"
-                style={{
-                  opacity: activeTab === i ? 1 : 0,
-                  transform: activeTab === i ? 'scale(1)' : 'scale(0.97)',
-                  transition: 'opacity 450ms ease, transform 450ms ease',
-                  pointerEvents: activeTab === i ? 'auto' : 'none',
-                }}
+                className={`pdtab-slide transition-[opacity,transform] duration-[450ms] ease-in-out ${
+                  activeTab === i
+                    ? 'opacity-100 scale-100 pointer-events-auto'
+                    : 'opacity-0 scale-[0.97] pointer-events-none'
+                }`}
               >
-                {/* Framed product stage so any DB product image fits 100% cleanly without cropping */}
                 <div className="pdtab-image-frame">
                   <div className="pdtab-image-inner">
-                    <Image
-                      src={tab.mediaSrc}
-                      alt={tab.title}
-                      fill
-                      unoptimized
-                      style={{ objectFit: 'contain', objectPosition: 'center', padding: '16px' }}
-                      sizes="(min-width: 750px) 45vw, 90vw"
-                      priority={i === 0}
-                    />
+                    {tab.mediaSrc ? (
+                      <Image
+                        src={tab.mediaSrc}
+                        alt={tab.title}
+                        fill
+                        unoptimized
+                        className="object-contain object-center p-[16px]"
+                        sizes="(min-width: 750px) 45vw, 90vw"
+                        priority={i === 0}
+                      />
+                    ) : null}
                   </div>
                 </div>
 
-                {/* Bottom highlight badge neatly below the image frame */}
                 <div className="pdtab-media-badge">
                   <span className="pdtab-media-tag">{tab.tag}</span>
                   <span className="pdtab-media-stat">{tab.stat}</span>
@@ -233,7 +187,7 @@ export function PodTrendingSection() {
           border: 1px solid #e5e7eb;
         }
 
-        /* ── Left: content ── */
+        
         .pdtab-content {
           background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
           display: flex;
@@ -241,7 +195,7 @@ export function PodTrendingSection() {
           padding: 40px 28px;
         }
 
-        /* Eyebrow */
+        
         .pdtab-eyebrow {
           display: inline-flex;
           align-items: center;
@@ -259,7 +213,7 @@ export function PodTrendingSection() {
           box-shadow: 0 4px 14px rgba(11, 28, 61, 0.18);
         }
 
-        /* Tab rows */
+        
         .pdtab-tabs-list {
           display: flex;
           flex-direction: column;
@@ -333,7 +287,7 @@ export function PodTrendingSection() {
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── Right: media ── */
+        
         .pdtab-media {
           position: relative;
           min-height: 380px;
@@ -389,7 +343,7 @@ export function PodTrendingSection() {
           letter-spacing: -0.01em;
         }
 
-        /* ── Desktop: 50/50 side by side ── */
+        
         @media (min-width: 750px) {
           .pdtab-grid {
             grid-template-columns: 1.08fr 0.92fr;

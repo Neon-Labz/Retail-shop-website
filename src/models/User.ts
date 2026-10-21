@@ -11,6 +11,20 @@ export interface ICustomerAddress {
   isDefault?: boolean;
 }
 
+export interface IWishlistItem {
+  productId: string;
+  name: string;
+  price: number;
+  compareAtPrice?: number | null;
+  image: string;
+  image2?: string;
+  slug: string;
+  badge?: string | null;
+  colors?: { name: string; value: string }[];
+  vendor?: string;
+  addedAt?: Date;
+}
+
 export interface IUser extends Document {
   name: string;
   firstName?: string;
@@ -20,6 +34,7 @@ export interface IUser extends Document {
   role: 'customer' | 'admin';
   phone?: string;
   addresses: ICustomerAddress[];
+  wishlist: IWishlistItem[];
   isVerified: boolean;
   isActive: boolean;
   totalOrders: number;
@@ -38,6 +53,23 @@ const AddressSchema = new Schema<ICustomerAddress>(
     postalCode: { type: String, default: '' },
     country: { type: String, default: '' },
     isDefault: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
+
+const WishlistItemSchema = new Schema<IWishlistItem>(
+  {
+    productId: { type: String, required: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    compareAtPrice: { type: Number, default: null },
+    image: { type: String, default: '' },
+    image2: { type: String, default: '' },
+    slug: { type: String, default: '' },
+    badge: { type: String, default: null },
+    colors: { type: Array, default: [] },
+    vendor: { type: String, default: '' },
+    addedAt: { type: Date, default: Date.now },
   },
   { _id: false }
 );
@@ -73,8 +105,7 @@ const UserSchema = new Schema<IUser>(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters long'],
-      select: false,
+      minlength: [6, 'Password must be at least 6 characters'],
     },
     role: {
       type: String,
@@ -88,6 +119,10 @@ const UserSchema = new Schema<IUser>(
     },
     addresses: {
       type: [AddressSchema],
+      default: [],
+    },
+    wishlist: {
+      type: [WishlistItemSchema],
       default: [],
     },
     isVerified: {

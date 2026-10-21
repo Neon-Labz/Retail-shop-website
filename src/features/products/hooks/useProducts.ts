@@ -4,22 +4,6 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiFetch } from '@/services/api';
 import type { ProductsApiResponse } from '@/types/common';
 
-/* Original UseProductsParams commented out as requested
-interface UseProductsParams {
-  page?: number;
-  limit?: number;
-  category?: string;
-  collection?: string;
-  brand?: string;
-  color?: string;
-  size?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  sort?: string;
-  availability?: string;
-  q?: string;
-}
-*/
 interface UseProductsParams {
   page?: number;
   limit?: number;

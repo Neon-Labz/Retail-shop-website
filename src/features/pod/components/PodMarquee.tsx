@@ -1,10 +1,5 @@
 'use client';
 
-/* Scrolling ticker strip — alternating solid / ghost-outline text on a
-   white band, separated by a lightning-bolt glyph (not a dot), matching
-   the screenshot's "Personalize One, Get One Free! ⚡ Buy More, Save
-   More! ⚡ ..." strip. */
-
 function IconBolt() {
   return (
     <svg className="icon icon-accordion" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width={50} height={50}>
@@ -13,17 +8,6 @@ function IconBolt() {
   );
 }
 
-/* Original template marquee items commented out as requested:
-const items = [
-  'Personalize One, Get One Free!',
-  'Buy More, Save More!',
-  'Free Shipping on Orders $50+',
-  'Fast Turnaround Time',
-  'Made Just for You',
-];
-*/
-
-/* RKF Distributer brand & store ticker items */
 const items = [
   'RKF Wholesale & Retail Distributer',
   'Islandwide Fast Delivery Across Sri Lanka',
@@ -53,15 +37,6 @@ export function PodMarquee() {
       </div>
 
       <style>{`
-        /* Original white marquee styling commented out as requested:
-        .pdmq-section {
-          overflow: hidden;
-          background: #fff;
-          height: 50px;
-          display: flex;
-          align-items: center;
-        }
-        */
         .pdmq-section {
           position: relative;
           overflow: hidden;
@@ -71,7 +46,7 @@ export function PodMarquee() {
           align-items: center;
           box-shadow: 0 8px 24px rgba(11, 28, 61, 0.18);
         }
-        /* Top & bottom inner ribbon border lines inspired by reference banner */
+        
         .pdmq-section::before,
         .pdmq-section::after {
           content: '';
@@ -110,17 +85,6 @@ export function PodMarquee() {
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
-        /* Original text colors commented out:
-        .pdmq-item--solid { color: #151515; }
-        .pdmq-item--ghost {
-          color: transparent;
-          -webkit-text-stroke: 1px #c8c8c8;
-        }
-        @supports not (-webkit-text-stroke: 1px #c8c8c8) {
-          .pdmq-item--ghost { color: #c8c8c8; }
-        }
-        .pdmq-bolt { color: #151515; display: inline-flex; }
-        */
         .pdmq-item--solid {
           color: #ffffff;
         }

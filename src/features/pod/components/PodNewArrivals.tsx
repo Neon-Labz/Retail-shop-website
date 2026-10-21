@@ -20,20 +20,15 @@ function IconArrowRightS({ size = 20 }: { size?: number }) {
 function ProductCardSkeleton() {
   return (
     <div>
-      <div className="animate-shimmer" style={{ aspectRatio: '3 / 4', borderRadius: '4px', marginBottom: '14px' }} />
-      <div className="animate-shimmer" style={{ height: '16px', width: '70%', margin: '0 auto 8px', borderRadius: '4px' }} />
-      <div className="animate-shimmer" style={{ height: '14px', width: '40%', margin: '0 auto 8px', borderRadius: '4px' }} />
+      <div className="animate-shimmer aspect-[3/4] rounded-[4px] mb-[14px]" />
+      <div className="animate-shimmer h-[16px] w-[70%] mx-auto mb-[8px] rounded-[4px]" />
+      <div className="animate-shimmer h-[14px] w-[40%] mx-auto mb-[8px] rounded-[4px]" />
     </div>
   );
 }
 
 export function PodNewArrivals() {
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
-  /* page: 2 pulls the catalog's second set of 8 (the "extra" products) so
-     New Arrivals shows a distinct set from Featured Products above, not a
-     duplicate. limit: 8 also keeps the slide count above the max
-     slidesPerView (4 at ≥992px) so Swiper's loop mode works correctly —
-     matching the fix used on every other padded slider in this project. */
   const { data, isLoading } = useProducts({ limit: 8, page: 2 }, { endpoint: '/api/pod-products' });
 
   const products = data?.products.slice(0, 8) || [];
@@ -41,17 +36,17 @@ export function PodNewArrivals() {
   return (
     <section className="pdna-section">
       <div className="container-main">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <h2 style={{ fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 600, color: '#222' }}>New Arrivals</h2>
+        <div className="flex items-center justify-between mb-[32px]">
+          <h2 className="text-[clamp(22px,3vw,28px)] font-semibold text-[#222]">New Arrivals</h2>
           <Link
             href="/shop?sort=newest"
-            style={{ fontSize: '14px', fontWeight: 500, color: '#222', textDecoration: 'underline', textUnderlineOffset: '3px', whiteSpace: 'nowrap' }}
+            className="text-[14px] font-medium text-[#222] underline underline-offset-[3px] whitespace-nowrap"
           >
             View All →
           </Link>
         </div>
 
-        <div style={{ position: 'relative' }}>
+        <div className="relative">
           {isLoading ? (
             <div className="pdna-grid">
               {Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)}
@@ -68,13 +63,10 @@ export function PodNewArrivals() {
               spaceBetween={20}
               loop
               speed={600}
-              style={{ overflow: 'hidden' }}
+              className="overflow-hidden"
             >
               {products.map((product, i) => (
                 <SwiperSlide key={product.id}>
-                  {/* Previous fixed imageHeight 350px commented out as requested
-                  <HomeProductCard product={product} index={i} imageHeight="350px" />
-                  */}
                   <HomeProductCard product={product} index={i} />
                 </SwiperSlide>
               ))}
@@ -101,18 +93,13 @@ export function PodNewArrivals() {
           .pdna-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
         }
 
-        /* Clean square frame with edge-to-edge cover fit (no gaps) */
+        
         .pdna-section .fc-card > a:first-child {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
         }
         .pdna-section .fc-card > a:first-child img {
-          /* Previous contain/padding commented out as requested
-          object-fit: contain !important;
-          background-color: #fff;
-          padding: 8px;
-          */
           object-fit: cover !important;
           background-color: #fff;
           padding: 0 !important;

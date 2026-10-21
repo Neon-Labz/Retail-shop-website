@@ -4,9 +4,7 @@ import { connectDB } from '@/lib/db';
 import ProductModel from '@/models/Product';
 import RecentlyViewedModel from '@/models/RecentlyViewed';
 import { formatMongoProduct } from '@/lib/formatProduct';
-import { podProducts } from '@/data/pod-products';
 
-// Helper to get or generate customer ID from query or cookies
 function resolveCustomerId(request: NextRequest): { customerId: string; isNew: boolean } {
   const param = request.nextUrl.searchParams.get('customerId') || request.nextUrl.searchParams.get('userId');
   if (param) return { customerId: param, isNew: false };
@@ -14,7 +12,6 @@ function resolveCustomerId(request: NextRequest): { customerId: string; isNew: b
   const cookieId = request.cookies.get('customer_id')?.value;
   if (cookieId) return { customerId: cookieId, isNew: false };
 
-  // Generate guest session customer ID
   const newId = 'cust_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
   return { customerId: newId, isNew: true };
 }
@@ -30,7 +27,6 @@ export async function GET(request: NextRequest) {
 
     let productIds: string[] = [];
 
-    // Case 1: Client passed specific comma-separated product IDs
     if (idsParam) {
       productIds = idsParam
         .split(',')
@@ -58,7 +54,6 @@ export async function GET(request: NextRequest) {
           status: { $ne: 'archived' },
         }).lean();
 
-        // Preserve chronological order of viewing
         const docMap = new Map(foundDocs.map((d) => [d._id.toString(), d]));
         const orderedDocs = productIds
           .map((id) => docMap.get(id))
@@ -76,7 +71,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fallback if no server-side history yet
     return NextResponse.json({
       success: true,
       source: 'empty',
@@ -100,58 +94,52 @@ export async function POST(request: NextRequest) {
     let customerId = body.customerId;
     const productId = body.productId;
 
-    if (!productId) {
+    if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
       return NextResponse.json(
-        { success: false, error: 'productId is required' },
+        { success: false, error: 'Valid MongoDB productId is required' },
         { status: 400 }
       );
     }
 
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid productId format' },
-        { status: 400 }
-      );
-    }
-
-    let isNewCookie = false;
+    let isNewCustomer = false;
     if (!customerId) {
       const resolved = resolveCustomerId(request);
       customerId = resolved.customerId;
-      isNewCookie = resolved.isNew;
+      isNewCustomer = resolved.isNew;
     }
 
     await connectDB();
 
-    // Upsert into recently viewed collection
-    const updated = await RecentlyViewedModel.findOneAndUpdate(
-      {
-        customerId,
-        productId: new mongoose.Types.ObjectId(productId),
-      },
-      {
-        viewedAt: new Date(),
-      },
-      {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      }
+    const productObjectId = new mongoose.Types.ObjectId(productId);
+
+    await RecentlyViewedModel.findOneAndUpdate(
+      { customerId, productId: productObjectId },
+      { $set: { viewedAt: new Date() } },
+      { upsert: true, new: true }
     );
+
+    const allForUser = await RecentlyViewedModel.find({ customerId })
+      .sort({ viewedAt: -1 })
+      .skip(30)
+      .select('_id')
+      .lean();
+
+    if (allForUser.length > 0) {
+      await RecentlyViewedModel.deleteMany({
+        _id: { $in: allForUser.map((d) => d._id) },
+      });
+    }
 
     const response = NextResponse.json({
       success: true,
-      message: 'Product view recorded in server-side browsing history',
       customerId,
       productId,
-      viewedAt: updated.viewedAt,
     });
 
-    if (isNewCookie) {
+    if (isNewCustomer) {
       response.cookies.set('customer_id', customerId, {
+        maxAge: 60 * 60 * 24 * 90, // 90 days
         path: '/',
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 365, // 1 year
         sameSite: 'lax',
       });
     }

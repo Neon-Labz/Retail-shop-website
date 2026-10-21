@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import ProductModel from '@/models/Product';
 import { formatMongoProduct } from '@/lib/formatProduct';
-import { podProducts } from '@/data/pod-products';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,12 +22,10 @@ export async function GET(request: NextRequest) {
       baseFilter._id = { $ne: new mongoose.Types.ObjectId(exclude) };
     }
 
-    // Resolve category filter
     if (category && category !== 'all') {
       if (mongoose.Types.ObjectId.isValid(category)) {
         baseFilter.category = new mongoose.Types.ObjectId(category);
       } else {
-        // Look up category in categories collection by name or slug
         try {
           const db = mongoose.connection.db;
           const categoryDoc = db
@@ -57,7 +54,6 @@ export async function GET(request: NextRequest) {
       baseFilter.subcategory = { $regex: new RegExp(`^${subcategory}$`, 'i') };
     }
 
-    // 1. Fetch products marked as featured
     const featuredFilter: Record<string, any> = {
       ...baseFilter,
       isFeatured: true,
@@ -68,7 +64,6 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .lean();
 
-    // 2. If fewer than limit featured items found, backfill with top active products in the same category
     if (mongoDocs.length < limit) {
       const existingIds = mongoDocs.map((d) => d._id);
       const backfillLimit = limit - mongoDocs.length;
@@ -86,21 +81,7 @@ export async function GET(request: NextRequest) {
       mongoDocs = [...mongoDocs, ...backfillDocs];
     }
 
-    let products = mongoDocs.map(formatMongoProduct);
-
-    // 3. Fallback to mock products if database returned empty
-    if (products.length === 0) {
-      let filteredMock = podProducts.filter((p) => {
-        if (category && category !== 'all') {
-          return p.category.toLowerCase().includes(category.toLowerCase());
-        }
-        return true;
-      });
-      if (exclude) {
-        filteredMock = filteredMock.filter((p) => p.id !== exclude);
-      }
-      products = filteredMock.slice(0, limit);
-    }
+    const products = mongoDocs.map(formatMongoProduct);
 
     return NextResponse.json({
       success: true,

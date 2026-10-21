@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import categoriesData from '@/data/categories.json';
 
 export async function GET() {
   try {
@@ -11,13 +10,6 @@ export async function GET() {
     const mongoCats = await db.collection('categories').find({}).toArray();
 
     if (mongoCats && mongoCats.length > 0) {
-      // Fetch distinct subcategories for each category
-      /* Previous projection without images/name commented out as requested
-      const products = await db
-        .collection('products')
-        .find({}, { projection: { category: 1, subcategory: 1 } })
-        .toArray();
-      */
       const products = await db
         .collection('products')
         .find({}, { projection: { category: 1, subcategory: 1, images: 1, name: 1 } })
@@ -33,23 +25,10 @@ export async function GET() {
         }
       });
 
-      /* Previous categoriesWithSubs without image/productCount commented out as requested
-      const categoriesWithSubs = mongoCats.map((c) => {
-        const subSet = catSubMap.get(c._id.toString()) || new Set();
-        return {
-          id: c._id.toString(),
-          name: c.name,
-          slug: c.slug,
-          description: c.description || '',
-          subcategories: Array.from(subSet),
-        };
-      });
-      */
       const categoriesWithSubs = mongoCats.map((c) => {
         const subSet = catSubMap.get(c._id.toString()) || new Set();
         const catIdStr = c._id.toString();
 
-        // Find all products belonging to this category or its subcategories
         const matchingProducts = products.filter((p) => {
           const pCat = p.category ? p.category.toString() : '';
           const pSub = p.subcategory ? p.subcategory.toString() : '';
@@ -62,25 +41,9 @@ export async function GET() {
           );
         });
 
-        /* Previous image extraction supporting only { src } commented out as requested:
-        const firstProductWithImg = matchingProducts.find((p) => p.images && p.images[0]?.src);
-        const image = c.image || firstProductWithImg?.images[0]?.src || '/pod/shop-by-categories-slider/shop-by-categories-1.webp';
-        */
-        /* Previous product image fallback logic commented out as requested:
-        const firstProductWithImg = matchingProducts.find((p) => {
-          if (!p.images || !Array.isArray(p.images) || p.images.length === 0) return false;
-          const img0 = p.images[0];
-          return typeof img0 === 'string' ? img0.length > 0 : Boolean(img0?.src);
-        });
-        const resolvedProductImg = firstProductWithImg
-          ? (typeof firstProductWithImg.images[0] === 'string' ? firstProductWithImg.images[0] : firstProductWithImg.images[0]?.src)
-          : '';
-        const image = c.image || resolvedProductImg || '/pod/shop-by-categories-slider/shop-by-categories-1.webp';
-        */
-        // Connect strictly to MongoDB category document image (set from Admin panel)
         const image = (c.image && typeof c.image === 'string' && c.image.trim() !== '')
           ? c.image
-          : '/pod/shop-by-categories-slider/shop-by-categories-1.webp';
+          : '';
 
         return {
           id: catIdStr,
@@ -93,7 +56,6 @@ export async function GET() {
         };
       });
 
-      // Also generate subcategory items for granular category carousels
       const subcategoryItems: Array<{ id: string; name: string; slug: string; categoryName: string; image: string; count: number }> = [];
       const seenSubs = new Set<string>();
 
@@ -106,9 +68,6 @@ export async function GET() {
               (sp.subcategory && sp.subcategory.toLowerCase() === sub.toLowerCase()) ||
               (sp.category && sp.category.toString().toLowerCase() === sub.toLowerCase())
           );
-          /* Previous subcategory image extraction commented out as requested:
-          const firstImg = subProducts.find((sp) => sp.images && sp.images[0]?.src)?.images[0]?.src;
-          */
           const firstImgProd = subProducts.find((sp) => {
             if (!sp.images || !Array.isArray(sp.images) || sp.images.length === 0) return false;
             const img0 = sp.images[0];
@@ -136,8 +95,8 @@ export async function GET() {
       });
     }
   } catch (err) {
-    console.warn('MongoDB categories query warning, falling back:', err);
+    console.error('MongoDB categories query error:', err);
   }
 
-  return NextResponse.json({ categories: categoriesData });
+  return NextResponse.json({ categories: [], subcategories: [] });
 }

@@ -9,8 +9,6 @@ import { useCompareStore } from '@/store/compareStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import type { Product } from '@/types/product';
 
-/* ── Remix Icons ── */
-
 function IconHeart({ size = 18 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
@@ -48,10 +46,7 @@ function IconBag({ size = 16 }: { size?: number }) {
   );
 }
 
-/* ── Countdown Timer ── */
-
 interface CountdownTimerProps {
-  /** Chip background color. Defaults to `#000` (fashion). */
   backgroundColor?: string;
 }
 
@@ -59,7 +54,6 @@ export function CountdownTimer({ backgroundColor = '#000' }: CountdownTimerProps
   const [time, setTime] = useState({ days: 0, hrs: 0, min: 0, sec: 0 });
 
   useEffect(() => {
-    /* Future-dated so the ticker stays live. Swap whenever the target passes. */
     const target = new Date('2027-10-04T12:00:00Z').getTime();
     const update = () => {
       const diff = Math.max(0, target - Date.now());
@@ -76,31 +70,29 @@ export function CountdownTimer({ backgroundColor = '#000' }: CountdownTimerProps
   }, []);
 
   return (
-    <div className="fc-countdown" style={{ display: 'flex', gap: '5px' }}>
+    <div className="fc-countdown flex gap-[5px]">
       {[
         { val: time.days, label: 'Days' },
         { val: time.hrs, label: 'Hrs' },
         { val: time.min, label: 'Min' },
         { val: time.sec, label: 'Sec' },
       ].map((t) => (
-        <div key={t.label} className="fc-countdown-cell" style={{ backgroundColor, color: '#fff', borderRadius: '4px', padding: '6px 10px', textAlign: 'center', minWidth: '42px' }}>
-          <div className="fc-countdown-val" style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.3 }}>{t.val}</div>
-          <div className="fc-countdown-lbl" style={{ fontSize: '11px', fontWeight: 400, lineHeight: 1.3, opacity: 0.85 }}>{t.label}</div>
+        <div key={t.label} className="fc-countdown-cell text-[#fff] rounded-[4px] py-[6px] px-[10px] text-center min-w-[42px]" style={{ backgroundColor }}>
+          <div className="fc-countdown-val text-[16px] font-bold leading-[1.3]">{t.val}</div>
+          <div className="fc-countdown-lbl text-[11px] font-normal leading-[1.3] opacity-85">{t.label}</div>
         </div>
       ))}
     </div>
   );
 }
 
-/* ── Scrolling Marquee Text ── */
-
 export function ScrollingText() {
   return (
-    <div style={{ overflow: 'hidden', backgroundColor: '#000', padding: '10px 0', width: '100%' }}>
-      <div className="animate-marquee" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
+    <div className="overflow-hidden bg-[#000] py-[10px] px-0 w-full">
+      <div className="animate-marquee flex whitespace-nowrap">
         {Array.from({ length: 4 }).map((_, i) => (
-          <span key={i} style={{ fontSize: '14px', color: '#fff', fontWeight: 500, marginRight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '16px' }}>★</span> HOT SALE ITEM &nbsp;&nbsp; <span style={{ fontSize: '16px' }}>★</span> UP TO 50% OFF &nbsp;&nbsp;
+          <span key={i} className="text-[14px] text-[#fff] font-medium mr-[40px] inline-flex items-center gap-[6px]">
+            <span className="text-[16px]">★</span> HOT SALE ITEM &nbsp;&nbsp; <span className="text-[16px]">★</span> UP TO 50% OFF &nbsp;&nbsp;
           </span>
         ))}
       </div>
@@ -108,29 +100,15 @@ export function ScrollingText() {
   );
 }
 
-/* ── Product Card ── */
-
 interface ProductCardProps {
   product: Product;
   index: number;
-  /** Optional override for the product detail href base. Defaults to `/products`. */
   hrefBase?: string;
-  /** Override whether this card shows the countdown overlay. Defaults to `index === 0` (fashion). */
   showCountdown?: boolean;
-  /** Override whether this card shows the scrolling-text marquee. Defaults to `index === 2` (fashion). */
   showScrollText?: boolean;
-  /** Optional fixed image height (e.g. `"340px"`). When omitted, the image uses the
-      default 3:4 aspect ratio (fashion). */
   imageHeight?: string;
-  /** Recolors the product name, price, "+N" chip, swatch tooltip, and the
-      action-button hover tooltip background. Defaults to the fashion palette. */
   themeColor?: string;
-  /** Background color of the in-card countdown chips. Defaults to `#000`. */
   countdownBg?: string;
-  /** When true, forces the mobile-style layout at every breakpoint:
-      action overlay always visible with only Wishlist + Compare,
-      Quick Add + Quick View surfaced in a static row under the image.
-      Used by the pet-food shop page. */
   compact?: boolean;
 }
 
@@ -155,15 +133,10 @@ export function HomeProductCard({
   const inWishlist = isInWishlist(product.id);
   const defaultImg1 = product.images[0]?.src || '';
   const defaultImg2 = product.images[1]?.src || defaultImg1;
-  /* Previous default index-based overlays commented out as requested
-  const hasCountdown = showCountdown ?? index === 0;
-  const hasScrollText = showScrollText ?? index === 2;
-  */
   const hasCountdown = showCountdown ?? false;
   const hasScrollText = showScrollText ?? false;
   const productHref = `${hrefBase}/${product.slug}`;
 
-  // Build unique color images for smooth transitions
   const colorImages = product.colors.reduce<Record<string, string>>((acc, c) => {
     const variant = product.variants.find(v => v.color === c.name);
     if (variant) acc[c.name] = variant.image;
@@ -172,269 +145,139 @@ export function HomeProductCard({
   const activeColorImage = hoveredColor ? colorImages[hoveredColor] : null;
 
   const nameColor = themeColor ?? '#222';
-  /* Reads --color-product-price from globals.css; falls back to original colors if removed from globals.css */
   const priceColor = themeColor ?? `var(--color-product-price, ${product.compareAtPrice ? '#F15B41' : '#222'})`;
   const chipColor = themeColor ?? '#F15B41';
   const tooltipBg = themeColor ?? '#222';
 
   return (
     <div
-      className={`fc-card${compact ? ' fc-card--compact' : ''}`}
+      className={`fc-card relative w-full min-w-0 max-w-full${compact ? ' fc-card--compact' : ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setHoveredColor(null); }}
-      style={{ position: 'relative', width: '100%', minWidth: 0, maxWidth: '100%', ['--fc-tooltip-bg' as string]: tooltipBg }}
+      style={{ ['--fc-tooltip-bg' as string]: tooltipBg }}
     >
       <Link
         href={productHref}
-        className="fc-card-img-link"
-        style={{
-          display: 'block',
-          position: 'relative',
-          /* Previous 3:4 aspect ratio commented out
-          ...(imageHeight ? { height: imageHeight } : { aspectRatio: '3 / 4' }),
-          */
-          ...(imageHeight ? { height: imageHeight } : { aspectRatio: '1 / 1' }),
-          overflow: 'hidden',
-          /* Original white background commented out as requested:
-          backgroundColor: '#fff',
-          */
-          backgroundColor: '#f6f7f9',
-          borderRadius: '8px',
-          border: '1px solid #ededf0',
-          marginBottom: '14px',
-        }}
+        className={`fc-card-img-link block relative overflow-hidden bg-[#f6f7f9] rounded-[8px] border border-solid border-[#ededf0] mb-[14px]${imageHeight ? '' : ' aspect-square'}`}
+        style={imageHeight ? { height: imageHeight } : undefined}
       >
-        {/* Default image */}
-        {/* Previous contain objectFit with padding commented out as requested
         <Image
           src={defaultImg1}
           alt={product.name}
           fill
-          style={{
-            objectFit: 'contain',
-            padding: '12px',
-            transition: 'opacity 400ms ease',
-            opacity: (hovered && !hoveredColor) || activeColorImage ? 0 : 1,
-          }}
-          sizes="(max-width: 749px) 50vw, 25vw"
-        />
-        */}
-        {/* Previous hover image swap to defaultImg2 commented out as requested (no need to change/zoom image on cursor hover like other products):
-        <Image
-          src={defaultImg1}
-          alt={product.name}
-          fill
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center',
-            transition: 'opacity 400ms ease',
-            opacity: (hovered && !hoveredColor) || activeColorImage ? 0 : 1,
-          }}
+          className={`object-cover object-center transition-opacity duration-300 ease-in-out ${activeColorImage ? 'opacity-0' : 'opacity-100'}`}
           sizes="(max-width: 749px) 50vw, 25vw"
         />
 
-        <Image
-          src={defaultImg2}
-          alt={`${product.name} hover`}
-          fill
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center',
-            transition: 'opacity 400ms ease',
-            opacity: hovered && !hoveredColor ? 1 : 0,
-          }}
-          sizes="(max-width: 749px) 50vw, 25vw"
-        />
-        */}
-        <Image
-          src={defaultImg1}
-          alt={product.name}
-          fill
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center',
-            transition: 'opacity 300ms ease',
-            opacity: activeColorImage ? 0 : 1,
-          }}
-          sizes="(max-width: 749px) 50vw, 25vw"
-        />
-
-        {/* Color variant images — each stacked, instant switch */}
         {Object.entries(colorImages).map(([colorName, imgSrc]) => (
-          /* Previous contain objectFit with padding commented out as requested
           <Image
             key={colorName}
             src={imgSrc}
             alt={`${product.name} ${colorName}`}
             fill
-            style={{
-              objectFit: 'contain',
-              padding: '12px',
-              transition: 'opacity 150ms ease',
-              opacity: hoveredColor === colorName ? 1 : 0,
-              zIndex: hoveredColor === colorName ? 2 : 1,
-            }}
-            sizes="(max-width: 749px) 50vw, 25vw"
-          />
-          */
-          <Image
-            key={colorName}
-            src={imgSrc}
-            alt={`${product.name} ${colorName}`}
-            fill
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center',
-              transition: 'opacity 150ms ease',
-              opacity: hoveredColor === colorName ? 1 : 0,
-              zIndex: hoveredColor === colorName ? 2 : 1,
-            }}
+            className={`object-cover object-center transition-opacity duration-150 ease-in-out ${
+              hoveredColor === colorName ? 'opacity-100 z-[2]' : 'opacity-0 z-[1]'
+            }`}
             sizes="(max-width: 749px) 50vw, 25vw"
           />
         ))}
 
         {product.badge && (
-          <span style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: product.badge === 'sale' ? '#F15B41' : product.badge === 'new' ? '#222' : '#F15B41', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '3px', zIndex: 3, textTransform: 'capitalize' }}>
+          <span
+            className={`absolute top-[12px] left-[12px] text-[#fff] text-[12px] font-semibold py-[4px] px-[12px] rounded-[3px] z-[3] capitalize ${
+              product.badge === 'new' ? 'bg-[#222]' : 'bg-[#F15B41]'
+            }`}
+          >
             {product.badge}
           </span>
         )}
 
-        <div className="fc-actions-overlay" style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 3, transition: 'opacity 300ms ease, transform 300ms ease', opacity: hovered ? 1 : 0, transform: hovered ? 'translateX(0)' : 'translateX(10px)' }}>
-          <div style={{ position: 'relative' }} className="fc-tooltip-wrap">
+        <div
+          className={`fc-actions-overlay absolute top-[12px] right-[12px] flex flex-col gap-[8px] z-[3] transition-[opacity,transform] duration-300 ease-in-out ${
+            hovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[10px]'
+          }`}
+        >
+          <div className="fc-tooltip-wrap relative">
             <button aria-label="Wishlist" className={`fc-action-btn ${inWishlist ? 'fc-action-btn-dark' : 'fc-action-btn-light'}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist({ productId: product.id, name: product.name, price: product.price, compareAtPrice: product.compareAtPrice, image: defaultImg1, image2: defaultImg2, slug: product.slug, badge: product.badge, colors: product.colors.map(c => ({ name: c.name, value: c.value })), vendor: product.vendor }); }}>
               <IconHeart size={18} />
             </button>
             <span className="fc-tooltip">{inWishlist ? 'Already Wishlisted' : 'Wishlist'}</span>
           </div>
-          {/* Add to compare button removed/commented out as requested:
-          <div style={{ position: 'relative' }} className="fc-tooltip-wrap">
-            <button
-              aria-label="Compare"
-              className={`fc-action-btn ${inCompare ? 'fc-action-btn-dark' : 'fc-action-btn-light'}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleCompare(product);
-              }}
-            >
-              {inCompare ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-              ) : (
-                <IconCompare size={18} />
-              )}
-            </button>
-            <span className="fc-tooltip">{inCompare ? 'Added' : 'Compare'}</span>
-          </div>
-          */}
-          <div style={{ position: 'relative' }} className="fc-tooltip-wrap fc-quickview-wrap">
+          <div className="fc-tooltip-wrap fc-quickview-wrap relative">
             <button aria-label="Quick view" className="fc-action-btn fc-action-btn-light" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}><IconEye size={18} /></button>
             <span className="fc-tooltip">Quick view</span>
           </div>
         </div>
 
         {hasCountdown && (
-          <div style={{ position: 'absolute', bottom: '14px', left: '50%', transform: 'translateX(-50%)', zIndex: 3, transition: 'opacity 300ms ease', opacity: hovered ? 0 : 1, pointerEvents: hovered ? 'none' : 'auto' }}>
+          <div
+            className={`absolute bottom-[14px] left-1/2 -translate-x-1/2 z-[3] transition-opacity duration-300 ease-in-out ${
+              hovered ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
+            }`}
+          >
             <CountdownTimer backgroundColor={countdownBg} />
           </div>
         )}
 
         {hasScrollText && (
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3, transition: 'opacity 300ms ease', opacity: hovered ? 0 : 1, pointerEvents: hovered ? 'none' : 'auto' }}>
+          <div
+            className={`absolute bottom-0 left-0 right-0 z-[3] transition-opacity duration-300 ease-in-out ${
+              hovered ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
+            }`}
+          >
             <ScrollingText />
           </div>
         )}
 
-        <div className="fc-quick-add-overlay" style={{ position: 'absolute', bottom: '14px', left: '16px', right: '16px', zIndex: 4, transition: 'opacity 300ms ease, transform 300ms ease', opacity: hovered ? 1 : 0, transform: hovered ? 'translateY(0)' : 'translateY(16px)' }}>
+        <div
+          className={`fc-quick-add-overlay absolute bottom-[14px] left-[16px] right-[16px] z-[4] transition-[opacity,transform] duration-300 ease-in-out ${
+            hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[16px]'
+          }`}
+        >
           <button className="fc-quick-add-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}><IconBag size={18} /> Quick Add</button>
         </div>
       </Link>
 
-      {/* Mobile-only action row commented out as requested (remove the 2 icons below image in mobile view):
-      <div className="fc-mobile-actions">
-        <button
-          type="button"
-          className="fc-mobile-action-btn"
-          aria-label="Quick add"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}
-        >
-          <IconBag size={18} />
-        </button>
-        <button
-          type="button"
-          className="fc-mobile-action-btn"
-          aria-label="Quick view"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}
-        >
-          <IconEye size={18} />
-        </button>
-      </div>
-      */}
-
-      <div style={{ textAlign: 'center', minWidth: 0, width: '100%', overflow: 'hidden' }}>
-        {/* Previous link style commented out as requested:
-        <Link
-          href={productHref}
-          style={{ fontSize: '15px', fontWeight: 500, color: nameColor, textDecoration: 'none', transition: 'color 150ms ease' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = nameColor; }}
-        >
-        */}
-        <div className="fc-product-title-wrap" style={{ position: 'relative', width: '100%', minWidth: 0 }}>
+      <div className="text-center min-w-0 w-full overflow-hidden">
+        <div className="fc-product-title-wrap relative w-full min-w-0">
           <Link
             href={productHref}
             title={product.name}
-            className="fc-product-title-link"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 1,
-              WebkitBoxOrient: 'vertical',
-              fontSize: 'clamp(12.5px, 1.25vw, 13.5px)',
-              fontWeight: 500,
-              color: nameColor,
-              textDecoration: 'none',
-              transition: 'color 150ms ease',
-              backgroundColor: 'transparent',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              wordBreak: 'break-all',
-              width: '100%',
-              padding: '0 4px',
-            }}
+            className="fc-product-title-link line-clamp-1 text-[clamp(12.5px,1.25vw,13.5px)] font-medium no-underline transition-colors duration-150 ease-in-out bg-transparent overflow-hidden text-ellipsis break-all w-full py-0 px-[4px]"
+            style={{ color: nameColor }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = nameColor; }}
           >
             {product.name}
           </Link>
         </div>
-        <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          {product.compareAtPrice && <span style={{ fontSize: '14px', color: '#999', textDecoration: 'line-through' }}>{formatPrice(product.compareAtPrice)}</span>}
-          <span className="product-price-text" style={{ fontSize: '15px', fontWeight: 600, color: priceColor }}>{formatPrice(product.price)}</span>
+        <div className="mt-[6px] flex items-center justify-center gap-[8px]">
+          {product.compareAtPrice && <span className="text-[14px] text-[#999] line-through">{formatPrice(product.compareAtPrice)}</span>}
+          <span className="product-price-text text-[15px] font-semibold" style={{ color: priceColor }}>{formatPrice(product.price)}</span>
         </div>
         {product.colors.length > 0 && (
-          <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', position: 'relative' }}>
+          <div className="mt-[8px] flex items-center justify-center gap-[6px] relative">
             {product.colors.slice(0, 3).map((c) => (
               <span
                 key={c.name}
                 onMouseEnter={() => setHoveredColor(c.name)}
                 onMouseLeave={() => setHoveredColor(null)}
-                style={{
-                  width: '16px', height: '16px', borderRadius: '50%', backgroundColor: c.value,
-                  border: hoveredColor === c.name ? '2px solid #222' : (c.value === '#FFFFFF' ? '1px solid #ddd' : '1px solid transparent'),
-                  display: 'inline-block', cursor: 'pointer', transition: 'border-color 200ms ease, transform 200ms ease',
-                  transform: hoveredColor === c.name ? 'scale(1.2)' : 'scale(1)',
-                  position: 'relative',
-                }}
+                className={`w-[16px] h-[16px] rounded-full inline-block cursor-pointer transition-[border-color,transform] duration-200 ease-in-out relative border-solid ${
+                  hoveredColor === c.name
+                    ? 'border-[2px] border-[#222] scale-[1.2]'
+                    : c.value === '#FFFFFF'
+                    ? 'border border-[#ddd] scale-100'
+                    : 'border border-transparent scale-100'
+                }`}
+                style={{ backgroundColor: c.value }}
               />
             ))}
-            {product.colors.length > 3 && <span style={{ fontSize: '13px', color: chipColor, fontWeight: 500 }}>+{product.colors.length - 3}</span>}
-            {/* Color name tooltip */}
+            {product.colors.length > 3 && <span className="text-[13px] font-medium" style={{ color: chipColor }}>+{product.colors.length - 3}</span>}
             {hoveredColor && (
-              <span style={{
-                position: 'absolute', bottom: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)',
-                backgroundColor: tooltipBg, color: '#fff', fontSize: '11px', fontWeight: 500,
-                padding: '4px 10px', borderRadius: '4px', whiteSpace: 'nowrap', pointerEvents: 'none',
-                animation: 'fadeIn 150ms ease',
-              }}>
+              <span
+                className="absolute bottom-[calc(100%+6px)] left-1/2 -translate-x-1/2 text-[#fff] text-[11px] font-medium py-[4px] px-[10px] rounded-[4px] whitespace-nowrap pointer-events-none animate-[fadeIn_150ms_ease]"
+                style={{ backgroundColor: tooltipBg }}
+              >
                 {hoveredColor}
               </span>
             )}
@@ -442,7 +285,6 @@ export function HomeProductCard({
         )}
       </div>
 
-      {/* Inline styles to guarantee they apply */}
       <style>{`
         .fc-action-btn {
           width: 40px !important;
@@ -543,19 +385,12 @@ export function HomeProductCard({
           box-shadow: 0 4px 14px rgba(0,0,0,0.15) !important;
         }
 
-        /* Mobile action row — hidden on desktop, revealed at ≤ 749px
-           (or always when the card is in compact mode). */
+        
         .fc-mobile-actions {
           display: none;
         }
 
-        /* ── Compact mode (≤ 991px only) ──
-           From 992px down to 0, the overlay becomes always-visible with
-           only Wishlist + Compare, and Quick Add + Quick View live in a
-           static row directly below the image (no gap). At ≥ 992px the
-           card reverts to its normal hover-based layout (3 icons in the
-           overlay + Quick Add pill on image hover). Used by the pet-food
-           shop page. */
+        
         @media (max-width: 991px) {
           .fc-card--compact .fc-actions-overlay {
             opacity: 1 !important;
@@ -593,26 +428,18 @@ export function HomeProductCard({
           .fc-card--compact .fc-mobile-action-btn:hover {
             background: #f5f5f5;
           }
-          /* Use object-fit: contain so tall pet-food product shots aren't
-             aggressively cropped by the card's fixed image area. */
+          
           .fc-card--compact > a:first-child img {
             object-fit: contain !important;
             background-color: #f5f5f5;
           }
         }
 
-        /* ≤ 749px — product card image shrinks smoothly; hover effects
-           disabled; layout matches mobile screenshot:
-             • top-right action buttons always visible (no hover needed)
-             • Quick Add hover-overlay hidden (replaced by the new row)
-             • new static 2-button row below image (bag + eye)
-             • product images use contain to avoid aggressive cropping
-        */
+        
         @media (max-width: 749px) {
           .fc-card > a:first-child {
             height: clamp(200px, 44vw, 340px) !important;
             aspect-ratio: auto !important;
-            /* Original margin-bottom: 0 !important; commented out since .fc-mobile-actions is removed */
             margin-bottom: 10px !important;
           }
           .fc-card > a:first-child img {
@@ -623,8 +450,7 @@ export function HomeProductCard({
             opacity: 1 !important;
             transform: none !important;
           }
-          /* Only Wishlist + Compare on the image overlay at mobile — Quick
-             View is surfaced in the static row below the image instead. */
+          
           .fc-quickview-wrap {
             display: none !important;
           }
@@ -677,9 +503,7 @@ export function HomeProductCard({
             opacity: 0 !important;
           }
 
-          /* Countdown timer on the 3rd card — shrink smoothly as viewport
-             narrows. clamp() scales cell padding, min-width, and typography
-             together so the ticker stays proportional on every mobile size. */
+          
           .fc-countdown {
             gap: clamp(3px, 0.8vw, 5px) !important;
           }

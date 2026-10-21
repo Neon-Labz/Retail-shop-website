@@ -15,9 +15,6 @@ import { SORT_OPTIONS, PRODUCTS_PER_PAGE } from '@/lib/constants';
 import type { FiltersData } from '@/types/common';
 import type { Product } from '@/types/product';
 
-/* ── Icons ── */
-
-/* 2-col icon */
 function IconCol2() {
   return (
     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5.5 12.5" width="12" height="14">
@@ -27,7 +24,6 @@ function IconCol2() {
   );
 }
 
-/* 3-col icon */
 function IconCol3() {
   return (
     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9.5 12.5" width="14" height="14">
@@ -38,7 +34,6 @@ function IconCol3() {
   );
 }
 
-/* 4-col icon */
 function IconCol4() {
   return (
     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13.5 12.5" width="16" height="14">
@@ -50,7 +45,6 @@ function IconCol4() {
   );
 }
 
-/* Sort icon */
 function IconSort() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 10" width="16" height="10" fill="currentColor">
@@ -66,8 +60,6 @@ function IconChevronDown({ size = 14 }: { size?: number }) {
     </svg>
   );
 }
-
-/* ── Shop theme ── */
 
 export interface ShopPageTheme {
   headerBg: string;
@@ -95,42 +87,35 @@ const DEFAULT_THEME: ShopPageTheme = {
 
 const ShopThemeCtx = createContext<ShopPageTheme>(DEFAULT_THEME);
 
-/* ── Filter Group ── */
-
 function FilterGroup({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const theme = useContext(ShopThemeCtx);
   return (
-    <div style={{ borderBottom: `1px solid ${theme.borderColor}`, paddingBottom: '20px', marginBottom: '20px' }}>
+    <div className="border-b border-solid pb-[20px] mb-[20px]" style={{ borderColor: theme.borderColor }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="filter-group-title"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '17px', fontWeight: 700, color: theme.textColor, padding: '0 0 4px' }}
+        className="filter-group-title flex items-center justify-between w-full bg-transparent border-none cursor-pointer text-[17px] font-bold pt-0 px-0 pb-[4px]"
+        style={{ color: theme.textColor }}
       >
         {title}
-        <span style={{ transition: 'transform 300ms ease', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', display: 'inline-flex' }}>
+        <span className={`transition-transform duration-300 ease-in-out inline-flex ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
           <IconChevronDown size={14} />
         </span>
       </button>
-      {isOpen && <div style={{ paddingTop: '14px' }}>{children}</div>}
+      {isOpen && <div className="pt-[14px]">{children}</div>}
     </div>
   );
 }
 
-/* ── Custom Checkbox ── */
-
 function FilterCheckbox({ label, count, checked, onChange }: { label: string; count?: number; checked: boolean; onChange: () => void }) {
   const theme = useContext(ShopThemeCtx);
   return (
-    <label className="filter-checkbox-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', padding: '6px 0', fontSize: '14px', color: theme.mutedColor }}>
+    <label className="filter-checkbox-row flex items-center gap-[12px] cursor-pointer py-[6px] px-0 text-[14px]" style={{ color: theme.mutedColor }}>
       <span
-        className="filter-cb"
+        className="filter-cb w-[20px] h-[20px] rounded-[3px] shrink-0 border-[2px] border-solid flex items-center justify-center transition-all duration-200 ease-in-out"
         style={{
-          width: '20px', height: '20px', borderRadius: '3px', flexShrink: 0,
-          border: checked ? `2px solid ${theme.accentColor}` : `2px solid ${theme.borderColor}`,
+          borderColor: checked ? theme.accentColor : theme.borderColor,
           backgroundColor: checked ? theme.accentColor : theme.inputBg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all 200ms ease',
         }}
       >
         {checked && (
@@ -140,29 +125,21 @@ function FilterCheckbox({ label, count, checked, onChange }: { label: string; co
         )}
       </span>
       <span>{label}</span>
-      {count !== undefined && <span style={{ color: theme.borderColor, marginLeft: 'auto', fontSize: '15px' }}>{count}</span>}
-      <input type="checkbox" checked={checked} onChange={onChange} style={{ display: 'none' }} />
+      {count !== undefined && <span className="ml-auto text-[15px]" style={{ color: theme.borderColor }}>{count}</span>}
+      <input type="checkbox" checked={checked} onChange={onChange} className="hidden" />
     </label>
   );
 }
-
-/* ── Custom Radio ── */
 
 function FilterRadio({ label, count, checked, onChange }: { label: string; count?: number; checked: boolean; onChange: () => void }) {
   const theme = useContext(ShopThemeCtx);
   return (
     <label
-      className="filter-radio-row"
+      className={`filter-radio-row flex items-center gap-[12px] cursor-pointer py-[6px] px-0 text-[14px] transition-colors duration-200 ease-in-out ${
+        checked ? 'font-semibold' : 'font-normal'
+      }`}
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        cursor: 'pointer',
-        padding: '6px 0',
-        fontSize: '14px',
         color: checked ? theme.textColor : theme.mutedColor,
-        fontWeight: checked ? 600 : 400,
-        transition: 'color 200ms ease',
       }}
       onClick={(e) => {
         e.preventDefault();
@@ -170,40 +147,26 @@ function FilterRadio({ label, count, checked, onChange }: { label: string; count
       }}
     >
       <span
-        className="filter-rb"
+        className="filter-rb w-[20px] h-[20px] rounded-full shrink-0 border-[2px] border-solid flex items-center justify-center transition-all duration-200 ease-in-out"
         style={{
-          width: '20px',
-          height: '20px',
-          borderRadius: '50%',
-          flexShrink: 0,
-          border: checked ? `2px solid ${theme.accentColor}` : `2px solid ${theme.borderColor}`,
+          borderColor: checked ? theme.accentColor : theme.borderColor,
           backgroundColor: theme.inputBg,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 200ms ease',
         }}
       >
         {checked && (
           <span
+            className="w-[10px] h-[10px] rounded-full"
             style={{
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
               backgroundColor: theme.accentColor,
             }}
           />
         )}
       </span>
       <span>{label}</span>
-      {count !== undefined && <span style={{ color: theme.borderColor, marginLeft: 'auto', fontSize: '15px' }}>{count}</span>}
+      {count !== undefined && <span className="ml-auto text-[15px]" style={{ color: theme.borderColor }}>{count}</span>}
     </label>
   );
 }
-
-/* ── Filter Sidebar ── */
-
-/* ── Active Filter Tag ── */
 
 function IconCloseSmall() {
   return (
@@ -217,32 +180,21 @@ function IconCloseSmall() {
 function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
   const theme = useContext(ShopThemeCtx);
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', fontSize: '14px', color: theme.mutedColor, border: `1px solid ${theme.borderColor}`, borderRadius: '40px', backgroundColor: theme.tagBg, marginBottom: '8px', marginRight: '8px' }}>
+    <span
+      className="inline-flex items-center gap-[8px] py-[8px] px-[16px] text-[14px] border border-solid rounded-[40px] mb-[8px] mr-[8px]"
+      style={{ color: theme.mutedColor, borderColor: theme.borderColor, backgroundColor: theme.tagBg }}
+    >
       {label}
-      <button className="filter-tag-remove" onClick={onRemove} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: theme.mutedColor, padding: 0 }}>
+      <button
+        className="filter-tag-remove flex items-center justify-center bg-transparent border-none cursor-pointer p-0"
+        onClick={onRemove}
+        style={{ color: theme.mutedColor }}
+      >
         <IconCloseSmall />
       </button>
     </span>
   );
 }
-
-/* ── Filter Sidebar ── */
-
-/* Original FilterSidebar commented out as requested
-function FilterSidebarOriginal({ filters, selectedFilters, onFilterChange, priceRange, onPriceChange, onRemoveAll }: {
-  filters: FiltersData | undefined;
-  selectedFilters: Record<string, string>;
-  onFilterChange: (key: string, value: string) => void;
-  priceRange: [number, number];
-  onPriceChange: (range: [number, number]) => void;
-  onRemoveAll: () => void;
-}) {
-  const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const theme = useContext(ShopThemeCtx);
-  if (!filters) return null;
-  return null;
-}
-*/
 
 function FilterSidebar({
   filters,
@@ -268,11 +220,9 @@ function FilterSidebar({
 
   const hasActiveFilters =
     Object.values(selectedFilters).some((v) => v !== '') ||
-    /* priceRange[0] > filters.priceRange.min || commented out as requested */
     priceRange[0] > 0 ||
     priceRange[1] < filters.priceRange.max;
 
-  // Active selected subcategories array from comma-separated string
   const activeSubcategories = selectedFilters.subcategory
     ? selectedFilters.subcategory
         .split(',')
@@ -281,7 +231,6 @@ function FilterSidebar({
     : [];
 
   const activeFilterTags: { label: string; key: string }[] = [];
-  /* if (priceRange[0] > filters.priceRange.min || priceRange[1] < filters.priceRange.max) { commented out as requested */
   if (priceRange[0] > 0 || priceRange[1] < filters.priceRange.max) {
     activeFilterTags.push({
       label: `LKR ${priceRange[0].toLocaleString('en-US')} – LKR ${priceRange[1].toLocaleString('en-US')}`,
@@ -299,36 +248,31 @@ function FilterSidebar({
   });
 
   return (
-    <div style={{ backgroundColor: theme.sidebarBg, borderRadius: '8px', padding: '28px', overflow: 'hidden' }}>
-      {/* Header with Remove all */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <h3 className="filter-group-title" style={{ fontSize: '20px', fontWeight: 700, color: theme.textColor, margin: 0 }}>
+    <div className="rounded-[8px] p-[28px] overflow-hidden" style={{ backgroundColor: theme.sidebarBg }}>
+      <div className="flex items-center justify-between mb-[20px]">
+        <h3 className="filter-group-title text-[20px] font-bold m-0" style={{ color: theme.textColor }}>
           Filter:
         </h3>
         {hasActiveFilters && (
           <button
-            className="filter-remove-all"
+            className="filter-remove-all text-[14px] text-[#F15B41] bg-transparent border-none cursor-pointer font-medium"
             onClick={onRemoveAll}
-            style={{ fontSize: '14px', color: '#F15B41', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
           >
             Remove all
           </button>
         )}
       </div>
 
-      {/* Active filter tags */}
       {activeFilterTags.length > 0 && (
-        <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap' }}>
+        <div className="mb-[16px] flex flex-wrap">
           {activeFilterTags.map((tag) => (
             <FilterTag
               key={tag.key}
               label={tag.label}
               onRemove={() => {
                 if (tag.key === 'price') {
-                  /* onPriceChange([filters.priceRange.min, filters.priceRange.max]); commented out as requested */
                   onPriceChange([0, filters.priceRange.max]);
                 } else if (tag.key === 'category') {
-                  // Removing category also clears subcategories
                   if (onBatchFilterChange) onBatchFilterChange({ category: '', subcategory: '' });
                   else {
                     onFilterChange('category', '');
@@ -348,20 +292,6 @@ function FilterSidebar({
       )}
 
       <FilterGroup title="Availability">
-        {/* Original static/hardcoded availability counts commented out:
-        <FilterCheckbox
-          label="In stock"
-          count={filters.categories.reduce((s, c) => s + c.count, 0)}
-          checked={selectedFilters.availability === 'in-stock'}
-          onChange={() => onFilterChange('availability', selectedFilters.availability === 'in-stock' ? '' : 'in-stock')}
-        />
-        <FilterCheckbox
-          label="Out of stock"
-          count={0}
-          checked={selectedFilters.availability === 'out-of-stock'}
-          onChange={() => onFilterChange('availability', selectedFilters.availability === 'out-of-stock' ? '' : 'out-of-stock')}
-        />
-        */}
         <FilterCheckbox
           label="In stock"
           count={filters.availability?.inStock ?? filters.categories.reduce((s, c) => s + c.count, 0)}
@@ -377,17 +307,6 @@ function FilterSidebar({
       </FilterGroup>
 
       <FilterGroup title="Price">
-        {/* Original min={filters.priceRange.min} commented out as requested
-        <PriceRangeSlider
-          min={filters.priceRange.min}
-          max={filters.priceRange.max}
-          value={priceRange}
-          onChange={onPriceChange}
-          accentColor={theme.accentColor}
-          mutedColor={theme.mutedColor}
-          textColor={theme.textColor}
-        />
-        */}
         <PriceRangeSlider
           min={0}
           max={filters.priceRange.max}
@@ -400,18 +319,11 @@ function FilterSidebar({
       </FilterGroup>
 
       <FilterGroup title="More filters">
-        {/* Dynamic MongoDB Categories filter (Radio Group: Single Selection) */}
         {filters.categories && filters.categories.length > 0 && (
-          <div style={{ marginBottom: selectedFilters.category ? '20px' : '0' }}>
+          <div className={selectedFilters.category ? 'mb-[20px]' : 'mb-0'}>
             <p
-              style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                color: theme.textColor,
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}
+              className="text-[13px] font-semibold mb-[8px] uppercase tracking-[0.5px]"
+              style={{ color: theme.textColor }}
             >
               Categories
             </p>
@@ -425,14 +337,12 @@ function FilterSidebar({
                   checked={isSelected}
                   onChange={() => {
                     if (isSelected) {
-                      // Clicking currently selected category unselects it and clears subcategory
                       if (onBatchFilterChange) onBatchFilterChange({ category: '', subcategory: '' });
                       else {
                         onFilterChange('category', '');
                         onFilterChange('subcategory', '');
                       }
                     } else {
-                      // Selecting a new category sets category and resets subcategories
                       if (onBatchFilterChange) onBatchFilterChange({ category: c.name, subcategory: '' });
                       else {
                         onFilterChange('category', c.name);
@@ -446,28 +356,20 @@ function FilterSidebar({
           </div>
         )}
 
-        {/* Dynamic MongoDB Subcategories filter (Visible ONLY when a category is selected) */}
         {selectedFilters.category && (
-          <div style={{ paddingTop: '16px', borderTop: `1px dashed ${theme.borderColor}` }}>
+          <div className="pt-[16px] border-t border-dashed" style={{ borderColor: theme.borderColor }}>
             <p
-              style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                color: theme.textColor,
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}
+              className="text-[13px] font-semibold mb-[8px] uppercase tracking-[0.5px]"
+              style={{ color: theme.textColor }}
             >
               Subcategories ({selectedFilters.category})
             </p>
             {(() => {
-              // Retrieve specific subcategories for the selected category from MongoDB filters
               const categorySubs = filters.categorySubcategories?.[selectedFilters.category] || [];
 
               if (categorySubs.length === 0) {
                 return (
-                  <p style={{ fontSize: '13px', color: theme.mutedColor, fontStyle: 'italic', margin: '6px 0' }}>
+                  <p className="text-[13px] italic my-[6px] mx-0" style={{ color: theme.mutedColor }}>
                     No subcategories available.
                   </p>
                 );
@@ -497,16 +399,8 @@ function FilterSidebar({
                   {categorySubs.length > 8 && (
                     <button
                       onClick={() => setShowMoreFilters(!showMoreFilters)}
-                      className="filter-show-more"
-                      style={{
-                        fontSize: '14px',
-                        color: theme.textColor,
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        marginTop: '8px',
-                        fontWeight: 500,
-                      }}
+                      className="filter-show-more text-[14px] bg-transparent border-none cursor-pointer mt-[8px] font-medium"
+                      style={{ color: theme.textColor }}
                     >
                       {showMoreFilters ? '- Show less' : '+ Show more'}
                     </button>
@@ -518,55 +412,14 @@ function FilterSidebar({
         )}
       </FilterGroup>
 
-      {/* Brand filter commented out as requested
-      <FilterGroup title="Brand">
-        {(showMoreBrand ? filters.brands : filters.brands.slice(0, 10)).map((b) => (
-          <FilterCheckbox key={`br-${b.name}`} label={b.name} count={b.count} checked={selectedFilters.brand === b.name} onChange={() => onFilterChange('brand', selectedFilters.brand === b.name ? '' : b.name)} />
-        ))}
-        {filters.brands.length > 10 && (
-          <button onClick={() => setShowMoreBrand(!showMoreBrand)} className="filter-show-more" style={{ fontSize: '14px', color: theme.textColor, background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px', fontWeight: 500 }}>
-            {showMoreBrand ? '- Show less' : '+ Show more'}
-          </button>
-        )}
-      </FilterGroup>
-      */}
-
-      {/* Color filter commented out as requested
-      <FilterGroup title="Color">
-        {(showMoreColor ? filters.colors : filters.colors.slice(0, 8)).map((c) => (
-          <FilterCheckbox key={c.name} label={c.name} count={c.count} checked={selectedFilters.color === c.name} onChange={() => onFilterChange('color', selectedFilters.color === c.name ? '' : c.name)} />
-        ))}
-        {filters.colors.length > 8 && (
-          <button onClick={() => setShowMoreColor(!showMoreColor)} className="filter-show-more" style={{ fontSize: '14px', color: theme.textColor, background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px', fontWeight: 500 }}>
-            {showMoreColor ? '- Show less' : '+ Show more'}
-          </button>
-        )}
-      </FilterGroup>
-      */}
-
-      {/* Size filter commented out as requested
-      <FilterGroup title="Size">
-        {(showMoreSize ? filters.sizes : filters.sizes.slice(0, 8)).map((s) => (
-          <FilterCheckbox key={s.name} label={s.name} count={s.count} checked={selectedFilters.size === s.name} onChange={() => onFilterChange('size', selectedFilters.size === s.name ? '' : s.name)} />
-        ))}
-        {filters.sizes.length > 8 && (
-          <button onClick={() => setShowMoreSize(!showMoreSize)} className="filter-show-more" style={{ fontSize: '14px', color: theme.textColor, background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px', fontWeight: 500 }}>
-            {showMoreSize ? '- Show less' : '+ Show more'}
-          </button>
-        )}
-      </FilterGroup>
-      */}
     </div>
   );
 }
-
-/* ── Pagination ── */
 
 function ShopPagination({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (p: number) => void }) {
   if (totalPages <= 1) return null;
   const theme = useContext(ShopThemeCtx);
 
-  // Build page numbers: 1, 2, 3, ..., totalPages
   const pages: (number | '...')[] = [];
   if (totalPages <= 6) {
     for (let i = 1; i <= totalPages; i++) pages.push(i);
@@ -580,7 +433,6 @@ function ShopPagination({ currentPage, totalPages, onPageChange }: { currentPage
     pages.push(totalPages);
   }
 
-  // Remove duplicates
   const unique: (number | '...')[] = [];
   pages.forEach((p) => {
     if (p === '...' && unique[unique.length - 1] === '...') return;
@@ -589,21 +441,17 @@ function ShopPagination({ currentPage, totalPages, onPageChange }: { currentPage
   });
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '50px', paddingBottom: '10px' }}>
+    <div className="flex items-center justify-center gap-[12px] mt-[50px] pb-[10px]">
       {unique.map((p, i) => p === '...' ? (
-        <span key={`dots-${i}`} style={{ fontSize: '16px', color: theme.mutedColor, letterSpacing: '2px' }}>...</span>
+        <span key={`dots-${i}`} className="text-[16px] tracking-[2px]" style={{ color: theme.mutedColor }}>...</span>
       ) : (
         <button
           key={p}
           onClick={() => onPageChange(p)}
+          className="w-[44px] h-[44px] flex items-center justify-center rounded-full border-none text-[16px] font-medium cursor-pointer transition-all duration-[250ms] ease-in-out"
           style={{
-            width: '44px', height: '44px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: '50%', border: 'none',
-            fontSize: '16px', fontWeight: 500, cursor: 'pointer',
             backgroundColor: p === currentPage ? theme.accentColor : 'transparent',
             color: p === currentPage ? '#fff' : theme.textColor,
-            transition: 'all 250ms ease',
           }}
           onMouseEnter={(e) => { if (p !== currentPage) { e.currentTarget.style.backgroundColor = theme.inputBg; } }}
           onMouseLeave={(e) => { if (p !== currentPage) { e.currentTarget.style.backgroundColor = 'transparent'; } }}
@@ -612,11 +460,11 @@ function ShopPagination({ currentPage, totalPages, onPageChange }: { currentPage
         </button>
       ))}
 
-      {/* Next arrow */}
       {currentPage < totalPages && (
         <button
           onClick={() => onPageChange(currentPage + 1)}
-          style={{ width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px', color: theme.textColor }}
+          className="w-[44px] h-[44px] flex items-center justify-center rounded-full border-none bg-transparent cursor-pointer text-[18px]"
+          style={{ color: theme.textColor }}
           aria-label="Next page"
         >
           ›
@@ -626,54 +474,39 @@ function ShopPagination({ currentPage, totalPages, onPageChange }: { currentPage
   );
 }
 
-/* ── Skeleton ── */
-
 function ProductSkeleton({ cardVariant = 'home' }: { cardVariant?: 'home' | 'grocery' }) {
-  const aspect = cardVariant === 'grocery' ? '1/1' : '3/4';
   return (
     <div>
-      <div className="animate-shimmer" style={{ aspectRatio: aspect, borderRadius: cardVariant === 'grocery' ? '10px' : '4px', marginBottom: '14px' }} />
-      <div className="animate-shimmer" style={{ height: '16px', width: '70%', margin: '0 auto 8px', borderRadius: '4px' }} />
-      <div className="animate-shimmer" style={{ height: '14px', width: '40%', margin: '0 auto 12px', borderRadius: '4px' }} />
+      <div
+        className={`animate-shimmer mb-[14px] ${
+          cardVariant === 'grocery' ? 'aspect-square rounded-[10px]' : 'aspect-[3/4] rounded-[4px]'
+        }`}
+      />
+      <div className="animate-shimmer h-[16px] w-[70%] mx-auto mt-0 mb-[8px] rounded-[4px]" />
+      <div className="animate-shimmer h-[14px] w-[40%] mx-auto mt-0 mb-[12px] rounded-[4px]" />
       {cardVariant === 'grocery' && (
-        <div className="animate-shimmer" style={{ height: '52px', width: '100%', borderRadius: '40px' }} />
+        <div className="animate-shimmer h-[52px] w-full rounded-[40px]" />
       )}
     </div>
   );
 }
 
-/* ── Main Component ── */
-
 interface ShopPageContentProps {
-  /** Route base for URL sync (e.g. "/shop" or "/grocery/shop"). Default: "/shop". */
   basePath?: string;
-  /** API endpoint for product listing. Default: "/api/products". */
   apiEndpoint?: string;
-  /** Base href for linking to product detail pages (e.g. "/products" or "/grocery/product"). */
   productHrefBase?: string;
-  /** Page header title. Default: "PRODUCTS". */
   title?: string;
-  /** Home link label. Default: "Home". */
   homeLabel?: string;
-  /** Home link href. Default: "/". */
   homeHref?: string;
-  /** Breadcrumb label for the current page. Default: "Products". */
   breadcrumbLabel?: string;
-  /** Which product card design to render. Default: "home" (fashion). Pass "grocery" for Grocery Shop. */
   cardVariant?: 'home' | 'grocery';
-  /** Optional theming overrides forwarded to every HomeProductCard rendered on this page
-      (the main grid and the "Featured Collection" slider below). Only applies when
-      cardVariant === 'home'. Use this to re-theme the shop page for pet-food / nutrition
-      so the cards match their respective homepage Featured Tab sections. */
   cardTheme?: FeaturedCardTheme;
-  /** Per-storefront dark/light theme overrides (bg colors, text colors, accent). */
   shopTheme?: Partial<ShopPageTheme>;
-  /** Custom card renderer — when provided, replaces the built-in HomeProductCard / GroceryProductCard. */
   renderCard?: (product: Product, index: number) => React.ReactNode;
 }
 
 export function ShopPageContent({
-  basePath = '/shop',
+  basePath = '/products',
   apiEndpoint = '/api/products',
   productHrefBase = '/products',
   title = 'PRODUCTS',
@@ -700,21 +533,8 @@ export function ShopPageContent({
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const filterTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  // Track filter changes
   const prevFiltersRef = useRef('');
   const currentFilterKey = `${searchParams.toString()}`;
-
-  /* Original artificial 1.5s filterLoading delay commented out as requested so filter options don't refresh / lock the page:
-  useEffect(() => {
-    if (prevFiltersRef.current && prevFiltersRef.current !== currentFilterKey) {
-      setFilterLoading(true);
-      if (filterTimerRef.current) clearTimeout(filterTimerRef.current);
-      filterTimerRef.current = setTimeout(() => setFilterLoading(false), 1500);
-    }
-    prevFiltersRef.current = currentFilterKey;
-    return () => { if (filterTimerRef.current) clearTimeout(filterTimerRef.current); };
-  }, [currentFilterKey]);
-  */
 
   const setViewCols = useCallback((cols: 2 | 3 | 4) => {
     localStorage.setItem('shop-view-cols', String(cols));
@@ -734,13 +554,6 @@ export function ShopPageContent({
   const size = searchParams.get('size') || '';
   const availability = searchParams.get('availability') || '';
   const minPrice = searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : 0;
-  // No hardcoded numeric ceiling here — storefronts' real max prices vary
-  // wildly (e.g. $100 for grocery vs $890 for megastore), so a fixed
-  // fallback like 550 either clips valid megastore prices or, worse,
-  // overshoots the real max for cheaper storefronts and stretches the
-  // slider's fill track past 100% on first load. `undefined` means "no
-  // user-set ceiling" — the API applies no upper bound, and the slider's
-  // displayed value falls back to the real fetched max (see displayMaxPrice).
   const maxPriceParam = searchParams.get('maxPrice');
   const maxPrice = maxPriceParam ? parseInt(maxPriceParam) : undefined;
 
@@ -759,12 +572,8 @@ export function ShopPageContent({
     maxPrice,
   }, { endpoint: apiEndpoint });
 
-  // The slider needs a concrete number to display even when the URL has no
-  // maxPrice param — fall back to this storefront's actual fetched max
-  // (not a magic constant), so the fill percentage is always <= 100%.
   const displayMaxPrice = maxPrice ?? data?.filters?.priceRange.max ?? 0;
 
-  // Persist filter facets across renders so sidebar options never unmount or refresh
   const filtersDataRef = useRef(data?.filters);
   if (data?.filters) {
     filtersDataRef.current = data.filters;
@@ -777,18 +586,10 @@ export function ShopPageContent({
       else params.delete(key);
     });
     if (!('page' in updates)) params.set('page', '1');
-    /* Original router.push commented out as requested to prevent page reload feeling:
-    router.push(`${basePath}?${params.toString()}`, { scroll: false });
-    */
     router.replace(`${basePath}?${params.toString()}`, { scroll: false });
   }, [router, searchParams, basePath]);
 
   const handleFilterChange = (key: string, value: string) => updateParams({ [key]: value });
-  /* Original handlePriceChange commented out as requested
-  const handlePriceChange = useCallback((range: [number, number]) => {
-    updateParams({ minPrice: String(range[0]), maxPrice: String(range[1]) });
-  }, [updateParams]);
-  */
   const handlePriceChange = useCallback((range: [number, number]) => {
     updateParams({
       minPrice: range[0] > 0 ? String(range[0]) : '',
@@ -802,14 +603,13 @@ export function ShopPageContent({
 
   return (
     <ShopThemeCtx.Provider value={theme}>
-      {/* Page Header */}
-      <div className="container-main" style={{ paddingTop: '30px' }}>
-        <div style={{ backgroundColor: theme.headerBg, borderRadius: '10px', height: '120px', display: 'flex', alignItems: 'center', padding: '0 40px' }}>
+      <div className="container-main pt-[30px]">
+        <div className="rounded-[10px] h-[120px] flex items-center py-0 px-[40px]" style={{ backgroundColor: theme.headerBg }}>
           <div>
-            <h1 style={{ fontSize: '36px', fontWeight: 700, color: theme.textColor, marginBottom: '6px' }}>{title}</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px' }}>
-              <Link href={homeHref} style={{ color: theme.mutedColor, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{homeLabel}</Link>
-              <span style={{ color: '#bbb' }}>/</span>
+            <h1 className="text-[36px] font-bold mb-[6px]" style={{ color: theme.textColor }}>{title}</h1>
+            <div className="flex items-center gap-[8px] text-[15px]">
+              <Link href={homeHref} className="underline underline-offset-[3px]" style={{ color: theme.mutedColor }}>{homeLabel}</Link>
+              <span className="text-[#bbb]">/</span>
               <span style={{ color: theme.textColor }}>{breadcrumbLabel}</span>
             </div>
           </div>
@@ -817,10 +617,8 @@ export function ShopPageContent({
       </div>
 
       <div className="container-main">
-        {/* Toolbar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px', backgroundColor: theme.toolbarBg, borderRadius: '0', padding: '0 20px', marginBottom: '30px', marginTop: '20px' }}>
-          {/* Left: Desktop view toggles — hidden at <=749px */}
-          <div className="shop-view-toggles" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div className="flex items-center justify-between h-[70px] rounded-none py-0 px-[20px] mb-[30px] mt-[20px]" style={{ backgroundColor: theme.toolbarBg }}>
+          <div className="shop-view-toggles flex items-center gap-[6px]">
             {([
               { cols: 2 as const, Icon: IconCol2 },
               { cols: 3 as const, Icon: IconCol3 },
@@ -829,12 +627,11 @@ export function ShopPageContent({
               <button
                 key={cols}
                 onClick={() => setViewCols(cols)}
+                className="w-[36px] h-[36px] flex items-center justify-center border border-solid cursor-pointer rounded-[4px] transition-all duration-200 ease-in-out"
                 style={{
-                  width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: '1px solid', borderColor: viewCols === cols ? theme.accentColor : theme.borderColor,
+                  borderColor: viewCols === cols ? theme.accentColor : theme.borderColor,
                   backgroundColor: viewCols === cols ? theme.accentColor : theme.inputBg,
                   color: viewCols === cols ? '#fff' : theme.mutedColor,
-                  cursor: 'pointer', borderRadius: '4px', transition: 'all 200ms ease',
                 }}
               >
                 <Icon />
@@ -842,7 +639,6 @@ export function ShopPageContent({
             ))}
           </div>
 
-          {/* Left: Mobile "Filter and sort" button — shown only at <=749px */}
           <button
             type="button"
             onClick={() => setMobileFilterOpen(true)}
@@ -853,18 +649,12 @@ export function ShopPageContent({
             <span>Filter and sort</span>
           </button>
 
-          {/* Right: Sort + count (desktop).
-              On mobile the Sort dropdown is hidden and only the count remains. */}
-          <div className="shop-sort-group" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            {/* Sort By dropdown — hidden at <=749px via .shop-sort-dropdown */}
-            <div className="shop-sort-dropdown" style={{ position: 'relative' }}>
+          <div className="shop-sort-group flex items-center gap-[24px]">
+            <div className="shop-sort-dropdown relative">
               <button
                 onClick={() => setSortOpen(!sortOpen)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: '15px', fontWeight: 600, color: theme.textColor, letterSpacing: '0.5px',
-                }}
+                className="flex items-center gap-[10px] bg-transparent border-none cursor-pointer text-[15px] font-semibold tracking-[0.5px]"
+                style={{ color: theme.textColor }}
               >
                 <IconSort />
                 SORT BY
@@ -872,29 +662,24 @@ export function ShopPageContent({
 
               {sortOpen && (
                 <div
-                  style={{
-                    position: 'absolute', top: 'calc(100% + 28px)', right: 0,
-                    minWidth: '260px', backgroundColor: theme.inputBg, border: `1px solid ${theme.borderColor}`,
-                    borderRadius: '8px',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: '10px 0', zIndex: 50,
-                    animation: 'slideUp 200ms ease-out',
-                  }}
+                  className="absolute top-[calc(100%+28px)] right-0 min-w-[260px] border border-solid rounded-[8px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-[10px] px-0 z-50 animate-[slideUp_200ms_ease-out]"
+                  style={{ backgroundColor: theme.inputBg, borderColor: theme.borderColor }}
                 >
                   {SORT_OPTIONS.map((o) => (
                     <label
                       key={o.value}
-                      className="sort-dropdown-item"
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 20px',
-                        fontSize: '15px', color: theme.textColor, cursor: 'pointer',
-                      }}
+                      className="sort-dropdown-item flex items-center gap-[12px] py-[8px] px-[20px] text-[15px] cursor-pointer"
+                      style={{ color: theme.textColor }}
                       onClick={() => { updateParams({ sort: o.value }); setSortOpen(false); }}
                     >
-                      <span style={{
-                        width: '18px', height: '18px', borderRadius: '50%',
-                        border: sort === o.value ? `5px solid ${theme.accentColor}` : `2px solid ${theme.borderColor}`,
-                        display: 'inline-block', transition: 'all 200ms ease',
-                      }} />
+                      <span
+                        className={`w-[18px] h-[18px] rounded-full border-solid inline-block transition-all duration-200 ease-in-out ${
+                          sort === o.value ? 'border-[5px]' : 'border-[2px]'
+                        }`}
+                        style={{
+                          borderColor: sort === o.value ? theme.accentColor : theme.borderColor,
+                        }}
+                      />
                       {o.label}
                     </label>
                   ))}
@@ -902,12 +687,11 @@ export function ShopPageContent({
               )}
             </div>
 
-            {/* Product count — hidden during loading, spinner shown instead */}
-            <span style={{ fontSize: '15px', fontWeight: 500, color: theme.textColor, minWidth: '90px', textAlign: 'right', display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <span className="text-[15px] font-medium min-w-[90px] text-right inline-flex items-center justify-end" style={{ color: theme.textColor }}>
               {filterLoading ? (
-                <span className="filter-spinner" style={{ width: '18px', height: '18px', borderWidth: '2px' }} />
+                <span className="filter-spinner w-[18px] h-[18px] border-[2px]" />
               ) : (
-                <span style={{ animation: 'filterFadeIn 400ms ease' }}>
+                <span className="animate-[filterFadeIn_400ms_ease]">
                   {data?.pagination ? `${data.pagination.totalProducts} products` : ''}
                 </span>
               )}
@@ -915,35 +699,8 @@ export function ShopPageContent({
           </div>
         </div>
 
-        {/* Main content: Filter + Products */}
-        <div className="shop-main-row" style={{ display: 'flex', gap: '40px', paddingBottom: '60px' }}>
-          <div className="shop-sidebar" style={{ width: '290px', flexShrink: 0 }}>
-            {/* Original FilterSidebar call commented out as requested
-            <FilterSidebar
-              filters={data?.filters}
-              selectedFilters={{ category, brand, color, size, availability }}
-              onFilterChange={handleFilterChange}
-              priceRange={[minPrice, displayMaxPrice]}
-              onPriceChange={handlePriceChange}
-              onRemoveAll={() => {}}
-            />
-            */}
-            {/* Original filters={data?.filters} commented out as requested; cached in ref so filter sidebar never disappears/refreshes while products update:
-            <FilterSidebar
-              filters={data?.filters}
-              selectedFilters={{ category, subcategory, brand, color, size, availability }}
-              onFilterChange={handleFilterChange}
-              onBatchFilterChange={updateParams}
-              priceRange={[minPrice, displayMaxPrice]}
-              onPriceChange={handlePriceChange}
-              onRemoveAll={() => {
-                const params = new URLSearchParams();
-                const view = searchParams.get('view');
-                if (view) params.set('view', view);
-                router.push(`${basePath}?${params.toString()}`, { scroll: false });
-              }}
-            />
-            */}
+        <div className="shop-main-row flex gap-[40px] pb-[60px]">
+          <div className="shop-sidebar w-[290px] shrink-0">
             <FilterSidebar
               filters={data?.filters || filtersDataRef.current}
               selectedFilters={{ category, subcategory, brand, color, size, availability }}
@@ -960,25 +717,23 @@ export function ShopPageContent({
             />
           </div>
 
-          {/* Product Grid */}
-          <div style={{ flex: 1, position: 'relative' }}>
-            {/* Loading spinner — centered in grid area */}
+          <div className="flex-1 relative">
             {filterLoading && (
-              <div style={{
-                position: 'absolute', inset: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                zIndex: 10,
-              }}>
+              <div className="absolute inset-0 flex items-center justify-center z-10">
                 <div className="filter-spinner" />
               </div>
             )}
 
-            <div className="shop-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${viewCols}, 1fr)`, gap: '24px', opacity: filterLoading ? 0.15 : 1, transition: 'opacity 400ms ease', minHeight: filterLoading ? '400px' : 'auto' }}>
+            <div
+              className={`shop-grid grid gap-[24px] transition-opacity duration-[400ms] ease-in-out ${
+                viewCols === 2 ? 'grid-cols-2' : viewCols === 3 ? 'grid-cols-3' : 'grid-cols-4'
+              } ${filterLoading ? 'opacity-[0.15] min-h-[400px]' : 'opacity-100 min-h-auto'}`}
+            >
               {isLoading
                 ? Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => <ProductSkeleton key={i} cardVariant={cardVariant} />)
                 : data?.products.map((product, i) => (
                     renderCard ? (
-                      <div key={product.id} style={{ minWidth: 0 }}>{renderCard(product, i)}</div>
+                      <div key={product.id} className="min-w-0">{renderCard(product, i)}</div>
                     ) : cardVariant === 'grocery' ? (
                       <GroceryProductCard key={product.id} product={product} index={i} hrefBase={productHrefBase} />
                     ) : (
@@ -1005,8 +760,7 @@ export function ShopPageContent({
         </div>
       </div>
 
-      {/* You may also like — same as homepage Featured Collection Slider */}
-      <div style={{ paddingTop: '60px', paddingBottom: '80px' }}>
+      <div className="pt-[60px] pb-[80px]">
         {cardVariant === 'grocery' ? (
           <GroceryFeaturedSlider />
         ) : (
@@ -1022,14 +776,9 @@ export function ShopPageContent({
 
       {cardVariant === 'grocery' && <GroceryShopFAQ />}
 
-      {/* Mobile Filter & Sort drawer — renders always but slides off-screen
-          when closed. Only opened by the mobile toolbar button at <=749px. */}
       <MobileFilterDrawer
         open={mobileFilterOpen}
         onClose={() => setMobileFilterOpen(false)}
-        /* Original filters={data?.filters} commented out as requested; cached in ref to avoid refresh/flicker:
-        filters={data?.filters}
-        */
         filters={data?.filters || filtersDataRef.current}
         selected={{ availability, brand, color, size, category, subcategory, sort }}
         priceRange={[minPrice, displayMaxPrice]}
@@ -1058,11 +807,7 @@ export function ShopPageContent({
       />
 
       <style>{`
-        /* ── Mobile filter toolbar ──
-           The desktop toolbar has a 3-button view toggle on the left and a
-           SORT BY dropdown on the right. At <=749px they are replaced with a
-           single "Filter and sort" button on the left; the product count on
-           the right stays. */
+        
         .shop-mobile-filter-btn {
           display: none;
         }
@@ -1072,9 +817,7 @@ export function ShopPageContent({
           .shop-mobile-filter-btn {
             display: inline-flex;
             align-items: center;
-            /* Fluid scaling across the mobile range — font/padding/gap all
-               shrink gradually as viewport narrows, so the button never
-               snaps to a smaller size and stays touch-friendly. */
+            
             gap: clamp(5px, 1.6vw, 8px);
             padding: clamp(7px, 2.2vw, 10px) clamp(12px, 4vw, 18px);
             background-color: #fff;
@@ -1099,9 +842,7 @@ export function ShopPageContent({
           .shop-main-row { gap: 0 !important; }
         }
 
-        /* Responsive product grid overrides — these beat the inline
-           gridTemplateColumns (set from the 2/3/4 view toggle) at tablet
-           and mobile widths so the shop stays readable below 992px. */
+        
         @media (max-width: 991px) {
           .shop-grid {
             grid-template-columns: repeat(3, 1fr) !important;

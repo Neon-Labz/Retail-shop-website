@@ -43,14 +43,7 @@ import { ToysHeader } from './ToysHeader';
 import { SocksHeader } from './SocksHeader';
 import { PodHeader } from './PodHeader';
 import { useUIStore } from '@/store/uiStore';
-
-function IconMenu() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" width={24} height={24}>
-      <path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z" />
-    </svg>
-  );
-}
+import { IconMenu } from '@/lib/icons';
 
 export function Header() {
   const pathname = usePathname();
@@ -233,75 +226,37 @@ export function Header() {
 
   return (
     <>
-      {/* Previous AnnouncementBar commented out as requested (language and currency moved into main header):
-      <AnnouncementBar />
-      */}
 
-      <header
-        className="main-header"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 200,
-          backgroundColor: '#fff',
-          height: '90px',
-          overflow: 'visible',
-        }}
-      >
-        <div
-          className="container-main"
-          style={{
-            height: '100%',
-            display: 'grid',
-            gridTemplateColumns: '1fr auto 1fr',
-            alignItems: 'center',
-          }}
-        >
-          {/* Column 1: Hamburger (mobile) + Logo (desktop) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifySelf: 'start' }}>
-            {/* Mobile hamburger — hidden at desktop, shown at ≤715px */}
+      <header className="main-header sticky top-0 z-[200] bg-white h-[90px] overflow-visible border-b border-[#e5e5e5] min-[992px]:!sticky min-[992px]:!top-0 min-[992px]:!z-[200] min-[992px]:will-change-transform">
+        <div className="container-main h-full grid grid-cols-[1fr_auto_1fr] items-center">
+          <div className="flex items-center gap-[12px] justify-self-start">
             <button
               onClick={openMobileMenu}
               aria-label="Open menu"
-              style={{
-                display: 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#222',
-                cursor: 'pointer',
-                background: 'none',
-                border: 'none',
-                padding: 0,
-              }}
-              className="mobile-menu-btn"
+              className="mobile-menu-btn hidden max-[715px]:!flex items-center justify-center text-[#222] cursor-pointer bg-transparent border-none p-0"
             >
               <IconMenu />
             </button>
 
-            {/* Desktop logo — hides at ≤715px */}
-            <div className="fashion-logo-desktop">
+            <div className="fashion-logo-desktop max-[715px]:!hidden">
               <Logo />
             </div>
 
-            {/* All Categories Dropdown Button near logo per user requirement */}
-            <div className="fashion-header-categories-desktop">
+            <div className="fashion-header-categories-desktop max-[991px]:!hidden">
               <HeaderCategoriesButton />
             </div>
           </div>
 
-          {/* Column 2: Desktop Navigation — hides at ≤715px, freeing column 2 for mobile logo */}
-          <div className="desktop-nav-wrapper">
+          <div className="desktop-nav-wrapper max-[715px]:!hidden">
             <DesktopNav />
           </div>
 
-          {/* Mobile-only centered logo — hidden at desktop, becomes column 2 at ≤715px */}
-          <div className="fashion-logo-mobile">
+          <div className="fashion-logo-mobile hidden max-[715px]:flex max-[715px]:justify-center max-[715px]:items-center">
             <Logo />
           </div>
 
-          {/* Column 3: Language & Currency + Action Icons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '22px', justifySelf: 'end' }}>
-            <div className="fashion-header-lang-desktop">
+          <div className="flex items-center gap-[22px] justify-self-end">
+            <div className="fashion-header-lang-desktop flex items-center max-[991px]:!hidden">
               <HeaderLanguageCurrency />
             </div>
             <HeaderActions />
@@ -309,59 +264,7 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile navigation drawer */}
       <MobileNav />
-
-      {/* Responsive + header border animation styles */}
-      <style jsx global>{`
-        .main-header {
-          border-bottom: 1px solid #e5e5e5;
-        }
-        .fashion-header-lang-desktop {
-          display: flex;
-          align-items: center;
-        }
-        /* Desktop-only sticky reinforcement. Inline style already sets
-           position: sticky; this explicit rule guarantees it beats any
-           future cascade (framework resets, feature CSS) and keeps the
-           header pinned at top without flicker or layout shift. */
-        @media (min-width: 992px) {
-          .main-header {
-            position: -webkit-sticky !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 200 !important;
-            will-change: transform;
-          }
-        }
-        .fashion-logo-mobile {
-          display: none;
-        }
-        @media (max-width: 991px) {
-          .fashion-header-lang-desktop {
-            display: none !important;
-          }
-          .fashion-header-categories-desktop {
-            display: none !important;
-          }
-        }
-        @media (max-width: 715px) {
-          .mobile-menu-btn {
-            display: flex !important;
-          }
-          .desktop-nav-wrapper {
-            display: none !important;
-          }
-          .fashion-logo-desktop {
-            display: none !important;
-          }
-          .fashion-logo-mobile {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-        }
-      `}</style>
     </>
   );
 }

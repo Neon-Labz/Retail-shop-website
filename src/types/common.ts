@@ -11,16 +11,6 @@ export interface FilterCounts {
   count: number;
 }
 
-/* Original FiltersData commented out as requested
-export interface FiltersData {
-  categories: FilterCounts[];
-  subcategories?: FilterCounts[];
-  brands: FilterCounts[];
-  colors: FilterCounts[];
-  sizes: FilterCounts[];
-  priceRange: { min: number; max: number };
-}
-*/
 export interface FiltersData {
   categories: FilterCounts[];
   subcategories?: FilterCounts[];

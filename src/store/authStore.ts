@@ -43,6 +43,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
         localStorage.removeItem('customer_user');
       } catch {}
       set({ user, isAuthenticated: true, isLoading: false });
+      if (typeof window !== 'undefined' && user?.id) {
+        import('@/store/wishlistStore').then((m) => m.useWishlistStore.getState().syncWithServer());
+      }
     } else {
       deleteClientCookie(USER_COOKIE_NAME);
       try {
@@ -60,6 +63,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
         const parsed = JSON.parse(stored);
         if (parsed && parsed.email) {
           set({ user: parsed, isAuthenticated: true, isLoading: false });
+          if (typeof window !== 'undefined' && parsed.id) {
+            import('@/store/wishlistStore').then((m) => m.useWishlistStore.getState().syncWithServer());
+          }
         }
       }
     } catch {}
@@ -82,6 +88,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
       if (data.success && data.user) {
         setClientCookie(USER_COOKIE_NAME, JSON.stringify(data.user), ONE_DAY_SECONDS);
         set({ user: data.user, isAuthenticated: true, isLoading: false });
+        if (typeof window !== 'undefined' && data.user.id) {
+          import('@/store/wishlistStore').then((m) => m.useWishlistStore.getState().syncWithServer());
+        }
       } else {
         deleteClientCookie(USER_COOKIE_NAME);
         set({ user: null, isAuthenticated: false, isLoading: false });

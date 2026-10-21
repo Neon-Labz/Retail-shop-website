@@ -9,14 +9,6 @@ import { HeaderCategoriesButton } from './HeaderCategoriesButton';
 import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
 import { useUIStore } from '@/store/uiStore';
 
-/* POD header — single-row layout matching the screenshot:
-   logo (left) · primary nav (center) · search/account/wishlist/cart (right).
-   This is the Default Fashion header structure with a #111 announcement bar
-   and the shared ambaz logo (/pod/logo/logo1.webp is the same wordmark).
-   DesktopNav / HeaderActions / MobileNav are the shared, storefront-aware
-   components, so nav data (navigation-pod.json), drawers and counts scope
-   to POD automatically via getStorefrontFromPath. */
-
 function IconMenu() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width={24} height={24}>
@@ -30,9 +22,6 @@ export function PodHeader() {
 
   return (
     <>
-      {/* Previous AnnouncementBar commented out as requested (language and currency moved into main header):
-      <AnnouncementBar backgroundColor="#fff" textColor="#222" />
-      */}
 
       <header
         className="pd-main-header"
@@ -54,7 +43,6 @@ export function PodHeader() {
             alignItems: 'center',
           }}
         >
-          {/* Column 1: Hamburger (mobile) + Logo (desktop) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifySelf: 'start' }}>
             <button
               onClick={openMobileMenu}
@@ -78,23 +66,19 @@ export function PodHeader() {
               <Logo href="/home/pod-shop" />
             </div>
 
-            {/* All Categories Dropdown Button near logo per user requirement */}
             <div className="pd-header-categories-desktop">
               <HeaderCategoriesButton />
             </div>
           </div>
 
-          {/* Column 2: Desktop Navigation */}
           <div className="pd-desktop-nav-wrapper">
             <DesktopNav />
           </div>
 
-          {/* Mobile-only centered logo */}
           <div className="pd-logo-mobile">
             <Logo href="/home/pod-shop" />
           </div>
 
-          {/* Column 3: Language & Currency + Action Icons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '22px', justifySelf: 'end' }}>
             <div className="pd-header-lang-desktop">
               <HeaderLanguageCurrency />
@@ -106,7 +90,7 @@ export function PodHeader() {
 
       <MobileNav />
 
-      <style jsx global>{`
+      <style>{`
         .pd-main-header {
           border-bottom: 1px solid #e5e5e5;
         }

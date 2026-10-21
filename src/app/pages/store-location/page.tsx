@@ -28,36 +28,36 @@ function IconEmail() {
 
 function ContactInfo() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div className="flex flex-col gap-[28px]">
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-          <span style={{ color: '#222' }}><IconAddress /></span>
-          <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Address</h3>
+        <div className="flex items-center gap-[12px] mb-[10px]">
+          <span className="text-[#222]"><IconAddress /></span>
+          <h3 className="text-[24px] font-bold text-[#222]">Address</h3>
         </div>
-        <p style={{ fontSize: '16px', color: '#666', lineHeight: 1.7, paddingLeft: '36px' }}>
+        <p className="text-[16px] text-[#666] leading-[1.7] pl-[36px]">
           123 Stree New York City , United States Of America NY 750065.
         </p>
-        <div style={{ borderBottom: '1px solid #e5e5e5', marginTop: '24px' }} />
+        <div className="border-b border-[#e5e5e5] mt-[24px]" />
       </div>
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-          <span style={{ color: '#222' }}><IconPhone /></span>
-          <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Phone</h3>
+        <div className="flex items-center gap-[12px] mb-[10px]">
+          <span className="text-[#222]"><IconPhone /></span>
+          <h3 className="text-[24px] font-bold text-[#222]">Phone</h3>
         </div>
-        <div style={{ paddingLeft: '36px' }}>
-          <p style={{ fontSize: '16px', color: '#666', lineHeight: 1.7 }}>(372) 587-2335</p>
-          <p style={{ fontSize: '16px', color: '#666', lineHeight: 1.7 }}>(372) 555-4665</p>
+        <div className="pl-[36px]">
+          <p className="text-[16px] text-[#666] leading-[1.7]">(372) 587-2335</p>
+          <p className="text-[16px] text-[#666] leading-[1.7]">(372) 555-4665</p>
         </div>
-        <div style={{ borderBottom: '1px solid #e5e5e5', marginTop: '24px' }} />
+        <div className="border-b border-[#e5e5e5] mt-[24px]" />
       </div>
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-          <span style={{ color: '#222' }}><IconEmail /></span>
-          <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Email</h3>
+        <div className="flex items-center gap-[12px] mb-[10px]">
+          <span className="text-[#222]"><IconEmail /></span>
+          <h3 className="text-[24px] font-bold text-[#222]">Email</h3>
         </div>
-        <div style={{ paddingLeft: '36px' }}>
-          <p style={{ fontSize: '16px', color: '#666', lineHeight: 1.7 }}>info@example.com</p>
-          <p style={{ fontSize: '16px', color: '#666', lineHeight: 1.7 }}>admin@example.com</p>
+        <div className="pl-[36px]">
+          <p className="text-[16px] text-[#666] leading-[1.7]">info@example.com</p>
+          <p className="text-[16px] text-[#666] leading-[1.7]">admin@example.com</p>
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@ function ContactInfo() {
 function MapEmbed({ src }: { src: string }) {
   return (
     <div className="fa-sl-map-wrap">
-      <iframe src={src} width="100%" height="420" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+      <iframe src={src} width="100%" height="420" className="border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
     </div>
   );
 }
@@ -90,19 +90,17 @@ const locations = [
 export default function StoreLocationPage() {
   return (
     <>
-      {/* Page Header */}
       <div className="fa-sl-page-header">
         <div className="container-main">
           <h1 className="fa-sl-h1">Store Location</h1>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px' }}>
-            <Link href="/" style={{ color: '#777', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Home</Link>
-            <span style={{ color: '#bbb' }}>/</span>
-            <span style={{ color: '#222' }}>Store Location</span>
+          <div className="flex items-center justify-center gap-[8px] text-[14px]">
+            <Link href="/" className="text-[#777] underline underline-offset-[3px]">Home</Link>
+            <span className="text-[#bbb]">/</span>
+            <span className="text-[#222]">Store Location</span>
           </div>
         </div>
       </div>
 
-      {/* Section 1 — New York (info left, map right) */}
       <div className="container-main fa-sl-section">
         <h2 className="fa-sl-section-h2">{locations[0].name}</h2>
         <div className="fa-sl-grid-45-55">
@@ -111,7 +109,6 @@ export default function StoreLocationPage() {
         </div>
       </div>
 
-      {/* Section 2 — Germany (map left, info right) */}
       <div className="fa-sl-section-alt">
         <div className="container-main fa-sl-section">
           <h2 className="fa-sl-section-h2">{locations[1].name}</h2>
@@ -122,7 +119,6 @@ export default function StoreLocationPage() {
         </div>
       </div>
 
-      {/* Section 3 — France (info left, map right) */}
       <div className="container-main fa-sl-section">
         <h2 className="fa-sl-section-h2">{locations[2].name}</h2>
         <div className="fa-sl-grid-45-55">
@@ -136,7 +132,7 @@ export default function StoreLocationPage() {
         .fa-sl-h1 { font-size: 40px; font-weight: 600; color: #222; margin-bottom: 10px; }
         .fa-sl-section { padding-block: 80px; }
         .fa-sl-section-alt { background: rgb(247, 248, 252); }
-        .fa-sl-section-h2 { font-size: 32px; font-weight: 700; color: #222; text-align: center; margin-bottom: 50px; }
+        .fa-sl-section-h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 600; color: #222; text-align: left; margin-bottom: 32px; }
         .fa-sl-grid-45-55 { display: grid; grid-template-columns: 45% 55%; gap: 40px; align-items: center; }
         .fa-sl-grid-55-45 { display: grid; grid-template-columns: 55% 45%; gap: 40px; align-items: center; }
         .fa-sl-map-wrap { position: relative; width: 100%; height: 420px; overflow: hidden; }

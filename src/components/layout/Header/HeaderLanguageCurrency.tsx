@@ -1,60 +1,26 @@
 'use client';
 
-export function IconSriLankaFlag() {
-  return (
-    <span
-      role="img"
-      aria-label="Sri Lanka Flag"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '16px',
-        lineHeight: 1,
-        borderRadius: '2px',
-        overflow: 'hidden',
-      }}
-    >
-      🇱🇰
-    </span>
-  );
-}
+import { IconSriLankaFlagEmoji as IconSriLankaFlag } from '@/lib/icons';
+
+export { IconSriLankaFlag };
 
 export function HeaderLanguageCurrency({ textColor = '#222' }: { textColor?: string }) {
+  const colorClass = textColor === '#fff' || textColor === '#ffffff' ? 'text-white' : 'text-[#222]';
   return (
     <div
-      className="header-lang-currency"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '12px',
-        fontSize: '13px',
-        color: textColor,
-        whiteSpace: 'nowrap',
-        userSelect: 'none',
-      }}
+      className={`header-lang-currency inline-flex items-center gap-[12px] text-[13px] whitespace-nowrap select-none ${colorClass}`}
     >
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
+      <div className="inline-flex items-center gap-[7px]">
         <IconSriLankaFlag />
-        <span style={{ fontWeight: 500, color: textColor }}>Sri Lanka</span>
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            backgroundColor: '#111',
-            color: '#fff',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            letterSpacing: '0.5px',
-          }}
-        >
+        <span className="font-medium">Sri Lanka</span>
+        <span className="text-[11px] font-bold bg-[#111] text-white px-[6px] py-[2px] rounded-[3px] tracking-[0.5px]">
           LKR
         </span>
       </div>
 
-      <span style={{ color: '#d0d4dc' }}>|</span>
+      <span className="text-[#d0d4dc]">|</span>
 
-      <span style={{ fontWeight: 500, color: textColor }}>English</span>
+      <span className="font-medium">English</span>
     </div>
   );
 }

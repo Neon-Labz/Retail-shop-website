@@ -102,7 +102,6 @@ html {
   font-size: 62.5%;
   scroll-behavior: smooth;
   overflow-x: clip;
-  /* RGB triplet so rgba(var(--color-foreground)) resolves correctly */
   --color-foreground: 17, 17, 17;
   /* Global Product Price Color — RKF Logo Dark Blue (comment out to revert to default #222) */
   --color-product-price: #183e84;
@@ -489,9 +488,6 @@ body.scroll-locked {
   overflow: hidden;
 }
 
-/* ============================================
-   RESPONSIVE — TABLET (< 992px)
-   ============================================ */
 @media (max-width: 991px) {
   .home-sections>*+* {
     margin-top: 60px !important;
@@ -650,8 +646,9 @@ body.scroll-locked {
   }
 
   .ts-card {
-    height: auto !important;
-    min-height: 320px !important;
+    height: 248px !important;
+    min-height: 248px !important;
+    max-height: 248px !important;
   }
 
   .trust-grid {
@@ -674,12 +671,6 @@ body.scroll-locked {
     justify-self: center !important;
   }
 
-  /* Original announce-dropdowns hidden rule commented out:
-  .announce-social,
-  .announce-dropdowns {
-    display: none !important;
-  }
-  */
   .announce-social {
     display: none !important;
   }
@@ -840,7 +831,6 @@ body.scroll-locked {
   }
 }
 
-/* Hero — tablet */
 @media (min-width: 750px) {
   .msh-side-large {
     height: 260px;
@@ -911,23 +901,6 @@ body.scroll-locked {
    All background styling centralized in globals.css without separate CSS files.
    ========================================================================== */
 
-/* Original Universal Product Cards rule commented out as requested (it applied background to product name text links):
-.fc-card .fc-card-img-link,
-.fc-card a[href*="/products/"],
-.product-card-image,
-.grocery-card-img-wrap {
-  background-color: #f6f7f9 !important;
-  border-color: #ededf0 !important;
-  transition: background-color 300ms ease, border-color 300ms ease, transform 300ms ease;
-}
-
-.fc-card:hover .fc-card-img-link,
-.fc-card:hover a[href*="/products/"] {
-  background-color: #f1f3f6 !important;
-  border-color: #e2e5ea !important;
-}
-*/
-
 /* 1. Universal Product Cards: Clean Studio Light-Gray Backdrop on Product Card Image ONLY */
 .fc-card .fc-card-img-link,
 .product-card-image,
@@ -951,13 +924,6 @@ body.scroll-locked {
 }
 
 /* 2. Circular Category Slider: Soft Studio Backdrop Pods (Image 2) */
-/* Original faint border commented out as requested:
-.pd-cat-circle {
-  background-color: #f1f3f6 !important;
-  border: 1px solid #e9ebf0;
-  transition: background-color 350ms ease, transform 350ms ease, box-shadow 350ms ease;
-}
-*/
 .pd-cat-circle {
   background-color: #f1f3f6 !important;
   border: 2px solid #cbd5e1 !important;
@@ -972,29 +938,6 @@ body.scroll-locked {
 }
 
 /* 3. Hero Slider Cards: Atmospheric Pastel Ambient Gradients (Image 2) */
-/* Original basic pdhero-slide rules commented out as requested:
-.pdhero-slide {
-  border-radius: 16px;
-  overflow: hidden;
-  transition: transform 500ms ease;
-}
-
-.pdhero-slide:nth-child(4n + 1) {
-  background: linear-gradient(145deg, #fcefe7 0%, #fae2d6 100%) !important;
-}
-
-.pdhero-slide:nth-child(4n + 2) {
-  background: linear-gradient(145deg, #f7edf6 0%, #ebdeef 100%) !important;
-}
-
-.pdhero-slide:nth-child(4n + 3) {
-  background: linear-gradient(145deg, #edf3f8 0%, #dde6f2 100%) !important;
-}
-
-.pdhero-slide:nth-child(4n + 4) {
-  background: linear-gradient(145deg, #f8f1e9 0%, #ece2d5 100%) !important;
-}
-*/
 .pdhero-section {
   position: relative;
   width: 100%;
@@ -1200,9 +1143,10 @@ body.scroll-locked {
 
 @media (max-width: 749px) {
   .pdhero-slide { height: 490px; }
-  .pdhero-nav { width: 38px; height: 38px; }
-  .pdhero-nav-prev { left: 8px; }
-  .pdhero-nav-next { right: 8px; }
+  .pdhero-nav { width: 28px; height: 28px; }
+  .pdhero-nav svg { width: 15px; height: 15px; }
+  .pdhero-nav-prev { left: 6px; }
+  .pdhero-nav-next { right: 6px; }
 }
 
 /* 4. Promotional Banner Grid: Curated Soft Pastel Cards (Image 1) */
@@ -1238,8 +1182,6 @@ body.scroll-locked {
   border: 1px solid #ededf0;
 }
 
-/* 6. Global Product Price Text Color — RKF Logo Blue
-   (Comment out this single block + --color-product-price in globals.css to instantly restore original price colors) */
 .product-price-text,
 .fc-card .product-price-text,
 .gfp-price-new,

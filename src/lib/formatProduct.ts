@@ -1,6 +1,46 @@
 import type { Product } from '@/types/product';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CATEGORY_ID_MAP: Record<string, string> = {
+  '6ad5f26d8c37efc3ddcb1a03': 'Toys & Games',
+  '6ad5f2708c37efc3ddcb1a08': 'Party & Celebrations',
+  '6ad5f2738c37efc3ddcb1a0b': 'Home & Living',
+  '6ad5f2758c37efc3ddcb1a0f': 'Stationery & School',
+  '6ad5f2788c37efc3ddcb1a11': 'Electronics & Gadgets',
+  '6ad5f27a8c37efc3ddcb1a13': 'Fashion & Accessories',
+};
+
+const SUBCATEGORY_TO_CATEGORY: Record<string, string> = {
+  'Action & Toy Vehicles': 'Toys & Games',
+  'Outdoor & Bubble Play': 'Toys & Games',
+  'Figures & Collectibles': 'Toys & Games',
+  'Kids Activities & Games': 'Toys & Games',
+  'Party Supplies & Effects': 'Party & Celebrations',
+  'Cake Accessories': 'Party & Celebrations',
+  'Dining & Tableware': 'Home & Living',
+  'Furniture & Storage': 'Home & Living',
+  'Clocks & Home Decor': 'Home & Living',
+  'Kids Stationery Sets': 'Stationery & School',
+  'Fans & Cooling': 'Electronics & Gadgets',
+  'Jewelry & Accessories': 'Fashion & Accessories',
+};
+
+function resolveCategory(doc: any): string {
+  if (typeof doc.category === 'object' && doc.category && doc.category.name) {
+    return doc.category.name;
+  }
+  const catId = doc.category?.toString?.() || (typeof doc.category === 'string' ? doc.category : '');
+  if (catId && CATEGORY_ID_MAP[catId]) {
+    return CATEGORY_ID_MAP[catId];
+  }
+  if (doc.subcategory && SUBCATEGORY_TO_CATEGORY[doc.subcategory]) {
+    return SUBCATEGORY_TO_CATEGORY[doc.subcategory];
+  }
+  if (typeof doc.category === 'string' && doc.category.length > 0 && !/^[0-9a-fA-F]{24}$/.test(doc.category)) {
+    return doc.category;
+  }
+  return doc.subcategory || 'General';
+}
+
 export function formatMongoProduct(doc: any): Product {
   const rawImages: string[] = Array.isArray(doc.images) ? doc.images : [];
   const images = rawImages.map((src: string, index: number) => ({
@@ -24,7 +64,6 @@ export function formatMongoProduct(doc: any): Product {
   const finalPrice = isSale ? doc.salePrice : (doc.price ?? 0);
   const compareAtPrice = isSale ? doc.price : null;
 
-  // Default variant for MongoDB products that do not store nested variants array
   const defaultVariant = {
     id: `v-default-${productId}`,
     color: '',
@@ -36,28 +75,27 @@ export function formatMongoProduct(doc: any): Product {
     sku: doc.sku || '',
   };
 
+  const resolvedCategory = resolveCategory(doc);
+
   return {
     id: productId,
     slug: doc.slug,
     name: doc.name,
-    vendor: doc.subcategory || 'Store',
-    brand: doc.subcategory || 'Store',
+    vendor: doc.subcategory || resolvedCategory || 'Store',
+    brand: doc.subcategory || resolvedCategory || 'Store',
     price: finalPrice,
     compareAtPrice: compareAtPrice,
     currency: 'LKR',
     images,
-    /* Original empty variants commented out:
-    variants: [],
-    */
     variants: [defaultVariant],
     colors: [],
     sizes: [],
-    category: typeof doc.category === 'object' && doc.category?.name ? doc.category.name : (doc.subcategory || 'General'),
-    tags: [doc.subcategory].filter(Boolean) as string[],
+    category: resolvedCategory,
+    subcategory: doc.subcategory || '',
+    tags: [doc.subcategory, resolvedCategory].filter(Boolean) as string[],
     availability: inStock ? 'in-stock' : 'out-of-stock',
     badge: isSale ? 'sale' : doc.isFeatured ? 'new' : null,
     description: doc.description || '',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     features: (doc.specifications || []).map((s: any) => `${s.key}: ${s.value}`),
     rating: 5,
     reviewCount: 0,

@@ -39,22 +39,22 @@ function IconShieldCheck() {
 
 const badges = [
   {
-    id: 'free-shipping',
+    id: 'islandwide-delivery',
     icon: <IconBoxCheck />,
-    title: 'Free Shipping & Return',
-    desc: 'Free Shipping for all order over $100',
+    title: 'Islandwide Delivery',
+    desc: 'Fast & safe delivery across all 25 districts in Sri Lanka',
   },
   {
     id: 'secure-payment',
     icon: <IconCard />,
-    title: 'Secure Payment',
-    desc: 'Pay with Multiple Credit Cards',
+    title: 'Flexible Payment',
+    desc: 'Cash on Delivery & Direct Bank Transfer',
   },
   {
-    id: 'money-guarantee',
+    id: 'quality-guarantee',
     icon: <IconShieldCheck />,
-    title: 'Money Guarantee',
-    desc: 'Within 30 days for an exchange.',
+    title: 'Quality Guarantee',
+    desc: '100% quality-checked wholesale & retail stock',
   },
 ];
 
