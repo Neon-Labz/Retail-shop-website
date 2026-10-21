@@ -11,8 +11,6 @@ import { formatPrice } from '@/utils/formatPrice';
 import { getStorefrontOfSlug, isSameStoreScope, productHrefBaseFor, shopHrefFor, type Storefront } from '@/utils/storefront';
 import type { Product } from '@/types/product';
 
-/* ── Icons ── */
-
 function IconTrash({ size = 18 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
@@ -50,8 +48,6 @@ function IconBag({ size = 16 }: { size?: number }) {
   );
 }
 
-/* ── Helpers ── */
-
 function wishlistItemToProduct(item: ReturnType<typeof useWishlistStore.getState>['items'][0]): Product {
   return {
     id: item.productId,
@@ -83,14 +79,13 @@ function wishlistItemToProduct(item: ReturnType<typeof useWishlistStore.getState
   };
 }
 
-/* ── Component ── */
-
 export function WishlistPageContent({ storefront }: { storefront?: Storefront } = {}) {
   const [mounted, setMounted] = useState(false);
   const [allItems, setAllItems] = useState<ReturnType<typeof useWishlistStore.getState>['items']>([]);
 
   useEffect(() => {
     setMounted(true);
+    useWishlistStore.getState().syncWithServer();
     setAllItems(useWishlistStore.getState().items);
     const unsub = useWishlistStore.subscribe((state) => setAllItems([...state.items]));
     return unsub;
@@ -124,18 +119,17 @@ export function WishlistPageContent({ storefront }: { storefront?: Storefront } 
 
   return (
     <>
-      {/* Header */}
-      <div style={{ backgroundColor: 'rgb(247, 248, 252)', padding: '40px 0', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '40px', fontWeight: 600, color: '#222' }}>Wishlist</h1>
+      <div className="bg-[#f7f8fc] py-[40px] text-center">
+        <h1 className="text-[40px] font-semibold text-[#222]">Wishlist</h1>
       </div>
 
-      <div className="container-main" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="container-main pt-[40px] pb-[80px]">
         {items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#222', marginBottom: '20px' }}>Empty Wishlist</h2>
+          <div className="text-center py-[60px]">
+            <h2 className="text-[28px] font-bold text-[#222] mb-[20px]">Empty Wishlist</h2>
             <Link
               href={shopHref}
-              style={{ display: 'inline-block', padding: '16px 36px', backgroundColor: '#000', color: '#fff', fontSize: '18px', fontWeight: 600, textDecoration: 'none', transition: 'background-color 250ms ease' }}
+              className="inline-block py-[16px] px-[36px] bg-[#000] text-[#fff] text-[18px] font-semibold no-underline transition-colors duration-[250ms] ease-in-out"
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F15B41'; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#000'; }}
             >
@@ -152,10 +146,10 @@ export function WishlistPageContent({ storefront }: { storefront?: Storefront } 
       </div>
 
       <style>{`
-        /* ─── grid ─── */
+        
         .wl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 
-        /* ─── mobile buttons row — hidden at desktop ─── */
+        
         .wl-mobile-btns { display: none; width: 100%; }
         .wl-mobile-btn-bag,
         .wl-mobile-btn-eye {
@@ -173,7 +167,7 @@ export function WishlistPageContent({ storefront }: { storefront?: Storefront } 
         .wl-mobile-btn-bag:hover,
         .wl-mobile-btn-eye:hover { background-color: #f5f5f5; }
 
-        /* ─── ≤991px: 1-column layout, always-visible actions, static buttons row ─── */
+        
         @media (max-width: 991px) {
           .wl-grid { grid-template-columns: 1fr; }
 
@@ -195,7 +189,7 @@ export function WishlistPageContent({ storefront }: { storefront?: Storefront } 
           .wl-mobile-btns { display: flex; margin-bottom: 14px; }
         }
 
-        /* ─── ≤749px: fluid image height 650px → 290px ─── */
+        
         @media (max-width: 749px) {
           .wl-img-link { height: clamp(290px, 86vw, 650px) !important; }
         }
@@ -203,8 +197,6 @@ export function WishlistPageContent({ storefront }: { storefront?: Storefront } 
     </>
   );
 }
-
-/* ── Wishlist Product Card ── */
 
 function WishlistCard({ item, index, onRemove, onQuickAdd, onQuickView, onCompare, productHrefBase }: {
   item: ReturnType<typeof useWishlistStore.getState>['items'][0];
@@ -219,47 +211,36 @@ function WishlistCard({ item, index, onRemove, onQuickAdd, onQuickView, onCompar
 
   return (
     <div
-      className="wl-card"
+      className="wl-card relative"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ position: 'relative' }}
     >
-      {/* Image */}
       <Link
         href={`${productHrefBase}/${item.slug}`}
-        className="wl-img-link"
-        style={{ display: 'block', position: 'relative', aspectRatio: '3 / 4', overflow: 'hidden', backgroundColor: '#f5f5f5', borderRadius: '4px', marginBottom: '14px' }}
+        className="wl-img-link block relative aspect-[3/4] overflow-hidden bg-[#f5f5f5] rounded-[4px] mb-[14px]"
       >
-        <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover', transition: 'opacity 500ms ease', opacity: hovered ? 0 : 1 }} sizes="(max-width: 749px) 100vw, 25vw" />
-        <Image src={item.image2 || item.image} alt={`${item.name} hover`} fill style={{ objectFit: 'cover', transition: 'opacity 500ms ease', opacity: hovered ? 1 : 0 }} sizes="(max-width: 749px) 100vw, 25vw" />
+        <Image src={item.image} alt={item.name} fill className={`object-cover transition-opacity duration-[500ms] ease-in-out ${hovered ? 'opacity-0' : 'opacity-100'}`} sizes="(max-width: 749px) 100vw, 25vw" />
+        <Image src={item.image2 || item.image} alt={`${item.name} hover`} fill className={`object-cover transition-opacity duration-[500ms] ease-in-out ${hovered ? 'opacity-100' : 'opacity-0'}`} sizes="(max-width: 749px) 100vw, 25vw" />
 
-        {/* Badge */}
         {item.badge && (
-          <span style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: item.badge === 'sale' ? '#F15B41' : '#222', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '3px', zIndex: 3, textTransform: 'capitalize' }}>
+          <span className={`absolute top-[12px] left-[12px] text-[#fff] text-[12px] font-semibold py-[4px] px-[12px] rounded-[3px] z-[3] capitalize ${item.badge === 'sale' ? 'bg-[#F15B41]' : 'bg-[#222]'}`}>
             {item.badge}
           </span>
         )}
 
-        {/* Action buttons — top-right */}
         <div
-          className="wl-actions-overlay"
-          style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 3, transition: 'opacity 300ms ease, transform 300ms ease', opacity: hovered ? 1 : 0, transform: hovered ? 'translateX(0)' : 'translateX(10px)' }}
+          className={`wl-actions-overlay absolute top-[12px] right-[12px] flex flex-col gap-[8px] z-[3] transition-[opacity,transform] duration-[300ms] ease-in-out ${hovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[10px]'}`}
         >
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(item.productId); }} className="fc-action-btn fc-action-btn-light" aria-label="Remove">
             <IconTrash size={18} />
-          </button>
-          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCompare(item); }} className="fc-action-btn fc-action-btn-light" aria-label="Compare">
-            <IconCompare size={18} />
           </button>
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onQuickView(item); }} className="fc-action-btn fc-action-btn-dark wl-eye-btn" aria-label="Quick view">
             <IconEye size={18} />
           </button>
         </div>
 
-        {/* Quick Add — hover overlay inside image */}
         <div
-          className="wl-quick-add-overlay"
-          style={{ position: 'absolute', bottom: '14px', left: '16px', right: '16px', zIndex: 4, transition: 'opacity 300ms ease, transform 300ms ease', opacity: hovered ? 1 : 0, transform: hovered ? 'translateY(0)' : 'translateY(16px)' }}
+          className={`wl-quick-add-overlay absolute bottom-[14px] left-[16px] right-[16px] z-[4] transition-[opacity,transform] duration-[300ms] ease-in-out ${hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[16px]'}`}
         >
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onQuickAdd(item); }} className="fc-quick-add-btn">
             <IconBag size={18} /> Quick Add
@@ -267,7 +248,6 @@ function WishlistCard({ item, index, onRemove, onQuickAdd, onQuickView, onCompar
         </div>
       </Link>
 
-      {/* Mobile: Quick Add + Quick View row */}
       <div className="wl-mobile-btns">
         <button
           className="wl-mobile-btn-bag"
@@ -285,24 +265,23 @@ function WishlistCard({ item, index, onRemove, onQuickAdd, onQuickView, onCompar
         </button>
       </div>
 
-      {/* Info */}
-      <div style={{ textAlign: 'center' }}>
-        <Link href={`${productHrefBase}/${item.slug}`} style={{ fontSize: '15px', fontWeight: 500, color: '#222', textDecoration: 'none', transition: 'color 150ms ease' }}
+      <div className="text-center">
+        <Link href={`${productHrefBase}/${item.slug}`} className="text-[15px] font-medium text-[#222] no-underline transition-colors duration-[150ms] ease-in-out"
           onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
         >
           {item.name}
         </Link>
-        <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          {item.compareAtPrice && <span style={{ fontSize: '14px', color: '#999', textDecoration: 'line-through' }}>{formatPrice(item.compareAtPrice)}</span>}
-          <span style={{ fontSize: '15px', fontWeight: 600, color: item.compareAtPrice ? '#F15B41' : '#222' }}>{formatPrice(item.price)}</span>
+        <div className="mt-[6px] flex items-center justify-center gap-[8px]">
+          {item.compareAtPrice && <span className="text-[14px] text-[#999] line-through">{formatPrice(item.compareAtPrice)}</span>}
+          <span className={`text-[15px] font-semibold ${item.compareAtPrice ? 'text-[#F15B41]' : 'text-[#222]'}`}>{formatPrice(item.price)}</span>
         </div>
         {item.colors.length > 0 && (
-          <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <div className="mt-[8px] flex items-center justify-center gap-[6px]">
             {item.colors.slice(0, 3).map((c) => (
-              <span key={c.name} style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: c.value, border: c.value === '#FFFFFF' ? '1px solid #ddd' : '1px solid transparent', display: 'inline-block' }} />
+              <span key={c.name} className={`w-[16px] h-[16px] rounded-full inline-block border ${c.value === '#FFFFFF' ? 'border-[#ddd]' : 'border-transparent'}`} style={{ backgroundColor: c.value }} />
             ))}
-            {item.colors.length > 3 && <span style={{ fontSize: '13px', color: '#F15B41', fontWeight: 500 }}>+{item.colors.length - 3}</span>}
+            {item.colors.length > 3 && <span className="text-[13px] text-[#F15B41] font-medium">+{item.colors.length - 3}</span>}
           </div>
         )}
       </div>

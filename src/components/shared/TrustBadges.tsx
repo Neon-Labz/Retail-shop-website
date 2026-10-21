@@ -1,7 +1,5 @@
 'use client';
 
-/* ── SVG Icons ── */
-
 function IconFreeShipping() {
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -43,16 +41,12 @@ function IconMoneyGuarantee() {
   );
 }
 
-/* ── Data ── */
-
 const badges = [
-  { icon: <IconFreeShipping />, title: 'Free Shipping & Return', description: 'Free Shipping for all order over $100' },
-  { icon: <IconOnlineSupport />, title: 'Online Support', description: '24 hours a day, 7 days a week' },
-  { icon: <IconSecurePayment />, title: 'Secure Payment', description: 'Pay with Multiple Credit Cards' },
-  { icon: <IconMoneyGuarantee />, title: 'Money Guarantee', description: 'Within 30 days for an exchange' },
+  { icon: <IconFreeShipping />, title: 'Islandwide Delivery', description: 'Fast dispatch across all 25 districts in Sri Lanka' },
+  { icon: <IconOnlineSupport />, title: 'Online Support', description: 'Dedicated wholesale & retail assistance' },
+  { icon: <IconSecurePayment />, title: 'Flexible Payment', description: 'Cash on Delivery & Bank Transfer' },
+  { icon: <IconMoneyGuarantee />, title: 'Quality Guaranteed', description: '100% quality-checked products' },
 ];
-
-/* ── Component ── */
 
 export function TrustBadges() {
   return (

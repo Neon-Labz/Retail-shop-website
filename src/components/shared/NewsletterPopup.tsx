@@ -3,13 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 
-// ─────────────────────────── storage keys ────────────────────────────────────
 const KEY_PERMANENT = 'nl_popup_dismissed_permanent';
 const KEY_COOLDOWN  = 'nl_popup_cooldown_until';
 const KEY_CONVERTED = 'nl_popup_converted';
-const COOLDOWN_MS   = 7 * 24 * 60 * 60 * 1000; // 7 days
+const COOLDOWN_MS   = 7 * 24 * 60 * 60 * 1000; 
 
-// ─────────────────────────── helpers ─────────────────────────────────────────
 function shouldShow(): boolean {
   if (typeof window === 'undefined') return false;
   if (localStorage.getItem(KEY_PERMANENT) === '1') return false;
@@ -25,7 +23,6 @@ function isValidEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 }
 
-// ─────────────────────────── props ───────────────────────────────────────────
 export interface NewsletterPopupProps {
   image?:       string;
   imageAlt?:    string;
@@ -36,7 +33,6 @@ export interface NewsletterPopupProps {
   accentColor?: string;
 }
 
-// ─────────────────────────── component ───────────────────────────────────────
 export function NewsletterPopup({
   image       = '/popup/popup1.png',
   imageAlt    = 'Newsletter signup',
@@ -55,7 +51,6 @@ export function NewsletterPopup({
   const closeRef     = useRef<HTMLButtonElement>(null);
   const prevFocusRef = useRef<Element | null>(null);
 
-  // ── open ──────────────────────────────────────────────────────────────────
   const open = useCallback(() => {
     if (!shouldShow()) return;
     setVisible(true);
@@ -63,7 +58,6 @@ export function NewsletterPopup({
     requestAnimationFrame(() => closeRef.current?.focus());
   }, []);
 
-  // ── close helpers ─────────────────────────────────────────────────────────
   const closePermanent = useCallback(() => {
     dismissPermanent();
     setVisible(false);
@@ -76,7 +70,6 @@ export function NewsletterPopup({
     (prevFocusRef.current as HTMLElement | null)?.focus();
   }, []);
 
-  // ── triggers (timer / exit-intent / scroll) ───────────────────────────────
   useEffect(() => {
     if (!shouldShow()) return;
     let fired = false;
@@ -100,7 +93,6 @@ export function NewsletterPopup({
     };
   }, [open]);
 
-  // ── ESC ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!visible) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeCooldown(); };
@@ -108,7 +100,6 @@ export function NewsletterPopup({
     return () => document.removeEventListener('keydown', onKey);
   }, [visible, closeCooldown]);
 
-  // ── focus trap ────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!visible || !dialogRef.current) return;
     const dialog    = dialogRef.current;
@@ -128,12 +119,11 @@ export function NewsletterPopup({
     return () => dialog.removeEventListener('keydown', trapTab);
   }, [visible]);
 
-  // ── submit ────────────────────────────────────────────────────────────────
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValidEmail(email)) { setError('Please enter a valid email address.'); return; }
     setError('');
-    markConverted();
+    fetch('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }).catch(() => {}); markConverted();
     setSuccess(true);
     setTimeout(() => {
       setVisible(false);
@@ -145,7 +135,6 @@ export function NewsletterPopup({
 
   return (
     <>
-      {/* ── Backdrop ───────────────────────────────────────────────────────── */}
       <div
         onClick={closeCooldown}
         aria-hidden="true"
@@ -157,7 +146,6 @@ export function NewsletterPopup({
         }}
       />
 
-      {/* ── Dialog wrapper (centres the card) ─────────────────────────────── */}
       <div
         ref={dialogRef}
         role="dialog"
@@ -172,21 +160,18 @@ export function NewsletterPopup({
         }}
       >
 
-        {/* ── Card ───────────────────────────────────────────────────────── */}
         <div
           className="nl-card"
           style={{ pointerEvents: 'auto' }}
           onClick={e => e.stopPropagation()}
         >
 
-          {/* ── X close (top-right of entire card) ───────────────────────── */}
           <button
             ref={closeRef}
             onClick={closeCooldown}
             aria-label="Close newsletter popup"
             className="nl-close"
           >
-            {/* × rendered via CSS so we don't need an SVG */}
             <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2"
                  strokeLinecap="round" width={14} height={14}>
               <line x1="2" y1="2" x2="16" y2="16" />
@@ -194,7 +179,6 @@ export function NewsletterPopup({
             </svg>
           </button>
 
-          {/* ── LEFT: model image ─────────────────────────────────────────── */}
           <div className="nl-img-col" aria-hidden="true">
             <Image
               src={image}
@@ -206,11 +190,9 @@ export function NewsletterPopup({
             />
           </div>
 
-          {/* ── RIGHT: content ────────────────────────────────────────────── */}
           <div className="nl-content">
 
             {success ? (
-              /* ── Success state ───────────────────────────────────────── */
               <div className="nl-success">
                 <div className="nl-success-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -223,7 +205,6 @@ export function NewsletterPopup({
                 <p className="nl-success-sub">Thanks for subscribing. Check your inbox for exclusive offers.</p>
               </div>
             ) : (
-              /* ── Main state ──────────────────────────────────────────── */
               <>
                 <h2 id="nl-heading" className="nl-heading">{heading}</h2>
                 <p className="nl-desc">{description}</p>
@@ -268,7 +249,6 @@ export function NewsletterPopup({
         </div>
       </div>
 
-      {/* ── Styles ─────────────────────────────────────────────────────────── */}
       <style>{`
         @keyframes nlFadeIn {
           from { opacity: 0; }
@@ -279,7 +259,7 @@ export function NewsletterPopup({
           to   { opacity: 1; transform: translateY(0)    scale(1);     }
         }
 
-        /* ── Card shell ─────────────────────────────────────────────────── */
+        
         .nl-card {
           position: relative;
           display: flex;
@@ -293,8 +273,8 @@ export function NewsletterPopup({
           animation: nlSlideUp 340ms cubic-bezier(0.25,0.46,0.45,0.94) forwards;
         }
 
-        /* ── X close button ─────────────────────────────────────────────── */
-        /* Positioned at the top-right of the whole card, floating above both cols */
+        
+        
         .nl-close {
           position: absolute;
           top: 14px;
@@ -322,34 +302,34 @@ export function NewsletterPopup({
           outline-offset: 2px;
         }
 
-        /* ── Left image column ──────────────────────────────────────────── */
+        
         .nl-img-col {
           position: relative;
           width: 250px;
           flex-shrink: 0;
-          background: #edeae5;        /* fallback while image loads */
+          background: #edeae5;        
         }
 
-        /* ── Right content column ───────────────────────────────────────── */
+        
         .nl-content {
           flex: 1;
           min-width: 0;
-          /* Extra top padding so content clears the X button comfortably */
+          
           padding: 48px 38px 38px 36px;
           display: flex;
           flex-direction: column;
         }
 
-        /* ── Heading ──────────── matches screenshot weight & size ─────── */
+        
         .nl-heading {
-          font-size: 22px;            /* 2.2rem = 22px in this project */
+          font-size: 22px;            
           font-weight: 700;
           color: #111111;
           line-height: 1.22;
           margin: 0 0 12px;
         }
 
-        /* ── Description ────────────────────────────────────────────────── */
+        
         .nl-desc {
           font-size: 14px;
           color: #555555;
@@ -357,9 +337,7 @@ export function NewsletterPopup({
           margin: 0 0 22px;
         }
 
-        /* ── Email row: input + button in one bordered container ─────────
-           Screenshot shows a single bordered row where the input occupies
-           the left and the solid-black Subscribe button sits flush right. */
+        
         .nl-row {
           display: flex;
           align-items: stretch;
@@ -386,7 +364,7 @@ export function NewsletterPopup({
         }
         .nl-input::placeholder { color: #bbb; }
 
-        /* Thin visual divider between input and button */
+        
         .nl-submit {
           flex-shrink: 0;
           height: 100%;
@@ -407,22 +385,22 @@ export function NewsletterPopup({
           outline-offset: -3px;
         }
 
-        /* ── Validation error ───────────────────────────────────────────── */
+        
         .nl-error {
           font-size: 12px;
           color: #c0392b;
           margin: -4px 0 8px;
         }
 
-        /* ── Disclaimer ─────────────────────────────────────────────────── */
+        
         .nl-disclaimer {
           font-size: 12px;
           color: #999999;
           line-height: 1.6;
-          margin: 0 0 auto;          /* pushes "No Thanks!" to the bottom */
+          margin: 0 0 auto;          
         }
 
-        /* ── No Thanks! ─────────────────────────────────────────────────── */
+        
         .nl-no-thanks {
           margin-top: 20px;
           background: none;
@@ -444,7 +422,7 @@ export function NewsletterPopup({
           border-radius: 2px;
         }
 
-        /* ── Success state ──────────────────────────────────────────────── */
+        
         .nl-success {
           flex: 1;
           display: flex;
@@ -478,7 +456,7 @@ export function NewsletterPopup({
           margin: 0;
         }
 
-        /* ── Mobile (≤ 560px) ───────────────────────────────────────────── */
+        
         @media (max-width: 560px) {
           .nl-card {
             flex-direction: column;
@@ -494,7 +472,7 @@ export function NewsletterPopup({
             padding: 32px 24px 28px;
           }
           .nl-heading { font-size: 20px; }
-          /* Stack input + button vertically on very small screens */
+          
           .nl-row {
             flex-direction: column;
             height: auto;

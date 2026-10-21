@@ -4,10 +4,32 @@ import { useState } from 'react';
 
 export function FooterNewsletter() {
   const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmail('');
+    if (!email || !email.includes('@')) return;
+    setStatus('loading');
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+      setStatus('success');
+      setMessage('Subscribed successfully!');
+      setEmail('');
+    } catch (err: any) {
+      setStatus('error');
+      setMessage(err.message || 'Error subscribing');
+    }
   };
 
   return (
@@ -26,16 +48,24 @@ export function FooterNewsletter() {
             placeholder="Enter your email"
             className="w-full bg-transparent text-[1.3rem] text-white placeholder:text-white/40 py-[1rem] outline-none"
             required
+            disabled={status === 'loading'}
           />
         </div>
         <button
           type="submit"
+          disabled={status === 'loading'}
           className="bg-primary hover:bg-primary-hover text-white px-[1.6rem] rounded-e-[var(--radius-md)] text-[1.6rem] transition-colors"
           aria-label="Subscribe"
         >
-          →
+          {status === 'loading' ? '...' : '→'}
         </button>
       </form>
+      {status === 'success' && (
+        <p className="text-[1.2rem] text-[#34d399] mt-[0.8rem]">{message}</p>
+      )}
+      {status === 'error' && (
+        <p className="text-[1.2rem] text-[#f87171] mt-[0.8rem]">{message}</p>
+      )}
     </div>
   );
 }

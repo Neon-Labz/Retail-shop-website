@@ -8,13 +8,13 @@ const PodFeaturedProducts = dynamic(() => import('@/features/pod/components/PodF
 const PodDealBanner = dynamic(() => import('@/features/pod/components/PodDealBanner').then(m => ({ default: m.PodDealBanner })));
 const PodNewArrivals = dynamic(() => import('@/features/pod/components/PodNewArrivals').then(m => ({ default: m.PodNewArrivals })));
 const PodTrendingSection = dynamic(() => import('@/features/pod/components/PodTrendingSection').then(m => ({ default: m.PodTrendingSection })));
+const PodRandomRecommendations = dynamic(() => import('@/features/pod/components/PodRandomRecommendations').then(m => ({ default: m.PodRandomRecommendations })));
+const PodRecentlyViewed = dynamic(() => import('@/features/pod/components/PodRecentlyViewed').then(m => ({ default: m.PodRecentlyViewed })));
 const PodMarquee = dynamic(() => import('@/features/pod/components/PodMarquee').then(m => ({ default: m.PodMarquee })));
 const PodBannerList = dynamic(() => import('@/features/pod/components/PodBannerList').then(m => ({ default: m.PodBannerList })));
-const TestimonialSection = dynamic(() => import('@/features/home/components/TestimonialSection').then(m => ({ default: m.TestimonialSection })));
 const PodInstagram = dynamic(() => import('@/features/pod/components/PodInstagram').then(m => ({ default: m.PodInstagram })));
 const PodTrustBadges = dynamic(() => import('@/features/pod/components/PodTrustBadges').then(m => ({ default: m.PodTrustBadges })));
-const PodRecentlyViewed = dynamic(() => import('@/features/pod/components/PodRecentlyViewed').then(m => ({ default: m.PodRecentlyViewed })));
-const PodRandomRecommendations = dynamic(() => import('@/features/pod/components/PodRandomRecommendations').then(m => ({ default: m.PodRandomRecommendations })));
+const TestimonialSection = dynamic(() => import('@/features/home/components/TestimonialSection').then(m => ({ default: m.TestimonialSection })));
 
 export const metadata: Metadata = {
   title: 'Ambaz — POD Store',
@@ -26,23 +26,19 @@ export default function PodHomePage() {
     <div className="pod-home-sections">
       <PodHero />
       <PodTopCategories />
-      <PodPromoGrid />
       <PodFeaturedProducts />
       <PodDealBanner />
       <PodNewArrivals />
       <PodTrendingSection />
       <PodRandomRecommendations />
-      <PodRecentlyViewed />
       <PodMarquee />
-      <PodBannerList />
+      <PodRecentlyViewed />
       <div className="pod-home-testimonial">
         <TestimonialSection heading="Customers Feedback" backgroundColor="transparent" sectionPadding="0" />
       </div>
-      <PodInstagram />
-      {/* <PodTrustBadges /> (Removed as requested) */}
       <style>{`
         .pod-home-sections {
-          padding-bottom: 80px;
+          padding-bottom: 8px !important;
         }
         .pod-home-sections > * + * {
           margin-top: 80px;
@@ -51,9 +47,6 @@ export default function PodHomePage() {
           .pod-home-sections > * + * { margin-top: 56px; }
         }
 
-        /* Testimonial card shadow — see skill/swiper-card-shadow-clip-fix.md
-           for the full technique (same values as the Single Product source
-           of truth, kept identical across storefronts for consistency). */
         .pod-home-testimonial .ts-card {
           box-shadow:
             0 20px 40px -14px rgba(15, 23, 42, 0.1),

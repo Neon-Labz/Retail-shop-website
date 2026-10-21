@@ -1,9 +1,5 @@
 import type { MegaMenuColumn } from '@/types/common';
 
-/**
- * Demo lists shown under the "Home" dropdown mega menu.
- * Per user request: Only POD and Mega Store are active. All other demos are commented out below.
- */
 export const HOME_DEMO_COLUMNS: MegaMenuColumn[] = [
   {
     title: 'Demo list 1',
@@ -13,7 +9,6 @@ export const HOME_DEMO_COLUMNS: MegaMenuColumn[] = [
         href: '/home/megastore-shop',
         id: 'hm-2',
       },
-      /* ── Commented out other demo stores in Demo list 1 ── */
       // { label: 'Elegant Fashion', href: '/home/elegant-fashion-shop', id: 'hm-1' },
       // { label: 'Default Fashion', href: '/', id: 'hm-3' },
       // { label: 'Headphones', href: '/home/headphones-shop', id: 'hm-6' },
@@ -30,7 +25,6 @@ export const HOME_DEMO_COLUMNS: MegaMenuColumn[] = [
         href: '/home/pod-shop',
         id: 'hm-35',
       },
-      /* ── Commented out other demo stores in Demo list 5 ── */
       // { label: 'Glasses', href: '/home/glasses-shop', id: 'hm-36' },
       // { label: 'Plumbing Supplies', href: '/home/plumbing-supplies-shop', id: 'hm-37' },
       // { label: 'Craft and Decore', href: '/home/craft-and-decore-shop', id: 'hm-38' },
@@ -40,7 +34,6 @@ export const HOME_DEMO_COLUMNS: MegaMenuColumn[] = [
     ],
   },
 
-  /* ── Commented out Demo list 2, 3, 4 per request ── */
   // {
   //   title: 'Demo list 2',
   //   links: [

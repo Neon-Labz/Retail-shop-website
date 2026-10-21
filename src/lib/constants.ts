@@ -1,15 +1,14 @@
-export const SITE_NAME = 'RKF';
-export const SITE_DESCRIPTION = 'RKF - Shop the latest products with fast delivery.';
+export const SITE_NAME = 'RKF Distributer';
+export const SITE_DESCRIPTION = 'RKF Distributer — Premium ecommerce and distribution store.';
 export const SITE_URL = 'https://ambaz-nextjs-project.vercel.app';
 
-export const FREE_SHIPPING_THRESHOLD = 150;
-export const GIFT_WRAP_PRICE = 10;
+export const FREE_SHIPPING_THRESHOLD = 0;
+export const GIFT_WRAP_PRICE = 250;
 export const PRODUCTS_PER_PAGE = 12;
 export const MAX_COMPARE_ITEMS = 4;
 
 export const SORT_OPTIONS = [
   { label: 'Featured', value: 'featured' },
-  // { label: 'Best selling', value: 'best-selling' }, // Removed/commented out as requested
   { label: 'Alphabetically, A-Z', value: 'name-asc' },
   { label: 'Alphabetically, Z-A', value: 'name-desc' },
   { label: 'Price, low to high', value: 'price-asc' },
@@ -17,8 +16,7 @@ export const SORT_OPTIONS = [
   { label: 'Date, old to new', value: 'date-asc' },
   { label: 'Date, new to old', value: 'newest' },
 ] as const;
-
-export const POPULAR_SEARCHES = ['T-Shirt', 'Blue', 'Jacket', 'Dress', 'Shorts'];
+export const POPULAR_SEARCHES = ['Fan', 'Step Ladder', 'Storage Rack', 'Toys', 'Cup & Saucer', 'Bracelet', 'Party Supplies', 'Stationery'];
 
 export const GROCERY_POPULAR_SEARCHES = ['Fruits', 'Vegetables', 'Dairy', 'Organic', 'Meat'];
 
@@ -41,10 +39,10 @@ export const SMART_WATCHES_POPULAR_SEARCHES = ['Smart Watch', 'Fitness Tracker',
 export const FOOTWEAR_POPULAR_SEARCHES = ['Sneakers', 'Running', 'Boots', 'Loafers', 'Sports Shoe'];
 
 export const TRUST_BADGES = [
-  { icon: 'truck', title: 'Free Shipping & Return', description: 'On orders over $100' },
-  { icon: 'refresh', title: 'Easy Returns', description: '30-day return policy' },
-  { icon: 'shield', title: 'Secure Payment', description: 'SSL encrypted' },
-  { icon: 'headphones', title: '24/7 Online Support', description: 'Dedicated support' },
+  { icon: 'truck', title: 'Islandwide Delivery', description: 'Fast dispatch across all 25 districts' },
+  { icon: 'refresh', title: 'Easy Returns', description: '7-day return policy on eligible items' },
+  { icon: 'shield', title: 'Secure Payment', description: 'Bank Transfer & Cash on Delivery' },
+  { icon: 'headphones', title: 'Dedicated Support', description: 'Wholesale & retail buyer assistance' },
 ] as const;
 
 export const STORE_EMAIL = 'rkfdistributors2002@gmail.com';
@@ -65,7 +63,7 @@ export const FOOTER_LINKS = {
   quickLinks: [
     { label: 'Home', href: '/' },
     { label: 'Categories', href: '/categories' },
-    { label: 'Products', href: '/shop' },
+    { label: 'Products', href: '/products' },
   ],
   company: [
     { label: 'Wishlist', href: '/wishlist' },

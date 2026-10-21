@@ -99,12 +99,14 @@ export function NutritionProductCard({
             </button>
             <span className="npc-tooltip">{inWishlist ? 'Wishlisted' : 'Wishlist'}</span>
           </div>
+          {/* Compare button removed/commented out as requested:
           <div className="npc-tooltip-wrap">
             <button aria-label="Compare" className={`npc-action-btn ${inCompare ? 'is-on' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(product); }}>
               <IconCompare size={18} />
             </button>
             <span className="npc-tooltip">{inCompare ? 'Added' : 'Compare'}</span>
           </div>
+          */}
           <div className="npc-tooltip-wrap npc-qv-wrap">
             <button aria-label="Quick view" className="npc-action-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}>
               <IconEye size={18} />

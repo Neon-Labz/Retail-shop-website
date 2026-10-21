@@ -3,9 +3,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-/* Previous static categoriesData import commented out as requested
-import categoriesData from '@/data/categories.json';
-*/
 
 interface MongoCategory {
   id: string;
@@ -41,108 +38,57 @@ export function CollectionsPageContent() {
 
   return (
     <>
-      {/* Page Header */}
-      <div style={{ backgroundColor: 'rgb(247, 248, 252)', padding: '20px 0 40px', textAlign: 'center' }}>
+      <div className="bg-[rgb(247,248,252)] pt-[20px] pb-[40px] px-0 text-center">
         <div className="container-main">
-          {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px', marginBottom: '16px' }}>
-            <Link href="/" style={{ color: '#777', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Home</Link>
-            <span style={{ color: '#bbb' }}>/</span>
-            <span style={{ color: '#222' }}>Collections</span>
+          <div className="flex items-center justify-center gap-[8px] text-[14px] mb-[16px]">
+            <Link href="/" className="text-[#777] underline underline-offset-[3px]">Home</Link>
+            <span className="text-[#bbb]">/</span>
+            <span className="text-[#222]">Collections</span>
           </div>
-          <h1 style={{ fontSize: '40px', fontWeight: 600, color: '#222' }}>Collections</h1>
+          <h1 className="text-[40px] font-semibold text-[#222]">Collections</h1>
         </div>
       </div>
 
-      {/* Collections Grid */}
-      <div className="container-main" style={{ paddingTop: '50px', paddingBottom: '80px' }}>
-        {/* Previous 3-column fixed grid commented out as requested
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', rowGap: '40px' }}>
-        */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px', rowGap: '40px' }}>
-        {/* Previous categoriesData mapping commented out as requested
-        categoriesData.map((category) => (
-        */}
+      <div className="container-main pt-[50px] pb-[80px]">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-[24px] gap-y-[40px]">
         {loading && categories.length === 0
           ? Array.from({ length: 6 }).map((_, i) => (
               <div key={i}>
-                <div className="animate-shimmer" style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: '8px', marginBottom: '14px' }} />
-                <div className="animate-shimmer" style={{ height: '18px', width: '60%', margin: '0 auto 8px', borderRadius: '4px' }} />
-                <div className="animate-shimmer" style={{ height: '14px', width: '30%', margin: '0 auto', borderRadius: '4px' }} />
+                <div className="animate-shimmer w-full aspect-square rounded-[8px] mb-[14px]" />
+                <div className="animate-shimmer h-[18px] w-[60%] mx-auto mt-0 mb-[8px] rounded-[4px]" />
+                <div className="animate-shimmer h-[14px] w-[30%] my-0 mx-auto rounded-[4px]" />
               </div>
             ))
           : categories.map((category) => (
-          /* Previous collection query link commented out as requested
-          <Link
-            key={category.id}
-            href={`/shop?collection=${category.slug}`}
-            className="collection-card"
-            style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center' }}
-          >
-          */
           <Link
             key={category.id}
             href={`/shop?category=${encodeURIComponent(category.name)}`}
-            className="collection-card"
-            style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center' }}
+            className="collection-card no-underline text-inherit text-center"
           >
-            {/* Image */}
-            {/* Previous 470px tall container commented out as requested
-              <div
-                className="collection-card-img-wrap"
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  height: '470px',
-                  backgroundColor: '#f7f7f7',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
+            <div
+              className="collection-card-img-wrap relative w-full aspect-square bg-[#fff] rounded-[8px] border border-[#f0f0f0] overflow-hidden flex items-center justify-center"
+            >
+              {category.image ? (
                 <Image
                   src={category.image}
                   alt={category.name}
                   fill
-                  className="collection-card-img"
-                  style={{ objectFit: 'contain', objectPosition: 'center', padding: '30px', transition: 'transform 400ms ease' }}
-                  sizes="(max-width: 749px) 100vw, 33vw"
+                  className="collection-card-img object-cover object-center transition-transform duration-[400ms] ease-in-out"
+                  sizes="(max-width: 749px) 100vw, (max-width: 991px) 50vw, 33vw"
                 />
-              </div>
-              */}
-            <div
-              className="collection-card-img-wrap"
-              style={{
-                position: 'relative',
-                width: '100%',
-                aspectRatio: '1 / 1',
-                backgroundColor: '#fff',
-                borderRadius: '8px',
-                border: '1px solid #f0f0f0',
-                overflow: 'hidden',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Image
-                src={category.image}
-                alt={category.name}
-                fill
-                className="collection-card-img"
-                style={{ objectFit: 'cover', objectPosition: 'center', transition: 'transform 400ms ease' }}
-                sizes="(max-width: 749px) 100vw, (max-width: 991px) 50vw, 33vw"
-              />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-[#f8fafc] text-[#888]">
+                  <span className="text-[32px] mb-[8px]">📁</span>
+                  <span className="text-[13px] font-medium">{category.name}</span>
+                </div>
+              )}
             </div>
 
-            {/* Title */}
-            <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#222', marginBottom: '4px', marginTop: '16px', transition: 'color 200ms ease' }}>
+            <h3 className="text-[20px] font-semibold text-[#222] mb-[4px] mt-[16px] transition-colors duration-200 ease-in-out">
               {category.name}
             </h3>
 
-            {/* Count */}
-            <p style={{ fontSize: '14px', color: '#888' }}>
+            <p className="text-[14px] text-[#888]">
               {category.productCount} Items
             </p>
           </Link>

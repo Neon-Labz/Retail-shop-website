@@ -3,12 +3,17 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IOrderItem {
   product?: any;
   productId?: string;
+  variantId?: string;
   name: string;
+  slug?: string;
   image?: string;
   sku?: string;
+  color?: string;
+  size?: string;
   price: number;
   quantity: number;
-  subtotal: number;
+  subtotal?: number;
+  vendor?: string;
   weight?: number;
 }
 
@@ -56,6 +61,8 @@ export interface IOrder extends Document {
   updatedAt: Date;
 }
 
+export type IOrderDocument = IOrder;
+
 const AddressSubSchema = new Schema<IOrderAddress>(
   {
     fullName: { type: String, default: '' },
@@ -74,12 +81,17 @@ const OrderItemSchema = new Schema<IOrderItem>(
   {
     product: { type: Schema.Types.Mixed },
     productId: { type: String, default: '' },
+    variantId: { type: String, default: '' },
     name: { type: String, required: true },
+    slug: { type: String, default: '' },
     image: { type: String, default: '' },
     sku: { type: String, default: '' },
+    color: { type: String, default: '' },
+    size: { type: String, default: '' },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
-    subtotal: { type: Number, required: true },
+    subtotal: { type: Number, default: 0 },
+    vendor: { type: String, default: '' },
     weight: { type: Number, default: 0 },
   },
   { _id: false }

@@ -7,9 +7,9 @@ import { HomeProductCard } from '@/features/home/components/HomeProductCard';
 function ProductCardSkeleton() {
   return (
     <div>
-      <div className="animate-shimmer" style={{ aspectRatio: '3 / 4', borderRadius: '4px', marginBottom: '14px' }} />
-      <div className="animate-shimmer" style={{ height: '16px', width: '70%', margin: '0 auto 8px', borderRadius: '4px' }} />
-      <div className="animate-shimmer" style={{ height: '14px', width: '40%', margin: '0 auto 8px', borderRadius: '4px' }} />
+      <div className="animate-shimmer aspect-[3/4] rounded-[4px] mb-[14px]" />
+      <div className="animate-shimmer h-[16px] w-[70%] mx-auto mb-[8px] rounded-[4px]" />
+      <div className="animate-shimmer h-[14px] w-[40%] mx-auto mb-[8px] rounded-[4px]" />
     </div>
   );
 }
@@ -22,23 +22,20 @@ export function PodFeaturedProducts() {
   return (
     <section>
       <div className="container-main">
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h2 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 600, color: '#222' }}>Featured Products</h2>
+        <div className="mb-[32px] text-left">
+          <h2 className="text-[clamp(22px,3vw,28px)] font-semibold text-[#222]">Featured Products</h2>
         </div>
 
         <div className="pdfp-grid">
           {isLoading
             ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : products.map((product, i) => (
-                /* Previous fixed imageHeight 350px commented out as requested
-                <HomeProductCard key={product.id} product={product} index={i} imageHeight="350px" />
-                */
                 <HomeProductCard key={product.id} product={product} index={i} />
               ))
           }
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '44px' }}>
+        <div className="text-center mt-[44px]">
           <Link href="/shop" className="pdfp-shop-now">Shop Now</Link>
         </div>
       </div>
@@ -55,18 +52,13 @@ export function PodFeaturedProducts() {
           .pdfp-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
         }
 
-        /* Clean square frame with edge-to-edge cover fit (no gaps) */
+        
         .pdfp-grid .fc-card > a:first-child {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
         }
         .pdfp-grid .fc-card > a:first-child img {
-          /* Previous contain/padding commented out as requested
-          object-fit: contain !important;
-          background-color: #fff;
-          padding: 8px;
-          */
           object-fit: cover !important;
           background-color: #fff;
           padding: 0 !important;

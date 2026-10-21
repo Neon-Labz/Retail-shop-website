@@ -44,6 +44,7 @@ export interface Product {
   colors: ColorOption[];
   sizes: string[];
   category: string;
+  subcategory?: string;
   tags: string[];
   brand: string;
   availability: 'in-stock' | 'out-of-stock' | 'pre-order';

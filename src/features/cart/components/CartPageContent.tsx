@@ -4,30 +4,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { useCartStore } from '@/store/cartStore';
-import { useAuthStore } from '@/store/authStore';
 import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import { FeaturedSlider } from '@/features/home/components/FeaturedSlider';
 import { formatPrice } from '@/utils/formatPrice';
-import { GIFT_WRAP_PRICE } from '@/lib/constants';
+import { FREE_SHIPPING_THRESHOLD, GIFT_WRAP_PRICE } from '@/lib/constants';
 
 const ACCENT = '#c96742';
 
 const SHIP_COUNTRIES = [
-  { value: '', label: '---' },
-  { value: 'US', label: 'United States' },
-  { value: 'GB', label: 'United Kingdom' },
-  { value: 'CA', label: 'Canada' },
-  { value: 'AU', label: 'Australia' },
-  { value: 'BD', label: 'Bangladesh' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'FR', label: 'France' },
-  { value: 'IN', label: 'India' },
-  { value: 'JP', label: 'Japan' },
-  { value: 'SG', label: 'Singapore' },
-  { value: 'AE', label: 'United Arab Emirates' },
+  { value: 'LK', label: 'Sri Lanka' },
 ];
-
-/* ── Icons ───────────────────────────────────────────────────── */
 
 function IcoTruck({ size = 26 }: { size?: number }) {
   return (
@@ -120,20 +106,18 @@ function IcoChevron({ open }: { open: boolean }) {
   return (
     <svg
       width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-      style={{ transform: open ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s ease', flexShrink: 0 }}
+      className={`shrink-0 transition-transform duration-300 ease-in-out ${open ? 'rotate-0' : 'rotate-180'}`}
     >
       <polyline points="18 15 12 9 6 15" />
     </svg>
   );
 }
 
-/* ── Shared sub-components ───────────────────────────────────── */
-
 function TrustBadges() {
   const badges = [
-    { Icon: IcoTruck, title: 'Free Shipping', desc: 'On orders over $100' },
-    { Icon: IcoReturn, title: 'Easy Returns', desc: '30-day return policy' },
-    { Icon: IcoShield, title: 'Secure Payment', desc: 'SSL encrypted' },
+    { Icon: IcoTruck, title: 'Islandwide Delivery', desc: 'Fast delivery across Sri Lanka' },
+    { Icon: IcoReturn, title: 'Easy Returns', desc: '7-day return policy' },
+    { Icon: IcoShield, title: 'Secure Ordering', desc: 'Cash on Delivery & Bank Transfer' },
   ];
   return (
     <div className="cp-trust">
@@ -185,12 +169,8 @@ function AccordionSection({
         <span className="cp-accord-title">{title}</span>
         <IcoChevron open={open} />
       </button>
-      <div style={{
-        display: 'grid',
-        gridTemplateRows: open ? '1fr' : '0fr',
-        transition: 'grid-template-rows 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      }}>
-        <div style={{ overflow: 'hidden' }}>
+      <div className={`grid transition-[grid-template-rows] duration-[320ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
           <div className="cp-accord-body">{children}</div>
         </div>
       </div>
@@ -198,96 +178,87 @@ function AccordionSection({
   );
 }
 
-/* ── Main component ──────────────────────────────────────────── */
-
 export function CartPageContent() {
-  const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
-  const { isAuthenticated } = useAuthStore();
-  // Promo code, shipping estimate, and instructions removed from cart as requested
+  const {
+    items,
+    removeItem,
+    updateQuantity,
+    getSubtotal,
+    getFreeShippingRemaining,
+    orderNote,
+    setOrderNote,
+    couponCode,
+    discount,
+    applyCoupon,
+    removeCoupon,
+  } = useCartStore();
+
+  const [promoCode, setPromoCode] = useState(couponCode);
+  const [couponMsg, setCouponMsg] = useState('');
+  const [isCouponError, setIsCouponError] = useState(false);
+  const [country, setCountry] = useState('LK');
+  const [postalCode, setPostalCode] = useState('');
+  const [shippingMsg, setShippingMsg] = useState('');
+  const [instructions, setInstructions] = useState(orderNote);
   const [giftWrap, setGiftWrap] = useState(false);
 
   const subtotal = getSubtotal();
+  const shippingRemaining = getFreeShippingRemaining();
   const giftTotal = giftWrap ? items.reduce((s, i) => s + i.quantity, 0) * GIFT_WRAP_PRICE : 0;
-  const total = subtotal + giftTotal;
+  const discountAmount = Math.min(subtotal, discount || 0);
+  const total = Math.max(0, subtotal - discountAmount + giftTotal);
+  const shippingPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
-  /* ── Empty state ─────────────────────────────────── */
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) return;
+    const res = applyCoupon(promoCode);
+    setIsCouponError(!res.success);
+    setCouponMsg(res.message);
+  };
+
+  const handleInstructionsChange = (val: string) => {
+    const clean = val.slice(0, 500);
+    setInstructions(clean);
+    setOrderNote(clean);
+  };
+
   if (items.length === 0) {
     return (
       <>
-        <div className="container-main" style={{ paddingTop: '3.6rem', paddingBottom: '6rem' }}>
-          {/* Header & Breadcrumb */}
-          <div style={{ textAlign: 'center', marginBottom: '3.6rem' }}>
-            <h1 className="cp-page-title" style={{ textAlign: 'center', marginBottom: '0.8rem' }}>
-              Your Shopping Cart
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '1.4rem', color: '#888' }}>
-              <Link href="/" style={{ color: '#666', textDecoration: 'none' }}>Home</Link>
-              <span>/</span>
-              <span style={{ color: '#222' }}>Cart</span>
-            </div>
-          </div>
+        <div className="container-main pt-[36px] pb-[80px]">
+          <h1 className="cp-page-title">Your Shopping Cart</h1>
 
-          {/* Clean Centered Empty Card */}
-          <div className="cp-empty-card">
-            <div className="cp-empty-icon-wrap">
-              <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-                <path d="M3 6h18" />
-                <path d="M16 10a4 4 0 0 1-8 0" />
-              </svg>
-            </div>
-
-            <h2 className="cp-empty-title">Your cart is currently empty</h2>
-            <p className="cp-empty-desc">
-              Before you can proceed to checkout, you must add some items to your shopping cart.
-              Browse our collections to find something you love!
-            </p>
-
-            <Link href="/shop" className="cp-continue-btn">
-              <span>Continue Shopping</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
-
-            <div className="cp-empty-shortcuts">
-              <span className="cp-shortcuts-label">Popular Categories:</span>
-              <div className="cp-shortcuts-list">
-                <Link href="/shop" className="cp-shortcut-pill">All Products</Link>
-                <Link href="/categories" className="cp-shortcut-pill">Categories</Link>
-                <Link href="/wishlist" className="cp-shortcut-pill">Wishlist</Link>
-              </div>
-            </div>
-
-            {!isAuthenticated && (
-              <p className="cp-empty-auth-hint">
-                Have an account? <Link href="/login" className="cp-login-link">Log in</Link> to view your saved items.
+          <div className="cp-empty-center">
+            <Link href="/products" className="cp-return-btn">Return to shop</Link>
+            <div className="cp-account-block">
+              <h2 className="cp-account-heading">Have an account?</h2>
+              <p className="cp-account-text">
+                <Link href="/login" className="cp-login-link">Log in</Link>{' '}to check out faster.
               </p>
-            )}
+            </div>
           </div>
+
+          <TrustBadges />
+          <GiftOptions checked={false} onChange={() => {}} />
         </div>
 
-        <div style={{ paddingBottom: '8rem' }}>
-          <FeaturedSlider title="Trending Products" />
+        <div className="pb-[80px]">
+          <FeaturedSlider title="You may also like" />
         </div>
         <style>{cpStyles}</style>
       </>
     );
   }
 
-  /* ── Filled cart ─────────────────────────────────── */
   return (
     <>
-      <div className="container-main" style={{ paddingTop: '3.6rem', paddingBottom: '8rem' }}>
+      <div className="container-main pt-[36px] pb-[80px]">
         <h1 className="cp-page-title">Your Shopping Cart</h1>
 
         <div className="cp-layout">
 
-          {/* ── Left column ── */}
           <div className="cp-left">
 
-            {/* Cart items box */}
             <div className="cp-cart-box">
               <div className="cp-cart-head">
                 <span className="cp-cart-label">Your cart</span>
@@ -295,14 +266,14 @@ export function CartPageContent() {
               </div>
 
               {items.map((item) => (
-                <div key={`${item.productId}-${item.variantId}`} className="cp-item" style={{ position: 'relative' }}>
+                <div key={`${item.productId}-${item.variantId}`} className="cp-item relative">
                   <Link href={`/products/${item.slug}`} className="cp-item-img">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
                       sizes="100px"
-                      style={{ objectFit: 'contain' }}
+                      className="object-contain"
                     />
                   </Link>
                   <div className="cp-item-body">
@@ -322,9 +293,8 @@ export function CartPageContent() {
                   </div>
                   <button
                     onClick={() => removeItem(item.productId, item.variantId)}
-                    className="cp-item-x"
+                    className="cp-item-x absolute top-[18px] right-[20px]"
                     aria-label="Remove item"
-                    style={{ position: 'absolute', top: '1.8rem', right: '2rem' }}
                   >
                     <IcoClose />
                   </button>
@@ -332,20 +302,112 @@ export function CartPageContent() {
               ))}
             </div>
 
-            {/* Trust badges and Gift options removed as requested */}
+            <TrustBadges />
           </div>
 
-          {/* ── Right sidebar: Order Summary ── */}
           <div className="cp-right">
-            {/* Order summary */}
+
+            <AccordionSection icon={<IcoPercent />} title="Promo Code">
+              {couponCode ? (
+                <div className="p-[14px] bg-[#ecfdf5] border border-[#a7f3d0] rounded-[6px] text-[13px] flex items-center justify-between text-[#065f46]">
+                  <span>Applied: <strong>{couponCode}</strong> ({formatPrice(discountAmount)} off)</span>
+                  <button
+                    onClick={() => {
+                      removeCoupon();
+                      setPromoCode('');
+                      setCouponMsg('');
+                    }}
+                    className="text-[12px] text-[#dc2626] font-semibold underline cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="cp-promo-row">
+                    <input
+                      type="text"
+                      placeholder="Enter discount code"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      className="cp-promo-input"
+                    />
+                    <button onClick={handleApplyPromo} className="cp-apply-btn">Apply</button>
+                  </div>
+                  {couponMsg && (
+                    <p className={`text-[12px] mt-[8px] font-medium ${isCouponError ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>
+                      {couponMsg}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-[#888] mt-[6px]">Tip: Try <strong>WELCOME10</strong> or <strong>RKF500</strong></p>
+                </>
+              )}
+            </AccordionSection>
+
+            <AccordionSection icon={<IcoTruck size={14} />} title="Estimate Shipping">
+              <div className="cp-ship-fields">
+                <label className="cp-field-label">Country/region</label>
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="cp-select"
+                >
+                  {SHIP_COUNTRIES.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+                <label className="cp-field-label">Postal/ZIP code</label>
+                <div className="cp-input-wrap">
+                  <input
+                    type="text"
+                    placeholder="Postal/ZIP code"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    className="cp-text-input"
+                  />
+                  <span className="cp-input-icon"><IcoKeyboard /></span>
+                </div>
+                <button
+                  onClick={() => setShippingMsg(shippingRemaining === 0 ? 'FREE Islandwide Delivery qualified!' : 'Standard Islandwide Fast Delivery calculated at checkout.')}
+                  className="cp-calc-btn"
+                >
+                  Calculate Shipping
+                </button>
+                {shippingMsg && (
+                  <p className="text-[12px] text-[#0f172a] bg-[#f8fafc] border border-[#e2e8f0] p-[10px] rounded-[6px] mt-[8px]">
+                    {shippingMsg}
+                  </p>
+                )}
+              </div>
+            </AccordionSection>
+
+            <AccordionSection icon={<IcoDoc />} title="Order Special Instructions" defaultOpen={false}>
+              <div className="cp-notes-wrap">
+                <textarea
+                  value={instructions}
+                  onChange={(e) => handleInstructionsChange(e.target.value)}
+                  placeholder="Add a note to your order (delivery preferences, gift notes, etc.)"
+                  className="cp-notes-area"
+                  rows={4}
+                />
+                <p className="cp-char-count">{instructions.length}/500 characters</p>
+              </div>
+            </AccordionSection>
+
             <div className="cp-summary">
               <h3 className="cp-summary-title">Order Summary</h3>
 
-              <div className="cp-totals" style={{ borderTop: 'none', paddingTop: 0 }}>
+              <div className="cp-totals">
                 <div className="cp-total-row">
                   <span>Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="cp-total-row text-[#059669]">
+                    <span>Discount ({couponCode})</span>
+                    <span>-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 {giftWrap && (
                   <div className="cp-total-row">
                     <span>Gift wrapping</span>
@@ -354,13 +416,13 @@ export function CartPageContent() {
                 )}
                 <div className="cp-total-row cp-total-bold">
                   <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                  <span className="text-[#F15B41] font-bold">{formatPrice(total)}</span>
                 </div>
               </div>
 
-              <p className="cp-tax-note">Shipping calculated at checkout</p>
+              <p className="cp-tax-note">Taxes and delivery fee calculated at checkout</p>
 
-              <Link href="/checkout" className="cp-checkout-btn">
+              <Link href="/checkout" className="cp-checkout-btn inline-flex items-center justify-center gap-[8px] no-underline">
                 <IcoLock /> Secure Checkout
               </Link>
             </div>
@@ -375,8 +437,6 @@ export function CartPageContent() {
   );
 }
 
-/* ── Styles ──────────────────────────────────────────────────── */
-
 const cpStyles = `
   /* page title */
   .cp-page-title {
@@ -386,119 +446,38 @@ const cpStyles = `
     margin-bottom: 8rem;
   }
 
-  /* ── Clean Empty State Card ── */
-  .cp-empty-card {
-    max-width: 62rem;
-    margin: 0 auto;
-    padding: 4.8rem 3.2rem;
-    background: #ffffff;
-    border: 1px solid #ededed;
-    border-radius: 1.6rem;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.03);
+  /* ── empty state ── */
+  .cp-empty-center {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 4rem 0 3.6rem;
   }
-  .cp-empty-icon-wrap {
-    width: 8.8rem;
-    height: 8.8rem;
-    border-radius: 50%;
-    background: #fdf2f0;
-    color: ${ACCENT};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2.2rem;
-    border: 1px solid rgba(201, 103, 66, 0.15);
-  }
-  .cp-empty-title {
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: var(--color-heading, #111827);
-    margin: 0 0 1.2rem;
-    letter-spacing: -0.02em;
-  }
-  .cp-empty-desc {
-    font-size: 1.5rem;
-    color: #6b7280;
-    line-height: 1.65;
-    max-width: 46rem;
-    margin: 0 0 3rem;
-  }
-  .cp-continue-btn {
+  .cp-return-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    background: #111827;
-    color: #ffffff;
-    font-size: 1.5rem;
-    font-weight: 600;
-    padding: 1.4rem 3.6rem;
-    border-radius: 9999px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  }
-  .cp-continue-btn:hover {
     background: ${ACCENT};
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(201, 103, 66, 0.25);
-    color: #ffffff;
-  }
-  .cp-empty-shortcuts {
-    margin-top: 3.2rem;
-    padding-top: 2.4rem;
-    border-top: 1px solid #f0f0f0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.2rem;
-  }
-  .cp-shortcuts-label {
-    font-size: 1.25rem;
-    color: #9ca3af;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-  }
-  .cp-shortcuts-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.8rem;
-  }
-  .cp-shortcut-pill {
-    padding: 0.7rem 1.8rem;
-    border-radius: 9999px;
-    border: 1px solid #e5e7eb;
-    background: #fafafa;
-    font-size: 1.35rem;
+    color: #fff;
+    font-size: 1.6rem;
     font-weight: 500;
-    color: #4b5563;
+    padding: 1.3rem 3.6rem;
+    border-radius: 9999px;
     text-decoration: none;
-    transition: all 0.15s ease;
+    transition: opacity 0.2s;
+    margin-bottom: 3.6rem;
   }
-  .cp-shortcut-pill:hover {
-    border-color: #111827;
-    color: #111827;
-    background: #ffffff;
+  .cp-return-btn:hover { opacity: 0.85; }
+  .cp-account-block { text-align: center; }
+  .cp-account-heading {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
   }
-  .cp-empty-auth-hint {
-    font-size: 1.35rem;
-    color: #6b7280;
-    margin: 2.4rem 0 0;
-  }
-  .cp-empty-auth-hint .cp-login-link {
-    color: #111827;
-    font-weight: 600;
-    text-decoration: underline;
-  }
-  .cp-empty-auth-hint .cp-login-link:hover {
-    color: ${ACCENT};
-  }
+  .cp-account-text { font-size: 1.5rem; color: var(--color-body); }
+  .cp-login-link { color: var(--color-heading); text-decoration: underline; }
 
   /* ── trust badges ── */
   .cp-trust {
@@ -829,9 +808,10 @@ const cpStyles = `
   .cp-notes-area:focus { border-color: #bbb; }
   .cp-char-count { font-size: 1.25rem; color: #aaa; text-align: right; }
 
-  /* ── order summary card ── */
+  /* ── order summary (bottom of right card) ── */
   .cp-summary {
-    padding: 2.4rem;
+    padding: 2rem 2rem 2.2rem;
+    border-top: 1px solid #e5e5e5;
   }
   .cp-summary-title {
     font-size: 1.7rem;
@@ -924,9 +904,8 @@ const cpStyles = `
     transition: background 0.2s;
     font-family: inherit;
     letter-spacing: 0.01em;
-    text-decoration: none;
   }
-  .cp-checkout-btn:hover { background: #2d2d2d; color: #fff; }
+  .cp-checkout-btn:hover { background: #2d2d2d; }
 
   /* ── responsive ── */
   @media (max-width: 749px) {

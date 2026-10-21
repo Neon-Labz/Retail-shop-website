@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/shop',
+        destination: '/products',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

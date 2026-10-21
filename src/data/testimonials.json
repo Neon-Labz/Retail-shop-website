@@ -1,14 +1,66 @@
 [
-  { "id": "t1", "name": "Samule Das", "avatar": "/fashion/testimonials/testimonials3.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Manager" },
-  { "id": "t2", "name": "Nike sime", "avatar": "/fashion/testimonials/testimonials1.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Designer" },
-  { "id": "t3", "name": "David Lu", "avatar": "/fashion/testimonials/testimonials2.avif", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "CEO" },
-  { "id": "t4", "name": "Sarah Kim", "avatar": "/fashion/testimonials/testimonials4.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Director" },
-  { "id": "t5", "name": "Alex Chen", "avatar": "/fashion/testimonials/testimonials3.webp", "rating": 4, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Developer" },
-  { "id": "t6", "name": "Maria Rose", "avatar": "/fashion/testimonials/testimonials1.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Founder" },
-  { "id": "t7", "name": "James Park", "avatar": "/fashion/testimonials/testimonials2.avif", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Photographer" },
-  { "id": "t8", "name": "Lisa Wang", "avatar": "/fashion/testimonials/testimonials4.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Architect" },
-  { "id": "t9", "name": "Tom Hardy", "avatar": "/fashion/testimonials/testimonials3.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Consultant" },
-  { "id": "t10", "name": "Emma Stone", "avatar": "/fashion/testimonials/testimonials1.webp", "rating": 4, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Marketer" },
-  { "id": "t11", "name": "Ryan Cole", "avatar": "/fashion/testimonials/testimonials2.avif", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Analyst" },
-  { "id": "t12", "name": "Sophia Lee", "avatar": "/fashion/testimonials/testimonials4.webp", "rating": 5, "text": "Thanks for the feedback. We are always looking to improve our product and we would love to look into this issue with you further.", "role": "Strategist" }
+  {
+    "id": "t1",
+    "name": "கார்த்திகேயன் சு.",
+    "avatar": "/fashion/testimonials/testimonials1.webp",
+    "rating": 5,
+    "text": "RKF இல் மொத்த விலையில் பொருட்களை வாங்கினேன். சிறந்த தரம், நியாயமான விலை மற்றும் விரைவான டெலிவரி!",
+    "role": "மொத்த வியாபாரி • யாழ்ப்பாணம்"
+  },
+  {
+    "id": "t2",
+    "name": "நிர்மலா ராஜேந்திரன்",
+    "avatar": "/fashion/testimonials/testimonials2.avif",
+    "rating": 5,
+    "text": "வீட்டிற்கு தேவையான பொருட்களை RKF இணையதளத்தில் ஆர்டர் செய்தேன். சிறந்த தரம் மற்றும் விரைவான சேவை!",
+    "role": "வாடிக்கையாளர் • கொழும்பு"
+  },
+  {
+    "id": "t3",
+    "name": "Mohamed Rizwan",
+    "avatar": "/fashion/testimonials/testimonials3.webp",
+    "rating": 5,
+    "text": "We source our shop's daily hardware and stationery from RKF. Great wholesale prices and fast delivery!",
+    "role": "Retail Shop Owner • Kandy"
+  },
+  {
+    "id": "t4",
+    "name": "Dilshan Perera",
+    "avatar": "/fashion/testimonials/testimonials4.webp",
+    "rating": 5,
+    "text": "Fast islandwide delivery and 100% genuine stock! Received our bulk order in Galle within 48 hours.",
+    "role": "Wholesale Reseller • Galle"
+  },
+  {
+    "id": "t5",
+    "name": "Tharindu Jayawardena",
+    "avatar": "/fashion/testimonials/testimonials3.webp",
+    "rating": 5,
+    "text": "RKF is our go-to supplier for retail items. Consistent quality checks and very responsive support.",
+    "role": "Mini Mart Owner • Kurunegala"
+  },
+  {
+    "id": "t6",
+    "name": "Priyanka Selvarajah",
+    "avatar": "/fashion/testimonials/testimonials1.webp",
+    "rating": 5,
+    "text": "Super convenient shopping! Even for retail orders, RKF gives direct distributor value and quality.",
+    "role": "Retail Buyer • Trincomalee"
+  },
+  {
+    "id": "t7",
+    "name": "Kasun Bandara",
+    "avatar": "/fashion/testimonials/testimonials2.avif",
+    "rating": 5,
+    "text": "Ordered wholesale stationery for our bookshop. Unbeatable bulk rates and safe, damage-free packing.",
+    "role": "Bookshop Owner • Negombo"
+  },
+  {
+    "id": "t8",
+    "name": "Fathima Nusrath",
+    "avatar": "/fashion/testimonials/testimonials4.webp",
+    "rating": 5,
+    "text": "Very reliable distributor! I regularly buy jewelry and gift items for my boutique. Fast dispatch!",
+    "role": "Boutique Owner • Batticaloa"
+  }
 ]

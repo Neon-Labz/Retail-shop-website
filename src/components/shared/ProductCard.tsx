@@ -82,23 +82,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image container */}
-      {/* Previous 3:4 aspect ratio commented out as requested
-      <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] overflow-hidden rounded-[var(--radius-md)] bg-bg-light mb-[1.2rem]">
-      */}
-      {/* Previous contain with padding commented out as requested
-      <Link href={`/products/${product.slug}`} className="block relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-white border border-[#f0f0f0] p-3 mb-[1.2rem]">
-      */}
       <Link href={`/products/${product.slug}`} className="block relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-white border border-[#f0f0f0] mb-[1.2rem]">
-        {/* Previous contain objectFit commented out as requested
-        <Image
-          src={primaryImage}
-          alt={product.name}
-          fill
-          className={cn('object-contain p-2 transition-opacity duration-500', isHovered ? 'opacity-0' : 'opacity-100')}
-          sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
-        />
-        */}
         <Image
           src={primaryImage}
           alt={product.name}
@@ -106,15 +90,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           className={cn('object-cover object-center transition-opacity duration-500', isHovered ? 'opacity-0' : 'opacity-100')}
           sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
         />
-        {/* Previous contain objectFit commented out as requested
-        <Image
-          src={secondaryImage}
-          alt={`${product.name} alternate`}
-          fill
-          className={cn('object-contain p-2 transition-opacity duration-500', isHovered ? 'opacity-100' : 'opacity-0')}
-          sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
-        />
-        */}
         <Image
           src={secondaryImage}
           alt={`${product.name} alternate`}
@@ -123,7 +98,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           sizes="(max-width: 749px) 50vw, (max-width: 991px) 50vw, 33vw"
         />
 
-        {/* Badge */}
         {product.badge && (
           <div className="absolute top-[1rem] start-[1rem] z-10">
             <Badge variant={product.badge}>
@@ -134,7 +108,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
         )}
 
-        {/* Countdown timer */}
         {product.countdownEnd && (
           <div className="absolute bottom-[1rem] start-[1rem] z-10 flex gap-[0.4rem]">
             <span className="bg-dark/80 text-white text-[1rem] px-[0.6rem] py-[0.3rem] rounded-[0.3rem]">324 Days</span>
@@ -142,7 +115,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
         )}
 
-        {/* Action buttons on hover */}
         <div className={cn(
           'absolute end-[1rem] top-[1rem] flex flex-col gap-[0.6rem] transition-all duration-300 z-10',
           isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[1rem]'
@@ -157,15 +129,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           >
             ♥
           </button>
-          {/* Add to compare button removed/commented out as requested
-          <button
-            onClick={handleCompare}
-            className="w-[3.4rem] h-[3.4rem] bg-white rounded-full shadow-md flex items-center justify-center text-[1.4rem] hover:bg-dark hover:text-white transition-colors"
-            aria-label="Add to compare"
-          >
-            ⇄
-          </button>
-          */}
           <button
             onClick={handleQuickView}
             className="w-[3.4rem] h-[3.4rem] bg-white rounded-full shadow-md flex items-center justify-center text-[1.4rem] hover:bg-dark hover:text-white transition-colors"
@@ -175,7 +138,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </button>
         </div>
 
-        {/* Add to cart button on hover */}
         <div className={cn(
           'absolute bottom-0 inset-x-0 p-[1rem] transition-all duration-300',
           isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[1rem]'
@@ -189,7 +151,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
       </Link>
 
-      {/* Product info */}
       <div>
         <Link href={`/products/${product.slug}`} className="block">
           <h3 className="text-[1.4rem] font-medium text-heading line-clamp-1 mb-[0.4rem] hover:text-primary transition-colors">

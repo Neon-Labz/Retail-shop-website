@@ -11,8 +11,6 @@ import { formatPrice } from '@/utils/formatPrice';
 import { POPULAR_SEARCHES, GROCERY_POPULAR_SEARCHES, PET_FOOD_POPULAR_SEARCHES, MEGASTORE_POPULAR_SEARCHES, PIZZA_POPULAR_SEARCHES, PLANT_GARDEN_POPULAR_SEARCHES, SKIN_CARE_POPULAR_SEARCHES, JEWELLERY_POPULAR_SEARCHES, PHONE_CASE_POPULAR_SEARCHES, SMART_WATCHES_POPULAR_SEARCHES, FOOTWEAR_POPULAR_SEARCHES } from '@/lib/constants';
 import { getStorefrontFromPath, productHrefBaseFor, shopHrefFor } from '@/utils/storefront';
 
-/* ── Icons ── */
-
 function IconSearch({ size = 20 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
@@ -38,11 +36,9 @@ function IconArrowRight({ size = 18 }: { size?: number }) {
   );
 }
 
-/* ── Suggestion pages data ── */
-
 const fashionSuggestionPages = [
   { label: 'About us', href: '/pages/about' },
-  { label: 'Ultimate Guide to Styling Jewelry Like a Fashion Expert', href: '/pages/faq' },
+  { label: 'Frequently Asked Questions & Support', href: '/pages/faq' },
 ];
 
 const grocerySuggestionPages = [
@@ -104,8 +100,6 @@ const footwearSuggestionPages = [
   { label: 'About us', href: '/footwear/about' },
   { label: 'Store Location', href: '/pages/store-location' },
 ];
-
-/* ── Component ── */
 
 export function SearchDrawer() {
   const { searchOpen, closeSearch } = useUIStore();
@@ -196,49 +190,22 @@ export function SearchDrawer() {
 
   return (
     <>
-      {/* Overlay */}
       <div
         onClick={closeSearch}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          zIndex: 9999,
-          transition: 'opacity 250ms ease',
-          opacity: searchOpen ? 1 : 0,
-          pointerEvents: searchOpen ? 'auto' : 'none',
-        }}
+        className={`fixed inset-0 bg-black/40 z-[9999] transition-opacity duration-250 ease-in-out ${
+          searchOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
       />
 
-      {/* Drawer */}
       <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: '420px',
-          maxWidth: '100vw',
-          backgroundColor: '#fff',
-          zIndex: 9999,
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'transform 350ms ease',
-          transform: searchOpen ? 'translateX(0)' : 'translateX(100%)',
-          boxShadow: searchOpen ? '-4px 0 24px rgba(0,0,0,0.1)' : 'none',
-        }}
+        className={`fixed top-0 right-0 bottom-0 w-[420px] max-w-[100vw] bg-white z-[9999] flex flex-col transition-transform duration-350 ease-in-out ${
+          searchOpen
+            ? 'translate-x-0 shadow-[-4px_0_24px_rgba(0,0,0,0.1)]'
+            : 'translate-x-full shadow-none'
+        }`}
       >
-        {/* ── Search input row ── */}
-        <div style={{ padding: '24px 24px 0' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              paddingBottom: '14px',
-              borderBottom: '1.5px solid #222',
-            }}
-          >
+        <div className="pt-[24px] px-[24px] pb-0">
+          <div className="flex items-center gap-[12px] pb-[14px] border-b-[1.5px] border-[#222]">
             <IconSearch size={24} />
             <input
               type="text"
@@ -246,24 +213,12 @@ export function SearchDrawer() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="What are you looking for..."
               autoFocus={searchOpen}
-              style={{
-                flex: 1,
-                fontSize: '18px',
-                color: '#222',
-                border: 'none',
-                outline: 'none',
-                background: 'none',
-              }}
+              className="flex-1 text-[18px] text-[#222] border-none outline-none bg-transparent"
             />
             {hasQuery && (
               <button
                 onClick={() => setQuery('')}
-                style={{
-                  width: '20px', height: '20px', borderRadius: '50%',
-                  backgroundColor: '#e0e0e0', border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '12px', color: '#666', lineHeight: 1,
-                }}
+                className="w-[20px] h-[20px] rounded-full bg-[#e0e0e0] border-none cursor-pointer flex items-center justify-center text-[12px] text-[#666] leading-none"
                 aria-label="Clear search"
               >
                 ×
@@ -271,10 +226,7 @@ export function SearchDrawer() {
             )}
             <button
               onClick={closeSearch}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'none', border: 'none', cursor: 'pointer', color: '#222',
-              }}
+              className="flex items-center justify-center bg-transparent border-none cursor-pointer text-[#222]"
               aria-label="Close search"
             >
               <IconClose size={24} />
@@ -282,38 +234,30 @@ export function SearchDrawer() {
           </div>
         </div>
 
-        {/* ── Scrollable content ── */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
+        <div className="flex-1 overflow-y-auto px-[24px] py-0">
 
-          {/* ═══ DEFAULT STATE ═══ */}
           {!hasQuery && (
             <>
-              {/* Popular searches */}
-              <div style={{ paddingTop: '24px', marginBottom: '24px' }}>
-                <h4 style={{ fontSize: '20px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>
-                  Popular searches:
-                </h4>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                  {popularTerms.map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setQuery(term)}
-                      style={{
-                        fontSize: '16px', color: '#555', background: 'none',
-                        border: 'none', cursor: 'pointer', padding: 0,
-                        transition: 'color 200ms ease',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = '#555'; }}
-                    >
-                      {term}
-                    </button>
-                  ))}
+              {popularTerms && popularTerms.length > 0 && (
+                <div className="pt-[24px] mb-[24px]">
+                  <h4 className="text-[20px] font-bold text-[#222] mb-[14px]">
+                    Popular searches:
+                  </h4>
+                  <div className="flex flex-wrap gap-[12px]">
+                    {popularTerms.map((term) => (
+                      <button
+                        key={term}
+                        onClick={() => setQuery(term)}
+                        className="text-[16px] text-[#555] bg-transparent border-none cursor-pointer p-0 transition-colors duration-200 ease-in-out hover:text-[#F15B41]"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Most searched products */}
-              <h4 style={{ fontSize: '24px', fontWeight: 700, color: '#222', marginBottom: '16px' }}>
+              <h4 className="text-[24px] font-bold text-[#222] mb-[16px]">
                 Most searched products:
               </h4>
 
@@ -323,27 +267,22 @@ export function SearchDrawer() {
                     key={product.id}
                     href={`${productHrefBase}/${product.slug}`}
                     onClick={closeSearch}
-                    className="search-product-item"
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '16px',
-                      padding: '14px 0', borderBottom: '1px solid #f0f0f0',
-                      textDecoration: 'none', color: 'inherit',
-                    }}
+                    className="search-product-item flex items-center gap-[16px] py-[14px] px-0 border-b border-[#f0f0f0] no-underline text-inherit"
                   >
-                    <div style={{ width: '60px', height: '70px', borderRadius: '4px', overflow: 'hidden', backgroundColor: '#f5f5f5', flexShrink: 0, position: 'relative' }}>
-                      <Image src={product.images[0]?.src || ''} alt={product.name} fill style={{ objectFit: 'cover' }} sizes="60px" />
+                    <div className="w-[60px] h-[70px] rounded-[4px] overflow-hidden bg-[#f5f5f5] shrink-0 relative">
+                      <Image src={product.images[0]?.src || ''} alt={product.name} fill className="object-cover" sizes="60px" />
                     </div>
                     <div>
-                      <p style={{ fontSize: '16px', fontWeight: 600, color: '#222', marginBottom: '5px' }}>
+                      <p className="text-[16px] font-semibold text-[#222] mb-[5px]">
                         {product.name}
                       </p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div className="flex items-center gap-[8px]">
                         {product.compareAtPrice && (
-                          <span style={{ fontSize: '14px', color: '#999', textDecoration: 'line-through' }}>
+                          <span className="text-[14px] text-[#999] line-through">
                             {formatPrice(product.compareAtPrice)}
                           </span>
                         )}
-                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#222' }}>
+                        <span className="product-price-text text-[15px] font-semibold text-[#222]">
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -354,14 +293,12 @@ export function SearchDrawer() {
             </>
           )}
 
-          {/* ═══ SEARCH STATE ═══ */}
           {hasQuery && (
             <>
-              {/* Suggestions */}
               {data?.suggestions && data.suggestions.length > 0 && (
-                <div style={{ paddingTop: '20px', marginBottom: '8px' }}>
-                  <div style={{ paddingBottom: '10px', borderBottom: '1px solid #e5e5e5', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#888', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                <div className="pt-[20px] mb-[8px]">
+                  <div className="pb-[10px] border-b border-[#e5e5e5] mb-[12px]">
+                    <span className="text-[12px] font-bold text-[#888] tracking-[2px] uppercase">
                       SUGGESTIONS
                     </span>
                   </div>
@@ -369,12 +306,7 @@ export function SearchDrawer() {
                     <button
                       key={suggestion}
                       onClick={() => setQuery(suggestion)}
-                      style={{
-                        display: 'block', width: '100%', textAlign: 'left',
-                        fontSize: '16px', color: '#222', padding: '10px 0',
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        transition: 'color 200ms ease',
-                      }}
+                      className="block w-full text-left text-[16px] text-[#222] py-[10px] px-0 bg-transparent border-none cursor-pointer transition-[color] duration-200 ease-in-out"
                       onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
                     >
@@ -384,10 +316,9 @@ export function SearchDrawer() {
                 </div>
               )}
 
-              {/* Pages */}
-              <div style={{ marginBottom: '8px' }}>
-                <div style={{ paddingBottom: '10px', borderBottom: '1px solid #e5e5e5', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#888', letterSpacing: '2px', textTransform: 'uppercase' }}>
+              <div className="mb-[8px]">
+                <div className="pb-[10px] border-b border-[#e5e5e5] mb-[12px]">
+                  <span className="text-[12px] font-bold text-[#888] tracking-[2px] uppercase">
                     PAGES
                   </span>
                 </div>
@@ -396,11 +327,7 @@ export function SearchDrawer() {
                     key={page.label}
                     href={page.href}
                     onClick={closeSearch}
-                    style={{
-                      display: 'block', fontSize: '15px', color: '#222',
-                      padding: '8px 0', textDecoration: 'none',
-                      transition: 'color 200ms ease',
-                    }}
+                    className="block text-[15px] text-[#222] py-[8px] px-0 no-underline transition-[color] duration-200 ease-in-out"
                     onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
                   >
@@ -409,9 +336,8 @@ export function SearchDrawer() {
                 ))}
               </div>
 
-              {/* Products */}
-              <div style={{ paddingBottom: '10px', borderBottom: '1px solid #e5e5e5', marginBottom: '12px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#888', letterSpacing: '2px', textTransform: 'uppercase' }}>
+              <div className="pb-[10px] border-b border-[#e5e5e5] mb-[12px]">
+                <span className="text-[12px] font-bold text-[#888] tracking-[2px] uppercase">
                   PRODUCTS
                 </span>
               </div>
@@ -422,30 +348,25 @@ export function SearchDrawer() {
                     key={product.id}
                     href={`${productHrefBase}/${product.slug}`}
                     onClick={closeSearch}
-                    className="search-product-item"
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '16px',
-                      padding: '14px 0', borderBottom: '1px solid #f0f0f0',
-                      textDecoration: 'none', color: 'inherit',
-                    }}
+                    className="search-product-item flex items-center gap-[16px] py-[14px] px-0 border-b border-[#f0f0f0] no-underline text-inherit"
                   >
-                    <div style={{ width: '60px', height: '70px', borderRadius: '4px', overflow: 'hidden', backgroundColor: '#f5f5f5', flexShrink: 0, position: 'relative' }}>
-                      <Image src={product.images[0]?.src || ''} alt={product.name} fill style={{ objectFit: 'cover' }} sizes="60px" />
+                    <div className="w-[60px] h-[70px] rounded-[4px] overflow-hidden bg-[#f5f5f5] shrink-0 relative">
+                      <Image src={product.images[0]?.src || ''} alt={product.name} fill className="object-cover" sizes="60px" />
                     </div>
                     <div>
-                      <p style={{ fontSize: '12px', fontWeight: 600, color: '#888', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
+                      <p className="text-[12px] font-semibold text-[#888] tracking-[1.5px] uppercase mb-[4px]">
                         {product.vendor}
                       </p>
-                      <p style={{ fontSize: '16px', fontWeight: 600, color: '#222', marginBottom: '5px' }}>
+                      <p className="text-[16px] font-semibold text-[#222] mb-[5px]">
                         {product.name}
                       </p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div className="flex items-center gap-[8px]">
                         {product.compareAtPrice && (
-                          <span style={{ fontSize: '14px', color: '#999', textDecoration: 'line-through' }}>
+                          <span className="text-[14px] text-[#999] line-through">
                             {formatPrice(product.compareAtPrice)}
                           </span>
                         )}
-                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#222' }}>
+                        <span className="product-price-text text-[15px] font-semibold text-[#222]">
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -457,25 +378,19 @@ export function SearchDrawer() {
           )}
         </div>
 
-        {/* ── Bottom bar ── */}
         {hasQuery && (
-          <div
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '16px 24px', borderTop: '1px solid #e5e5e5',
-            }}
-          >
+          <div className="flex items-center justify-between py-[16px] px-[24px] border-t border-[#e5e5e5]">
             <Link
               href={`${shopHref}?q=${encodeURIComponent(query)}`}
               onClick={closeSearch}
-              style={{ fontSize: '14px', color: '#F15B41', textDecoration: 'underline', fontWeight: 500 }}
+              className="text-[14px] text-[#F15B41] underline font-medium"
             >
               Search for &quot;{query}&quot;
             </Link>
             <Link
               href={`${shopHref}?q=${encodeURIComponent(query)}`}
               onClick={closeSearch}
-              style={{ color: '#222', display: 'flex' }}
+              className="text-[#222] flex"
             >
               <IconArrowRight size={18} />
             </Link>
