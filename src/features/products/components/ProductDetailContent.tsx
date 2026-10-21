@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -706,26 +705,7 @@ export function ProductDetailContent({
     router.push('/checkout');
   };
 
-  const handleBuyNow = () => {
-    if (!product) return;
-    const variant = getActiveVariant();
-    if (!variant) return;
-    addItem({
-      productId: product.id,
-      variantId: variant.id,
-      name: product.name,
-      slug: product.slug,
-      image: variant.image || product.images?.[0]?.src || '',
-      color: activeColor,
-      size: activeSize,
-      price: product.price,
-      compareAtPrice: product.compareAtPrice,
-      quantity,
-      vendor: product.vendor,
-    });
-    closeDrawer();
-    router.push('/checkout');
-  };
+
 
   const SHOW_EXTRA_SECTIONS = false;
 
@@ -866,9 +846,6 @@ export function ProductDetailContent({
               >
                 Buy it now
               </button>
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
-              >Buy it now</button>
 
               <div className="pdp-info-actions-row flex items-center gap-[24px] mb-[24px]">
                 <button
@@ -1336,7 +1313,6 @@ export function ProductDetailContent({
             type="button"
             onClick={handleBuyNow}
             className="pdp-sticky-buy bg-[#fff] hover:bg-[#222] text-[#222] hover:text-[#fff] text-[clamp(12px,1.2vw,14px)] font-semibold border-[1.5px] border-solid border-[#222] cursor-pointer transition-all duration-200 ease-in-out whitespace-nowrap"
-          >Buy it now</button>
           >Buy it now</button>
         </div>
       </div>
