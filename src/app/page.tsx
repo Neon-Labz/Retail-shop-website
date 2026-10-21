@@ -58,7 +58,7 @@ export default function HomePage() {
         <TestimonialSection heading="Customers Feedback" backgroundColor="transparent" sectionPadding="0" />
       </div>
       <PodInstagram />
-      <PodTrustBadges />
+      {/* <PodTrustBadges /> (Removed as requested) */}
 
       {/* ── Former Fashion Home Sections (Commented out as requested, preserved without deletion) ──
       <div className="home-sections">

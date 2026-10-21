@@ -31,20 +31,22 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    const variant = product.variants[0];
-    if (!variant) return;
+    const variant = product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || primaryImage;
     addItem({
       productId: product.id,
-      variantId: variant.id,
+      variantId,
       name: product.name,
       slug: product.slug,
-      image: variant.image,
-      color: variant.color,
-      size: variant.size,
+      image,
+      color: variant?.color || '',
+      size: variant?.size || '',
       price: product.price,
       compareAtPrice: product.compareAtPrice,
       quantity: 1,
       vendor: product.vendor,
+      weight: product.weight || 0,
     });
   };
 

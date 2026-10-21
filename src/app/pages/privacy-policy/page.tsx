@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
           <p style={para}>If we transfer your personal information out of Europe, we will rely on recognized transfer mechanisms like the European Commission&apos;s Standard Contractual Clauses, or any equivalent contracts issued by the relevant competent authority of the UK, as relevant, unless the data transfer is to a country that has been determined to provide an adequate level of protection.</p>
 
           <h2 className="fa-pp-h2">Contact</h2>
-          <p style={{ marginBottom: '0' }}>Should you have any questions about our privacy practices or this Privacy Policy, or if you would like to exercise any of the rights available to you, please email us at support@ambaz.com or contact us at our office address.</p>
+          <p style={{ marginBottom: '0' }}>Should you have any questions about our privacy practices or this Privacy Policy, or if you would like to exercise any of the rights available to you, please email us at <a href="mailto:rkfdistributors2002@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>rkfdistributors2002@gmail.com</a> or contact us at our office address.</p>
 
         </div>
       </div>

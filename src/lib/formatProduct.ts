@@ -1,4 +1,5 @@
 import type { Product } from '@/types/product';
+import { parseWeightInGrams } from '@/utils/weight';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatMongoProduct(doc: any): Product {
@@ -48,5 +49,7 @@ export function formatMongoProduct(doc: any): Product {
     createdAt: doc.createdAt ? new Date(doc.createdAt).toISOString() : new Date().toISOString(),
     sku: doc.sku || '',
     countdownEnd: null,
+    stock: typeof doc.stock === 'number' ? doc.stock : 0,
+    weight: parseWeightInGrams(doc),
   };
 }

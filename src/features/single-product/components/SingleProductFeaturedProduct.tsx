@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -379,12 +380,13 @@ function Skeleton() {
 
 /* ── Main Component ── */
 export function SingleProductFeaturedProduct() {
+  const router = useRouter();
   const { data, isLoading } = useProducts({ limit: 10 }, { endpoint: '/api/single-product-products' });
   const products = data?.products ?? [];
   const product = products[0];
   const relatedProducts = products.slice(1, 7);
 
-  const { addItem } = useCartStore();
+  const { addItem, closeDrawer } = useCartStore();
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlistStore();
   const { toggleItem: toggleCompare, isInCompare } = useCompareStore();
 
@@ -400,15 +402,15 @@ export function SingleProductFeaturedProduct() {
 
   useEffect(() => {
     if (product) {
-      setSelectedColor(product.colors[0]?.name || '');
-      setSelectedSize(product.sizes[0] || '');
+      setSelectedColor(product.colors?.[0]?.name || '');
+      setSelectedSize(product.sizes?.[0] || '');
     }
   }, [product?.id]);
 
   if (isLoading || !product) return <Skeleton />;
 
-  const activeColor = selectedColor || product.colors[0]?.name || '';
-  const activeSize = selectedSize || product.sizes[0] || '';
+  const activeColor = selectedColor || product.colors?.[0]?.name || '';
+  const activeSize = selectedSize || product.sizes?.[0] || '';
   const discount = calculateDiscount(product.price, product.compareAtPrice);
   const inWishlist = isInWishlist(product.id);
   const inCompare = isInCompare(product.id);
@@ -416,7 +418,7 @@ export function SingleProductFeaturedProduct() {
   const handleWishlistClick = () => {
     setWishlistLoading(true);
     setTimeout(() => {
-      toggleWishlist({ productId: product.id, name: product.name, price: product.price, compareAtPrice: product.compareAtPrice, image: product.images[0]?.src || '', image2: product.images[1]?.src || '', slug: product.slug, badge: product.badge, colors: product.colors.map(c => ({ name: c.name, value: c.value })), vendor: product.vendor });
+      toggleWishlist({ productId: product.id, name: product.name, price: product.price, compareAtPrice: product.compareAtPrice, image: product.images?.[0]?.src || '', image2: product.images?.[1]?.src || '', slug: product.slug, badge: product.badge, colors: product.colors?.map(c => ({ name: c.name, value: c.value })) || [], vendor: product.vendor });
       setWishlistLoading(false);
     }, 500);
   };
@@ -427,13 +429,49 @@ export function SingleProductFeaturedProduct() {
   };
 
   const handleAddToCart = () => {
-    const variant = product.variants.find(v => v.color === activeColor && v.size === activeSize) || product.variants[0];
-    if (!variant) return;
+    const variant = product.variants?.find(v => v.color === activeColor && v.size === activeSize) || product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
+
     setAddingToCart(true);
     setTimeout(() => {
-      addItem({ productId: product.id, variantId: variant.id, name: product.name, slug: product.slug, image: variant.image, color: activeColor, size: activeSize, price: product.price, compareAtPrice: product.compareAtPrice, quantity, vendor: product.vendor });
+      addItem({
+        productId: product.id,
+        variantId,
+        name: product.name,
+        slug: product.slug,
+        image,
+        color: activeColor,
+        size: activeSize,
+        price: product.price,
+        compareAtPrice: product.compareAtPrice,
+        quantity,
+        vendor: product.vendor,
+      });
       setAddingToCart(false);
-    }, 800);
+    }, 400);
+  };
+
+  const handleBuyNow = () => {
+    const variant = product.variants?.find(v => v.color === activeColor && v.size === activeSize) || product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
+
+    addItem({
+      productId: product.id,
+      variantId,
+      name: product.name,
+      slug: product.slug,
+      image,
+      color: activeColor,
+      size: activeSize,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      quantity,
+      vendor: product.vendor,
+    });
+    closeDrawer();
+    router.push('/checkout');
   };
 
   return (
@@ -529,7 +567,10 @@ export function SingleProductFeaturedProduct() {
               </div>
 
               {/* Buy it now */}
-              <button className="pdp-buy-now-btn"
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="pdp-buy-now-btn"
                 style={{ width: '440px', maxWidth: '100%', display: 'block', padding: '14px 0', backgroundColor: '#fff', color: '#222', fontSize: '16px', fontWeight: 600, border: '1.5px solid #222', borderRadius: '6px', cursor: 'pointer', marginBottom: '20px', transition: 'all 250ms ease' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
