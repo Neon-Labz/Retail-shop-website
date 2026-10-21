@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { STORE_EMAIL, STORE_PHONE, STORE_ADDRESS, STORE_HOURS } from '@/lib/constants';
 
 function IconPhone() {
   return (
@@ -41,7 +42,7 @@ export default function BoutiqueFashionContactPage() {
       </div>
 
       <div className="container-main contact-section-wrap">
-        <h2 className="contact-section-h2">Get in touch</h2>
+        {/* <h2 className="contact-section-h2">Get in touch</h2> */}
 
         <div className="contact-grid">
           <div className="contact-form-card">
@@ -83,8 +84,8 @@ export default function BoutiqueFashionContactPage() {
                 <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Phone</h3>
               </div>
               <div style={{ paddingLeft: '32px' }}>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>(800) 555-0100</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>(800) 555-0101</p>
+                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>{STORE_PHONE}</p>
+                <p style={{ fontSize: '14px', color: '#888', marginTop: '4px' }}>Hours: {STORE_HOURS}</p>
               </div>
             </div>
 
@@ -94,20 +95,19 @@ export default function BoutiqueFashionContactPage() {
                 <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Email</h3>
               </div>
               <div style={{ paddingLeft: '32px' }}>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>support@ambaz.com</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>orders@ambaz.com</p>
+                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>{STORE_EMAIL}</p>
+                <p style={{ fontSize: '14px', color: '#888', marginTop: '4px' }}>Fast response within 24h</p>
               </div>
             </div>
 
             <div className="contact-info-item">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                 <span style={{ color: '#222' }}><IconAddress /></span>
-                <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Boutique Studio</h3>
+                <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222' }}>Store Location</h3>
               </div>
               <div style={{ paddingLeft: '32px' }}>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>48 WEST 25TH STREET</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>NEW YORK, NY</p>
-                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>10010</p>
+                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>{STORE_ADDRESS}</p>
+                <p style={{ fontSize: '17px', color: '#666', lineHeight: 1.7 }}>Sri Lanka</p>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function BoutiqueFashionContactPage() {
 
       <div className="contact-map-wrap">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.6!2d-73.994!3d40.744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a4a4e4c77f%3A0xd134e199a405a163!2sNew%20York%2C%20NY!5e0!3m2!1sen!2sus!4v1"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3933.0!2d80.05!3d9.68!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwNDAnNDguMCJOIDgwwrAwMycwMC4wIkU!5e0!3m2!1sen!2slk!4v1"
           width="100%"
           height="550"
           style={{ border: 0 }}
@@ -125,16 +125,13 @@ export default function BoutiqueFashionContactPage() {
           referrerPolicy="no-referrer-when-downgrade"
         />
         <div className="contact-map-card">
-          <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>Visit Our Studio</h3>
+          <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>Visit Our Store</h3>
           <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '6px' }}>Address</p>
-          <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, marginBottom: '16px' }}>48 West 25th Street,<br />New York, NY 10010.</p>
+          <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, marginBottom: '16px' }}>{STORE_ADDRESS},<br />Sri Lanka.</p>
           <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '6px' }}>Store hours</p>
           <p style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, marginBottom: '20px' }}>
-            Mon - Fri, 10:00am - 08:00pm<br />
-            Saturday, 10:00am - 07:00pm<br />
-            Sunday, 11:00am - 06:00pm
+            {STORE_HOURS}
           </p>
-          <button className="contact-direction-btn">GET DIRECTION</button>
         </div>
       </div>
 

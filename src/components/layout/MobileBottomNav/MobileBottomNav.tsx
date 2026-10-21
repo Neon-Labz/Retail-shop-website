@@ -298,6 +298,9 @@ function cartCountForStorefront(
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  if (pathname === '/login' || pathname === '/register') {
+    return null;
+  }
   const storefront = getStorefrontFromPath(pathname);
   const accent = accentFor(storefront);
   const homeHref = homeHrefFor(storefront);

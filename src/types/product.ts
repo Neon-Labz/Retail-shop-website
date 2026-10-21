@@ -59,4 +59,6 @@ export interface Product {
   sku: string;
   countdownEnd: string | null;
   collections?: string[];
+  stock?: number;
+  weight?: number;
 }
