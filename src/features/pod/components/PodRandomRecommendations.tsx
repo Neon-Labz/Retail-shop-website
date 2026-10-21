@@ -8,9 +8,9 @@ import type { Product } from '@/types/product';
 function ProductCardSkeleton() {
   return (
     <div>
-      <div className="animate-shimmer" style={{ aspectRatio: '3 / 4', borderRadius: '4px', marginBottom: '14px' }} />
-      <div className="animate-shimmer" style={{ height: '16px', width: '70%', margin: '0 auto 8px', borderRadius: '4px' }} />
-      <div className="animate-shimmer" style={{ height: '14px', width: '40%', margin: '0 auto 8px', borderRadius: '4px' }} />
+      <div className="animate-shimmer aspect-[3/4] rounded-[4px] mb-[14px]" />
+      <div className="animate-shimmer h-[16px] w-[70%] mx-auto mb-[8px] rounded-[4px]" />
+      <div className="animate-shimmer h-[14px] w-[40%] mx-auto mb-[8px] rounded-[4px]" />
     </div>
   );
 }
@@ -22,7 +22,10 @@ export function PodRandomRecommendations() {
   const fetchRandomProducts = () => {
     setIsLoading(true);
     fetch('/api/recommendations/random?limit=4')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         if (data.success && Array.isArray(data.products)) {
           setProducts(data.products);
@@ -43,19 +46,11 @@ export function PodRandomRecommendations() {
   return (
     <section className="pod-random-recommendations-section">
       <div className="container-main">
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            marginBottom: '40px',
-            textAlign: 'center',
-          }}
-        >
-          <h2 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 600, color: '#222' }}>
+        <div className="flex flex-col items-start mb-[32px] text-left">
+          <h2 className="text-[clamp(22px,3vw,28px)] font-semibold text-[#222]">
             Recommended For You
           </h2>
-          <p style={{ fontSize: '15px', color: '#666', marginTop: '6px' }}>
+          <p className="text-[15px] text-[#666] mt-[6px]">
             Randomly picked gear and trending selections tailored to inspire
           </p>
         </div>
@@ -64,47 +59,14 @@ export function PodRandomRecommendations() {
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : products.map((product, i) => (
-                /* Previous fixed imageHeight 350px commented out as requested
-                <HomeProductCard key={product.id} product={product} index={i} imageHeight="350px" />
-                */
                 <HomeProductCard key={product.id} product={product} index={i} />
               ))}
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '40px', display: 'flex', justifyContent: 'center', gap: '16px' }}>
-          <button
-            type="button"
-            onClick={fetchRandomProducts}
-            className="pod-refresh-btn"
-            style={{
-              padding: '11px 26px',
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#F15B41',
-              backgroundColor: '#fff',
-              border: '1.5px solid #F15B41',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              transition: 'all 200ms ease',
-            }}
-          >
-            ↻ Shuffle More Products
-          </button>
+        <div className="text-center mt-[40px] flex justify-center gap-[16px]">
           <Link
-            href="/shop"
-            style={{
-              padding: '11px 26px',
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#fff',
-              backgroundColor: '#222',
-              border: '1.5px solid #222',
-              borderRadius: '4px',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              transition: 'all 200ms ease',
-            }}
+            href="/products"
+            className="py-[11px] px-[26px] text-[14px] font-semibold text-[#fff] bg-[#222] border-[1.5px] border-solid border-[#222] rounded-[4px] no-underline inline-flex items-center transition-all duration-200 ease-in-out"
           >
             Explore All Products
           </Link>
@@ -123,18 +85,13 @@ export function PodRandomRecommendations() {
           .pod-random-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
         }
 
-        /* Clean square frame with edge-to-edge cover fit (no gaps) */
+        
         .pod-random-grid .fc-card > a:first-child {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
         }
         .pod-random-grid .fc-card > a:first-child img {
-          /* Previous contain/padding commented out as requested
-          object-fit: contain !important;
-          background-color: #fff;
-          padding: 8px;
-          */
           object-fit: cover !important;
           background-color: #fff;
           padding: 0 !important;

@@ -28,39 +28,23 @@ export function PodBannerList() {
         <div className="pdbl-grid">
           {banners.map((banner) => (
             <div key={banner.id}>
-              <div
-                className="pdbl-img-wrap"
-                style={{
-                  position: 'relative',
-                  borderRadius: '10px',
-                  overflow: 'hidden',
-                  marginBottom: '20px',
-                }}
-              >
+              <div className="pdbl-img-wrap relative rounded-[10px] overflow-hidden mb-[20px]">
                 <Image
                   src={banner.image}
                   alt={banner.title}
                   fill
-                  className="pdbl-img"
-                  style={{ objectFit: 'cover', transition: 'transform 500ms ease' }}
+                  className="pdbl-img object-cover transition-transform duration-500 ease-in-out"
                   sizes="(max-width: 749px) 100vw, 50vw"
                 />
               </div>
 
-              <div style={{ textAlign: 'center' }}>
+              <div className="text-center">
                 <h3 className="pdbl-title">
                   {banner.title}
                 </h3>
                 <Link
                   href={banner.href}
-                  className="pdbl-link"
-                  style={{
-                    fontWeight: 500,
-                    color: '#222',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '4px',
-                    transition: 'color 250ms ease',
-                  }}
+                  className="pdbl-link font-medium text-[#222] underline underline-offset-[4px] transition-colors duration-[250ms] ease-in-out"
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#8a8a8a'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
                 >

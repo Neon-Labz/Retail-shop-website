@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { MegaMenu } from './MegaMenu';
@@ -20,7 +20,7 @@ import { getStorefrontFromPath } from '@/utils/storefront';
 import { singleProductProducts } from '@/data/single-product-products';
 import { activeWearProducts } from '@/data/active-wear-products';
 import type { SliderProduct } from './MegaMenu';
-import type { NavigationItem } from '@/types/common';
+import type { NavigationItem, MegaMenuColumn } from '@/types/common';
 
 const SP_SHOP_MEGA_IMAGE = '/single -product/shop-mega-menu/shop-mega-menu-1.webp';
 const SP_CATEGORY_IMAGE = (i: number) => `/single -product/categories-mega-menu/categories-mega-menu-${i + 1}.webp`;
@@ -32,17 +32,12 @@ const AW_CATEGORY_IMAGE = (i: number) => `/active-wear/categories-mega-menu/cate
 const AW_SLUGS = activeWearProducts.map((p) => p.slug);
 const AW_SLIDER_PRODUCTS = activeWearProducts as SliderProduct[];
 
-/* Backpack / Basketball reuse the fashion nav structure but swap the Shop promo
-   image and Categories card images for their own assets. (Note the backpack shop
-   image filename carries a "sjop" typo that exists on disk — preserve it.) */
 const BP_SHOP_MEGA_IMAGE = '/backpack/shop-mega-menu/sjop-mega-menu-1.webp';
 const BP_CATEGORY_IMAGE = (i: number) => `/backpack/categories-mega-menu/categories-mega-menu-${i + 1}.webp`;
 
 const BB_SHOP_MEGA_IMAGE = '/basketball/shop-mega-menu/shop-mega-menu-1.webp';
 const BB_CATEGORY_IMAGE = (i: number) => `/basketball/categories-mega-menu/categories-mega-menu-${i + 1}.webp`;
 
-/* Swap only the Shop mega image and Categories card images to storefront assets;
-   the Products mega-menu is left untouched. Every other storefront is unaffected. */
 function withMegaMenuImages(
   items: NavigationItem[],
   shopImage: string,
@@ -62,9 +57,6 @@ function withMegaMenuImages(
   });
 }
 
-/* Active Wear reuses the fashion nav structure but with its own data:
-   Shop promo image, Categories card images, and the Products mega-menu links/
-   slider point at active-wear assets/products. Isolated like withSingleProductData. */
 function withActiveWearData(items: NavigationItem[]): NavigationItem[] {
   return items.map((item) => {
     if (item.megaImage) {
@@ -92,10 +84,6 @@ function withActiveWearData(items: NavigationItem[]): NavigationItem[] {
   });
 }
 
-/* Single Product reuses the fashion nav structure but with its own data:
-   Shop promo image, Categories card images, and the Products mega-menu links/
-   slider point at single-product products. Every other storefront sharing this
-   nav is untouched. */
 function withSingleProductData(items: NavigationItem[]): NavigationItem[] {
   return items.map((item) => {
     if (item.megaImage) {
@@ -133,8 +121,40 @@ function IconChevronDown() {
 
 export function DesktopNav() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [dbCategoryColumns, setDbCategoryColumns] = useState<MegaMenuColumn[]>([]);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/categories')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+          const cols: MegaMenuColumn[] = data.categories.slice(0, 4).map((cat: any) => ({
+            title: cat.name,
+            links: (cat.subcategories || []).map((sub: string, idx: number) => ({
+              id: `${cat.slug || cat.id}-${idx}`,
+              label: sub,
+              href: `/products?category=${encodeURIComponent(cat.name)}&subcategory=${encodeURIComponent(sub)}`,
+            })),
+          }));
+          setDbCategoryColumns(cols);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching categories for Products mega menu:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const productMegaColumns = dbCategoryColumns;
   const storefront = getStorefrontFromPath(pathname);
   const isSingleProduct = storefront === 'single-product';
   const isActiveWear = storefront === 'active-wear';
@@ -167,8 +187,6 @@ export function DesktopNav() {
     return base;
   }, [isSingleProduct, isActiveWear, isBackpack, isBasketball, isGlasses, isPlumbingSupplies, isBook, isJewelry2, isCoffee, isCraftDecore, isToys, isSocks, isPod]);
 
-  /* Plumbing Supplies themes its nav in the brand navy instead of the default
-     black text + coral accent. Other storefronts keep the fashion defaults. */
   const navColor = isPlumbingSupplies ? '#0a2540' : '#222';
   const navAccent = isPlumbingSupplies ? '#3a5f8a' : '#F15B41';
 
@@ -181,77 +199,108 @@ export function DesktopNav() {
     timeoutRef.current = setTimeout(() => setActiveMenu(null), 150);
   };
 
+  const handleClose = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setActiveMenu(null);
+  };
+
+  useEffect(() => {
+    handleClose();
+  }, [pathname]);
+
   return (
-    <nav
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '32px',
-      }}
-    >
-      {navItems.map((item) => (
-        <div
-          key={item.id}
-          style={{ position: 'static' }}
-          onMouseEnter={() => handleMouseEnter(item.id)}
-          onMouseLeave={handleMouseLeave}
-        >
+    <nav className="flex items-center gap-[32px]">
+      {navItems.map((item) => {
+        if (item.id === 'nav-shop') return null;
+
+        if (item.id === 'nav-blog') return null;
+
+        const isAboutUs = item.id === 'nav-pages';
+        const itemLabel = isAboutUs ? 'About us' : item.label;
+        const itemHref = isAboutUs ? '/pages/about' : (item.id === 'nav-products' ? '/products' : item.href);
+
+        return (
+          <div
+            key={item.id}
+            className="static"
+            onMouseEnter={() => handleMouseEnter(item.id)}
+            onMouseLeave={handleMouseLeave}
+          >
           <Link
-            href={item.href}
+            href={itemHref}
+            onClick={handleClose}
+            className="flex items-center gap-[4px] text-[17px] font-medium no-underline py-[8px] px-0 transition-[color] duration-150 ease-in-out whitespace-nowrap"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '17px',
-              fontWeight: 500,
               color: activeMenu === item.id ? navAccent : navColor,
-              textDecoration: 'none',
-              padding: '8px 0',
-              transition: 'color 150ms ease',
-              whiteSpace: 'nowrap',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = navAccent; }}
             onMouseLeave={(e) => {
               if (activeMenu !== item.id) e.currentTarget.style.color = navColor;
             }}
           >
-            {item.label}
-            {(item.type === 'dropdown' || item.type === 'megamenu') && (
+            {itemLabel}
+            {!isAboutUs && item.id !== 'nav-categories' && (item.type === 'dropdown' || item.type === 'megamenu') && (
               <span
-                style={{
-                  display: 'inline-flex',
-                  transition: 'transform 300ms ease',
-                  transform: activeMenu === item.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                }}
+                className={`inline-flex transition-transform duration-300 ease-in-out ${
+                  activeMenu === item.id ? 'rotate-180' : 'rotate-0'
+                }`}
               >
                 <IconChevronDown />
               </span>
             )}
           </Link>
 
-          {/* Text-Only Categories Cascading Menu (Real MongoDB Categories & Subcategories) */}
-          {item.id === 'nav-categories' && activeMenu === item.id && (
-            <CategoriesCascadingMenu onClose={() => setActiveMenu(null)} />
-          )}
-
-          {/* Mega Menu (Preserved for non-categories, do not remove) */}
           {item.id !== 'nav-categories' && item.type === 'megamenu' && (item.megaMenu || item.megaCategoryCards) && activeMenu === item.id && (
             <MegaMenu
-              columns={item.megaMenu}
+              columns={item.id === 'nav-products' ? productMegaColumns : item.megaMenu}
               promoImage={item.megaImage}
               showProductSlider={item.megaProductSlider}
               categoryCards={item.megaCategoryCards}
-              sliderProducts={isSingleProduct ? SP_SLIDER_PRODUCTS : isActiveWear ? AW_SLIDER_PRODUCTS : undefined}
+              sliderProducts={isSingleProduct ? SP_SLIDER_PRODUCTS : isActiveWear ? AW_SLIDER_PRODUCTS : [
+                {
+                  id: '6ad5f6860e445000414fa0d5',
+                  slug: 'gold-silver-plated-granted-charm-bracelet',
+                  name: 'Gold & Silver Plated Granted Charm Bracelet (European Pandora Style)',
+                  price: 1250,
+                  compareAtPrice: 1550,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792484317347-7da77223-4a96-4b72-b8e6-9cd39b1aa356.png' }],
+                },
+                {
+                  id: '6ad5f6820e445000414fa0cf',
+                  slug: 'mini-handheld-fan-daisy-flower-accent-with-removable-stand',
+                  name: 'Mini Handheld Fan (Daisy Flower Accent with Removable Stand)',
+                  price: 450,
+                  compareAtPrice: 650,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407158549-a3f3ec62-1010-46dc-8868-547b807584d4.png' }],
+                },
+                {
+                  id: '6ad5f67e0e445000414fa0c9',
+                  slug: 'portable-desktop-fan-ultra-thin-folding-stand',
+                  name: 'Portable Desktop Fan (Ultra-Thin Folding Stand)',
+                  price: 475,
+                  compareAtPrice: 600,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407167386-42072d33-a778-40dc-9045-1879d3235c02.png' }],
+                },
+                {
+                  id: '6ad5f6750e445000414fa0c4',
+                  slug: 'sweet-bunny-kids-stationery-set-with-coin-purse',
+                  name: 'Sweet Bunny Kids Stationery Set with Coin Purse',
+                  price: 240,
+                  compareAtPrice: 320,
+                  images: [{ src: 'https://pub-a517fd63737142cbb39ca30df8bc77f0.r2.dev/products/1792407140539-02d7d3ca-9078-4b58-9d90-dbd2c5dadc8a.png' }],
+                },
+              ]}
               sliderHrefBase={isSingleProduct || isActiveWear ? '/products' : undefined}
+              onClose={handleClose}
             />
           )}
 
-          {/* Dropdown (Preserved) */}
-          {item.type === 'dropdown' && item.children && activeMenu === item.id && (
-            <DropdownMenu items={item.children} />
+          {!isAboutUs && item.type === 'dropdown' && item.children && activeMenu === item.id && (
+            <DropdownMenu items={item.children} onClose={handleClose} />
           )}
         </div>
-      ))}
+        );
+      })}
     </nav>
   );
 }

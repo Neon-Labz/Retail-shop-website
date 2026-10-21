@@ -1,16 +1,19 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { ShopPageContent } from '@/features/shop/components/ShopPageContent';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Shop All Products',
-  description: 'Browse our complete collection of fashion, accessories, activewear, and more.',
-};
-
-export default function ShopPage() {
-  return (
-    <Suspense fallback={<div className="container-main py-[4rem] text-center text-[1.6rem] text-body">Loading...</div>}>
-      <ShopPageContent />
-    </Suspense>
-  );
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const queryString = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, val]) => {
+    if (Array.isArray(val)) {
+      val.forEach((v) => queryString.append(key, v));
+    } else if (val) {
+      queryString.set(key, val);
+    }
+  });
+  const qs = queryString.toString();
+  redirect(qs ? `/products?${qs}` : '/products');
 }

@@ -6,8 +6,6 @@ import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { PriceRangeSlider } from './PriceRangeSlider';
 import type { FiltersData } from '@/types/common';
 
-/* ── Icons ── */
-
 function IconFilter({ size = 20 }: { size?: number }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -24,8 +22,6 @@ function IconClose({ size = 22 }: { size?: number }) {
   );
 }
 
-/* Provided arrow icon — used on main rows (points right) and as the
-   sub-view back button (rotated 180°). Single-sourced so the two match. */
 function IconArrow({ size = 14, flip = false }: { size?: number; flip?: boolean }) {
   return (
     <svg
@@ -35,7 +31,7 @@ function IconArrow({ size = 14, flip = false }: { size?: number; flip?: boolean 
       height={(size * 10) / 14}
       aria-hidden="true"
       focusable="false"
-      style={{ transform: flip ? 'rotate(180deg)' : undefined, transition: 'transform 220ms ease-in-out' }}
+      className={`transition-transform duration-[220ms] ease-in-out ${flip ? 'rotate-180' : ''}`}
     >
       <path
         fillRule="evenodd"
@@ -55,32 +51,20 @@ function IconChevronDown({ size = 14 }: { size?: number }) {
   );
 }
 
-/* ── Shared subcomponents ── */
-
 function FilterCheckbox({ label, count, checked, onChange }: { label: string; count: number; checked: boolean; onChange: () => void }) {
-  // Single button — no nested <input> + <label>. The previous setup fired
-  // onChange twice per tap (once from the span's onClick, once from the
-  // label delegating to the hidden input), which cancelled the toggle.
   return (
     <button
       type="button"
       role="checkbox"
       aria-checked={checked}
       onClick={onChange}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '10px 0', cursor: 'pointer', fontSize: '15px', color: '#222',
-        background: 'none', border: 'none', textAlign: 'left',
-      }}
+      className="w-full flex items-center justify-between py-[10px] px-0 cursor-pointer text-[15px] text-[#222] bg-transparent border-none text-left"
     >
-      <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <span className="flex items-center gap-[12px]">
         <span
-          style={{
-            width: '20px', height: '20px', border: `1.5px solid ${checked ? '#222' : '#c5c5c5'}`,
-            borderRadius: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: checked ? '#222' : '#fff', transition: 'all 180ms ease',
-            flexShrink: 0,
-          }}
+          className={`w-[20px] h-[20px] border-[1.5px] border-solid rounded-[4px] inline-flex items-center justify-center transition-all duration-[180ms] ease-in-out shrink-0 ${
+            checked ? 'border-[#222] bg-[#222]' : 'border-[#c5c5c5] bg-[#fff]'
+          }`}
         >
           {checked && (
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
@@ -90,7 +74,7 @@ function FilterCheckbox({ label, count, checked, onChange }: { label: string; co
         </span>
         {label}
       </span>
-      <span style={{ fontSize: '15px', color: '#555' }}>{count}</span>
+      <span className="text-[15px] text-[#555]">{count}</span>
     </button>
   );
 }
@@ -102,38 +86,24 @@ function FilterRadio({ label, count, checked, onChange }: { label: string; count
       role="radio"
       aria-checked={checked}
       onClick={onChange}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '10px 0', cursor: 'pointer', fontSize: '15px', color: '#222',
-        background: 'none', border: 'none', textAlign: 'left',
-      }}
+      className="w-full flex items-center justify-between py-[10px] px-0 cursor-pointer text-[15px] text-[#222] bg-transparent border-none text-left"
     >
-      <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <span className="flex items-center gap-[12px]">
         <span
-          style={{
-            width: '20px', height: '20px', border: `1.5px solid ${checked ? '#222' : '#c5c5c5'}`,
-            borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: '#fff', transition: 'all 180ms ease',
-            flexShrink: 0,
-          }}
+          className={`w-[20px] h-[20px] border-[1.5px] border-solid rounded-full inline-flex items-center justify-center bg-[#fff] transition-all duration-[180ms] ease-in-out shrink-0 ${
+            checked ? 'border-[#222]' : 'border-[#c5c5c5]'
+          }`}
         >
           {checked && (
-            <span
-              style={{
-                width: '10px', height: '10px', borderRadius: '50%',
-                backgroundColor: '#222',
-              }}
-            />
+            <span className="w-[10px] h-[10px] rounded-full bg-[#222]" />
           )}
         </span>
-        <span style={{ fontWeight: checked ? 600 : 400 }}>{label}</span>
+        <span className={checked ? 'font-semibold' : 'font-normal'}>{label}</span>
       </span>
-      <span style={{ fontSize: '15px', color: '#555' }}>{count}</span>
+      <span className="text-[15px] text-[#555]">{count}</span>
     </button>
   );
 }
-
-/* ── Types ── */
 
 type SubKey = 'availability' | 'price' | 'brand' | 'color' | 'size' | 'category';
 
@@ -177,11 +147,8 @@ interface MobileFilterDrawerProps {
   productCount: number;
   onApply: (payload: MobileFilterApplyPayload) => void;
   onRemoveAll: () => void;
-  /** Theme colors forwarded from ShopPageContent so the price slider matches the desktop sidebar. */
   theme?: { accentColor: string; mutedColor: string; textColor: string };
 }
-
-/* ── Component ── */
 
 export function MobileFilterDrawer({
   open,
@@ -207,18 +174,11 @@ export function MobileFilterDrawer({
     priceRange,
   });
 
-  // Keep the latest selected/priceRange in refs so we can read fresh values
-  // from the open-transition effect below without having to list them as
-  // deps. priceRange arrives as a new array literal from the parent on
-  // every render — including it directly would cause this effect to fire
-  // (and wipe the user's in-flight selections) on every parent re-render.
   const selectedRef = useRef(selected);
   const priceRangeRef = useRef(priceRange);
   selectedRef.current = selected;
   priceRangeRef.current = priceRange;
 
-  // Seed pending ONLY when the drawer transitions from closed to open —
-  // not on any prop change while the drawer is already open.
   useEffect(() => {
     if (open) {
       setPending({
@@ -236,10 +196,6 @@ export function MobileFilterDrawer({
     }
   }, [open]);
 
-  // Lock body scroll while open — uses the project's shared hook so
-  // document.body gets the `.scroll-locked` class (same pattern as drawers
-  // and modals elsewhere). Global CSS then hides MobileBottomNav while
-  // locked so it can't peek through the drawer at the bottom.
   useLockBodyScroll(open);
 
   const handleApply = () => {
@@ -266,7 +222,7 @@ export function MobileFilterDrawer({
       category: '',
       subcategory: '',
       sort: 'featured',
-      priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100],
+      priceRange: [0, filters?.priceRange.max ?? 100],
     });
     onRemoveAll();
     onClose();
@@ -275,7 +231,7 @@ export function MobileFilterDrawer({
   const handleClearSub = (key: SubKey) => {
     setPending((p) => {
       if (key === 'price') {
-        return { ...p, priceRange: [filters?.priceRange.min ?? 0, filters?.priceRange.max ?? 100] };
+        return { ...p, priceRange: [0, filters?.priceRange.max ?? 100] };
       }
       return { ...p, [key]: '' };
     });
@@ -285,145 +241,86 @@ export function MobileFilterDrawer({
     { key: 'availability', label: 'Availability' },
     { key: 'price', label: 'Price' },
     { key: 'category', label: 'Category' },
-    /* Brand, Color, Size rows commented out as requested
-    { key: 'size', label: 'Size' },
-    { key: 'brand', label: 'Brand' },
-    { key: 'color', label: 'Color' },
-    */
   ];
 
   const activeSortLabel = SORT_OPTIONS.find((o) => o.value === pending.sort)?.label ?? 'Featured';
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         aria-hidden={!open}
-        style={{
-          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)',
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? 'auto' : 'none',
-          transition: 'opacity 320ms ease-in-out',
-          zIndex: 1000,
-        }}
+        className={`fixed inset-0 bg-[rgba(0,0,0,0.45)] transition-opacity duration-[320ms] ease-in-out z-[1000] ${
+          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
       />
 
-      {/* Drawer — slides in from the right, flush to all viewport edges.
-          Using top/bottom:0 (plus 100dvh fallback on the class) guarantees
-          the drawer covers the exact visible viewport — no bottom gap on
-          devices where 100dvh under-measures, no chance of MobileBottomNav
-          peeking through below the footer. */}
       <aside
         role="dialog"
         aria-modal="true"
         aria-label="Filter and sort"
-        className="mfd-drawer"
-        style={{
-          position: 'fixed', top: 0, right: 0, bottom: 0,
-          width: 'min(400px, 100vw)',
-          backgroundColor: '#fff',
-          transform: open ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 340ms ease-in-out',
-          boxShadow: open ? '0 0 40px rgba(0,0,0,0.18)' : 'none',
-          zIndex: 1001,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
+        className={`mfd-drawer fixed top-0 right-0 bottom-0 w-[min(400px,100vw)] bg-[#fff] transition-transform duration-[340ms] ease-in-out z-[1001] flex flex-col overflow-hidden ${
+          open ? 'translate-x-0 shadow-[0_0_40px_rgba(0,0,0,0.18)]' : 'translate-x-full shadow-none'
+        }`}
       >
-        {/* Header */}
-        <div style={{ position: 'relative', padding: '14px 20px 12px', borderBottom: '1px solid #eee', textAlign: 'center', flex: '0 0 auto' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#222' }}>Filter and sort</h2>
-          <p style={{ fontSize: '13px', color: '#666', marginTop: '2px' }}>{productCount} products</p>
+        <div className="relative pt-[14px] px-[20px] pb-[12px] border-b border-solid border-[#eee] text-center flex-[0_0_auto]">
+          <h2 className="text-[16px] font-semibold text-[#222]">Filter and sort</h2>
+          <p className="text-[13px] text-[#666] mt-[2px]">{productCount} products</p>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            style={{
-              position: 'absolute', top: '14px', right: '18px',
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: '#222', padding: '4px',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            }}
+            className="absolute top-[14px] right-[18px] bg-transparent border-none cursor-pointer text-[#222] p-[4px] inline-flex items-center justify-center"
           >
             <IconClose size={20} />
           </button>
         </div>
 
-        {/* Sliding pane (main ↔ sub) */}
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <div className="flex-1 relative overflow-hidden">
           <div
-            style={{
-              display: 'flex',
-              width: '200%',
-              height: '100%',
-              transform: view === 'main' ? 'translateX(0)' : 'translateX(-50%)',
-              transition: 'transform 340ms ease-in-out',
-            }}
+            className={`flex w-[200%] h-full transition-transform duration-[340ms] ease-in-out ${
+              view === 'main' ? 'translate-x-0' : '-translate-x-1/2'
+            }`}
           >
-            {/* ── Main view ── */}
-            <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <nav style={{ padding: '2px 0', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            <div className="w-1/2 flex flex-col overflow-hidden">
+              <nav className="py-[2px] px-0 flex-1 min-h-0 overflow-hidden">
                 {rows.map(({ key, label }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={() => setView(key)}
-                    className="mfd-row"
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '12px 20px', background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: '15px', color: '#222', textAlign: 'left',
-                      borderBottom: '1px solid #f0f0f0',
-                      transition: 'background-color 160ms ease',
-                    }}
+                    className="mfd-row w-full flex items-center justify-between py-[12px] px-[20px] bg-transparent border-none cursor-pointer text-[15px] text-[#222] text-left border-b border-solid border-[#f0f0f0] transition-colors duration-[160ms] ease-in-out"
                   >
                     {label}
                     <IconArrow size={14} />
                   </button>
                 ))}
 
-                {/* Sort by (inline, accordion-style expand) */}
-                <div style={{ padding: '14px 20px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.5px', color: '#222' }}>SORT BY</span>
+                <div className="pt-[14px] px-[20px] pb-[12px] border-b border-solid border-[#f0f0f0]">
+                  <div className="flex items-center justify-between gap-[12px]">
+                    <span className="text-[13px] font-bold tracking-[0.5px] text-[#222]">SORT BY</span>
                     <button
                       type="button"
                       onClick={() => setSortOpen((v) => !v)}
                       aria-expanded={sortOpen}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '6px',
-                        background: 'none',
-                        border: sortOpen ? '1px solid #222' : '1px solid transparent',
-                        padding: '8px 12px', borderRadius: '4px',
-                        cursor: 'pointer', fontSize: '15px', color: '#222',
-                        transition: 'border-color 220ms ease-in-out',
-                      }}
+                      className={`inline-flex items-center gap-[6px] bg-transparent border border-solid py-[8px] px-[12px] rounded-[4px] cursor-pointer text-[15px] text-[#222] transition-colors duration-[220ms] ease-in-out ${
+                        sortOpen ? 'border-[#222]' : 'border-transparent'
+                      }`}
                     >
                       {activeSortLabel}
-                      <span style={{ transition: 'transform 260ms ease-in-out', transform: sortOpen ? 'rotate(180deg)' : 'none', display: 'inline-flex' }}>
+                      <span className={`transition-transform duration-[260ms] ease-in-out inline-flex ${sortOpen ? 'rotate-180' : ''}`}>
                         <IconChevronDown size={14} />
                       </span>
                     </button>
                   </div>
 
-                  {/* Accordion: grid-template-rows 0fr → 1fr so the list
-                      opens/closes smoothly and auto-sizes to content.
-                      The list is anchored to the right (under the trigger)
-                      and capped at ~240px so all options fit without any
-                      internal scroll. */}
                   <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateRows: sortOpen ? '1fr' : '0fr',
-                      opacity: sortOpen ? 1 : 0,
-                      transition: 'grid-template-rows 320ms ease-in-out, opacity 260ms ease-in-out',
-                      marginTop: sortOpen ? '10px' : '0',
-                    }}
+                    className={`grid transition-[grid-template-rows,opacity] duration-[320ms] ease-in-out ${
+                      sortOpen ? 'grid-rows-[1fr] opacity-100 mt-[10px]' : 'grid-rows-[0fr] opacity-0 mt-0'
+                    }`}
                   >
-                    <div style={{ overflow: 'hidden', display: 'flex', justifyContent: 'flex-end' }}>
-                      <div style={{ width: '240px', maxWidth: '100%', border: '1px solid #222', borderRadius: '2px', backgroundColor: '#fff' }}>
+                    <div className="overflow-hidden flex justify-end">
+                      <div className="w-[240px] max-w-full border border-solid border-[#222] rounded-[2px] bg-[#fff]">
                         {SORT_OPTIONS.map((o) => {
                           const active = pending.sort === o.value;
                           return (
@@ -434,15 +331,9 @@ export function MobileFilterDrawer({
                                 setPending((p) => ({ ...p, sort: o.value }));
                                 setSortOpen(false);
                               }}
-                              style={{
-                                display: 'block', width: '100%',
-                                padding: '6px 12px',
-                                backgroundColor: active ? '#2546f0' : '#fff',
-                                color: active ? '#fff' : '#222',
-                                border: 'none', textAlign: 'left', cursor: 'pointer',
-                                fontSize: '13px', lineHeight: 1.4,
-                                transition: 'background-color 180ms ease-in-out, color 180ms ease-in-out',
-                              }}
+                              className={`block w-full py-[6px] px-[12px] border-none text-left cursor-pointer text-[13px] leading-[1.4] transition-colors duration-[180ms] ease-in-out ${
+                                active ? 'bg-[#2546f0] text-[#fff]' : 'bg-[#fff] text-[#222]'
+                              }`}
                             >
                               {o.label}
                             </button>
@@ -454,9 +345,8 @@ export function MobileFilterDrawer({
                 </div>
               </nav>
 
-              {/* Footer (main) */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '12px 20px', borderTop: '1px solid #eee', backgroundColor: '#fff', flex: '0 0 auto' }}>
-                <button type="button" onClick={handleRemoveAll} style={{ fontSize: '14px', color: '#222', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px', fontWeight: 500 }}>
+              <div className="flex items-center justify-between gap-[16px] py-[12px] px-[20px] border-t border-solid border-[#eee] bg-[#fff] flex-[0_0_auto]">
+                <button type="button" onClick={handleRemoveAll} className="text-[14px] text-[#222] bg-transparent border-none cursor-pointer underline underline-offset-[3px] font-medium">
                   Remove all
                 </button>
                 <button type="button" onClick={handleApply} className="mfd-apply-btn">
@@ -465,25 +355,23 @@ export function MobileFilterDrawer({
               </div>
             </div>
 
-            {/* ── Sub view ── */}
-            <div style={{ width: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ flex: 1, padding: '14px 20px', overflow: 'hidden', minHeight: 0 }}>
+            <div className="w-1/2 flex flex-col overflow-hidden">
+              <div className="flex-1 py-[14px] px-[20px] overflow-hidden min-h-0">
                 <button
                   type="button"
                   onClick={() => setView('main')}
                   aria-label="Back to filters"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#222', fontWeight: 500, marginBottom: '20px', padding: 0 }}
+                  className="inline-flex items-center gap-[10px] bg-transparent border-none cursor-pointer text-[16px] text-[#222] font-medium mb-[20px] p-0"
                 >
                   <IconArrow size={14} flip />
                   {view !== 'main' && view.charAt(0).toUpperCase() + view.slice(1)}
                 </button>
 
-                {/* Content per sub-view. Render all, hide inactive. */}
                 {filters && view === 'availability' && (
                   <div>
                     {([
-                      { label: 'In stock', value: 'in-stock', count: filters.categories.reduce((s, c) => s + c.count, 0) },
-                      { label: 'Out of stock', value: 'out-of-stock', count: 1 },
+                      { label: 'In stock', value: 'in-stock', count: filters.availability?.inStock ?? filters.categories.reduce((s, c) => s + c.count, 0) },
+                      { label: 'Out of stock', value: 'out-of-stock', count: filters.availability?.outOfStock ?? 0 },
                     ]).map((o) => (
                       <FilterCheckbox
                         key={o.value}
@@ -498,7 +386,7 @@ export function MobileFilterDrawer({
 
                 {filters && view === 'price' && (
                   <PriceRangeSlider
-                    min={filters.priceRange.min}
+                    min={0}
                     max={filters.priceRange.max}
                     value={pending.priceRange}
                     onChange={(r) => setPending((p) => ({ ...p, priceRange: r }))}
@@ -508,41 +396,9 @@ export function MobileFilterDrawer({
                   />
                 )}
 
-                {/* Brand subview commented out as requested
-                {filters && view === 'brand' && (
-                  <div>
-                    {filters.brands.map((b) => (
-                      <FilterCheckbox
-                        key={b.name}
-                        label={b.name}
-                        count={b.count}
-                        checked={pending.brand === b.name}
-                        onChange={() => setPending((p) => ({ ...p, brand: p.brand === b.name ? '' : b.name }))}
-                      />
-                    ))}
-                  </div>
-                )}
-                */}
-
-                {/* Original category FilterCheckbox view commented out as requested
                 {filters && view === 'category' && (
                   <div>
-                    {filters.categories.map((c) => (
-                      <FilterCheckbox
-                        key={c.name}
-                        label={c.name}
-                        count={c.count}
-                        checked={pending.category === c.name}
-                        onChange={() => setPending((p) => ({ ...p, category: p.category === c.name ? '' : c.name }))}
-                      />
-                    ))}
-                  </div>
-                )}
-                */}
-
-                {filters && view === 'category' && (
-                  <div>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <p className="text-[13px] font-semibold text-[#222] mb-[8px] uppercase tracking-[0.5px]">
                       Categories
                     </p>
                     {filters.categories.map((c) => {
@@ -564,10 +420,9 @@ export function MobileFilterDrawer({
                       );
                     })}
 
-                    {/* Subcategories (Dynamic: visible ONLY when a category is selected) */}
                     {pending.category && (
-                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed #e0e0e0' }}>
-                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#222', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      <div className="mt-[16px] pt-[16px] border-t border-dashed border-[#e0e0e0]">
+                        <p className="text-[13px] font-semibold text-[#222] mb-[8px] uppercase tracking-[0.5px]">
                           Subcategories ({pending.category})
                         </p>
                         {(() => {
@@ -578,7 +433,7 @@ export function MobileFilterDrawer({
 
                           if (categorySubs.length === 0) {
                             return (
-                              <p style={{ fontSize: '13px', color: '#666', fontStyle: 'italic', margin: '4px 0' }}>
+                              <p className="text-[13px] text-[#666] italic my-[4px] mx-0">
                                 No subcategories available.
                               </p>
                             );
@@ -607,44 +462,10 @@ export function MobileFilterDrawer({
                   </div>
                 )}
 
-                {/* Color subview commented out as requested
-                {filters && view === 'color' && (
-                  <div>
-                    {filters.colors.map((c) => (
-                      <FilterCheckbox
-                        key={c.name}
-                        label={c.name}
-                        count={c.count}
-                        checked={pending.color === c.name}
-                        onChange={() => setPending((p) => ({ ...p, color: p.color === c.name ? '' : c.name }))}
-                      />
-                    ))}
-                  </div>
-                )}
-                */}
-
-                {/* Size subview commented out as requested
-                {filters && view === 'size' && (
-                  <div>
-                    {filters.sizes.length === 0 ? (
-                      <p style={{ fontSize: '14px', color: '#888' }}>No sizes available for this collection.</p>
-                    ) : filters.sizes.map((s) => (
-                      <FilterCheckbox
-                        key={s.name}
-                        label={s.name}
-                        count={s.count}
-                        checked={pending.size === s.name}
-                        onChange={() => setPending((p) => ({ ...p, size: p.size === s.name ? '' : s.name }))}
-                      />
-                    ))}
-                  </div>
-                )}
-                */}
               </div>
 
-              {/* Footer (sub) */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '12px 20px', borderTop: '1px solid #eee', backgroundColor: '#fff', flex: '0 0 auto' }}>
-                <button type="button" onClick={() => view !== 'main' && handleClearSub(view)} style={{ fontSize: '14px', color: '#222', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px', fontWeight: 500 }}>
+              <div className="flex items-center justify-between gap-[16px] py-[12px] px-[20px] border-t border-solid border-[#eee] bg-[#fff] flex-[0_0_auto]">
+                <button type="button" onClick={() => view !== 'main' && handleClearSub(view)} className="text-[14px] text-[#222] bg-transparent border-none cursor-pointer underline underline-offset-[3px] font-medium">
                   Clear
                 </button>
                 <button type="button" onClick={() => setView('main')} className="mfd-apply-btn">
@@ -657,10 +478,7 @@ export function MobileFilterDrawer({
       </aside>
 
       <style>{`
-        /* Height is derived from top:0 + bottom:0 on the aside — no explicit
-           height is set, otherwise CSS would over-constrain the box and make
-           the browser honor the height while ignoring bottom, which can push
-           the footer offscreen on viewports where 100vh > visible area. */
+        
         .mfd-row:hover { background-color: #f9f9f9; }
         .mfd-apply-btn {
           min-width: 140px;

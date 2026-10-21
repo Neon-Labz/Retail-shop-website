@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
 import { formatMongoProduct } from '@/lib/formatProduct';
-import { podProducts } from '@/data/pod-products';
 
 export async function GET(
   _request: NextRequest,
@@ -12,32 +11,20 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // 1. Try querying MongoDB first
-    try {
-      await connectDB();
-      const isMongoId = mongoose.Types.ObjectId.isValid(id);
-      const query = isMongoId
-        ? { $or: [{ _id: id }, { slug: id }] }
-        : { slug: id };
+    await connectDB();
+    const isMongoId = mongoose.Types.ObjectId.isValid(id);
+    const query = isMongoId
+      ? { $or: [{ _id: id }, { slug: id }] }
+      : { slug: id };
 
-      const mongoProduct = await Product.findOne(query).lean();
+    const mongoProduct = await Product.findOne(query).lean();
 
-      if (mongoProduct) {
-        const formatted = formatMongoProduct(mongoProduct);
-        return NextResponse.json({ product: formatted });
-      }
-    } catch (dbErr) {
-      console.warn('MongoDB query warning in /api/pod-products/[id]:', dbErr);
+    if (mongoProduct) {
+      const formatted = formatMongoProduct(mongoProduct);
+      return NextResponse.json({ product: formatted });
     }
 
-    // 2. Fallback to local podProducts
-    const fallbackProduct = podProducts.find((p) => p.id === id || p.slug === id);
-
-    if (!fallbackProduct) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ product: fallbackProduct });
+    return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   } catch (error) {
     console.error('Error fetching POD product:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

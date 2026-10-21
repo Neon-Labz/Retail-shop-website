@@ -3,13 +3,6 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
 import { formatMongoProduct } from '@/lib/formatProduct';
-import productsData from '@/data/products.json';
-import { skinCareProducts } from '@/data/skin-care-products';
-import { jewelleryProducts } from '@/data/jewellery-products';
-import type { Product as ProductType } from '@/types/product';
-
-const fashionProducts: ProductType[] = productsData as ProductType[];
-const allFallbackProducts: ProductType[] = [...fashionProducts, ...skinCareProducts, ...jewelleryProducts];
 
 export async function GET(
   _request: NextRequest,
@@ -17,33 +10,42 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-
-    // 1. Try querying MongoDB first
-    try {
-      await connectDB();
-      const isMongoId = mongoose.Types.ObjectId.isValid(id);
-      const query = isMongoId
-        ? { $or: [{ _id: id }, { slug: id }] }
-        : { slug: id };
-
-      const mongoProduct = await Product.findOne(query).lean();
-
-      if (mongoProduct) {
-        const formatted = formatMongoProduct(mongoProduct);
-        return NextResponse.json({ product: formatted });
-      }
-    } catch (dbErr) {
-      console.warn('MongoDB query warning in /api/products/[id]:', dbErr);
+    if (!id) {
+      return NextResponse.json({ error: 'Product ID or slug is required' }, { status: 400 });
     }
 
-    // 2. Fallback to local data if not found in MongoDB
-    const fallbackProduct = allFallbackProducts.find((p) => p.id === id || p.slug === id);
+    await connectDB();
+    const decodedId = decodeURIComponent(id).trim();
+    const normalizedSlug = decodedId.toLowerCase().replace(/[\u2013\u2014]/g, '-');
+    const isMongoId = mongoose.Types.ObjectId.isValid(id) && id.length === 24;
 
-    if (!fallbackProduct) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    const orConditions: any[] = [
+      { slug: decodedId },
+      { slug: id },
+    ];
+    if (normalizedSlug !== decodedId) {
+      orConditions.push({ slug: normalizedSlug });
+    }
+    if (isMongoId) {
+      orConditions.push({ _id: id });
     }
 
-    return NextResponse.json({ product: fallbackProduct });
+    let mongoProduct = await Product.findOne({ $or: orConditions }).lean();
+
+    if (!mongoProduct && !isMongoId) {
+      const escaped = decodedId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/-/g, '[-–— ]');
+      const flexibleRegex = new RegExp(`^${escaped}$`, 'i');
+      mongoProduct = await Product.findOne({
+        $or: [{ slug: flexibleRegex }, { name: flexibleRegex }],
+      }).lean();
+    }
+
+    if (mongoProduct) {
+      const formatted = formatMongoProduct(mongoProduct);
+      return NextResponse.json({ product: formatted });
+    }
+
+    return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

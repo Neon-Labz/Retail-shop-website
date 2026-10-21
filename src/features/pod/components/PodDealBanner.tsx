@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useProducts } from '@/features/products/hooks/useProducts';
 
 function IconChevronRight({ size = 16 }: { size?: number }) {
   return (
@@ -34,50 +35,82 @@ function CountdownTimer() {
   }, []);
 
   return (
-    <div className="pddb-countdown">
+    <div className="pddb-countdown flex gap-[clamp(10px,1.6vw,16px)] min-[992px]:gap-[clamp(14px,2vw,22px)]">
       {[
         { val: pad(time.days), label: 'Days' },
         { val: pad(time.hours), label: 'Hrs' },
         { val: pad(time.minutes), label: 'Min' },
         { val: pad(time.seconds), label: 'Sec' },
       ].map(({ val, label }) => (
-        <div key={label} className="pddb-cd-cell">
-          <span className="pddb-cd-val">{val}</span>
-          <span className="pddb-cd-lbl">{label}</span>
+        <div
+          key={label}
+          className="pddb-cd-cell flex flex-col items-center justify-center bg-white/[0.08] backdrop-blur-[8px] border-[1.5px] border-white/[0.22] rounded-[8px] w-[clamp(60px,7vw,78px)] h-[clamp(60px,7vw,78px)] min-[992px]:w-[92px] min-[992px]:h-[92px] box-border shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+        >
+          <span className="pddb-cd-val text-[clamp(20px,2.2vw,26px)] min-[992px]:text-[clamp(22px,2.4vw,26px)] font-bold text-white leading-none tabular-nums">
+            {val}
+          </span>
+          <span className="pddb-cd-lbl text-[12px] text-[#cbd5e1] mt-[6px] font-medium">
+            {label}
+          </span>
         </div>
       ))}
     </div>
   );
 }
 
-const thumbs = [
-  '/pod/products/product-4.webp',
-  '/pod/products/product-5.webp',
-  '/pod/products/product-8.webp',
-];
-
 export function PodDealBanner() {
+  const { data } = useProducts({ limit: 3, sort: 'popular' });
+  const rawProducts = data?.products && data.products.length > 0 ? data.products.slice(0, 3) : [];
+
+  const displayProducts = rawProducts
+    .map((p, idx) => {
+      const rawImg = p.images?.[0] as any;
+      const image = typeof rawImg === 'string' ? rawImg : rawImg?.src || '';
+      return {
+        id: p.id || `prod-${idx}`,
+        name: p.name,
+        slug: p.slug,
+        image,
+      };
+    })
+    .filter((p) => Boolean(p.image));
+
   return (
     <section>
       <div className="container-main">
-        <div className="pddb-panel">
-          <div className="pddb-grid">
-            <div className="pddb-left">
-              <div className="pddb-thumbs">
-                {thumbs.map((src, i) => (
-                  <div key={i} className="pddb-thumb">
-                    {/* Previous contain objectFit commented out as requested
-                    <Image src={src} alt={`Deal product ${i + 1}`} fill style={{ objectFit: 'contain' }} sizes="100px" />
-                    */}
-                    <Image src={src} alt={`Deal product ${i + 1}`} fill style={{ objectFit: 'cover' }} sizes="100px" />
-                  </div>
+        <div className="pddb-panel bg-[linear-gradient(135deg,#0b1c3d_0%,#112d62_55%,#183e84_100%)] rounded-[14px] p-[clamp(24px,4vw,40px)] shadow-[0_10px_30px_rgba(11,28,61,0.16)] min-[992px]:h-[190px] min-[992px]:flex min-[992px]:items-center min-[992px]:py-0 min-[992px]:px-[clamp(28px,3.4vw,48px)]">
+          <div className="pddb-grid flex flex-col items-center text-center gap-[clamp(20px,3vw,32px)] min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between min-[992px]:text-left min-[992px]:w-full min-[992px]:gap-[clamp(28px,3.4vw,48px)]">
+            <div className="pddb-left flex flex-col items-center gap-[clamp(20px,3vw,32px)] min-[992px]:flex-row min-[992px]:items-center min-[992px]:gap-[clamp(20px,2.4vw,32px)]">
+              <div className="pddb-thumbs flex gap-[12px] min-[992px]:gap-[16px]">
+                {displayProducts.map((prod, i) => (
+                  <Link
+                    key={prod.slug + i}
+                    href={`/products/${prod.slug}`}
+                    className="pddb-thumb relative block shrink-0 w-[clamp(72px,9vw,100px)] h-[clamp(72px,9vw,100px)] min-[992px]:w-[110px] min-[992px]:h-[110px] min-[992px]:p-0 bg-white rounded-[10px] overflow-hidden box-border shadow-[0_4px_14px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-[3px] hover:scale-[1.02] hover:shadow-[0_8px_22px_rgba(0,0,0,0.28)]"
+                    title={prod.name}
+                  >
+                    <Image
+                      src={prod.image}
+                      alt={prod.name || `Deal product ${i + 1}`}
+                      fill
+                      className="object-contain p-[6px]"
+                      sizes="110px"
+                    />
+                  </Link>
                 ))}
               </div>
 
-              <div className="pddb-text">
-                <p className="pddb-label">Special Weekend Deal</p>
-                <p className="pddb-heading">Save an Extra 20%!</p>
-                <Link href="/shop" className="pddb-link">
+              <div className="pddb-text flex flex-col items-center min-[992px]:items-start gap-[6px]">
+                <p className="pddb-label text-[clamp(13px,1.2vw,14px)] min-[992px]:text-[clamp(12px,1.1vw,13px)] font-semibold text-[#93c5fd] uppercase tracking-[0.8px]">
+                  Special Weekend Deal
+                </p>
+                <p className="pddb-heading text-[clamp(20px,2.2vw,26px)] min-[992px]:text-[clamp(21px,2.3vw,26px)] font-bold text-white leading-[1.2]">
+                  Save an Extra 20%!
+                </p>
+                <Link
+                  href="/shop"
+                  className="pddb-link inline-flex items-center gap-[6px] text-[clamp(13px,1.2vw,14px)] font-semibold text-white bg-white/[0.12] px-[18px] py-[8px] rounded-full border border-white/[0.24] no-underline mt-[4px] transition-all duration-200 hover:bg-white hover:text-[#0b1c3d]"
+                >
                   Shop Now
                   <IconChevronRight size={16} />
                 </Link>
@@ -88,132 +121,6 @@ export function PodDealBanner() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .pddb-panel {
-          background-color: #e9cd5c;
-          border-radius: 14px;
-          padding: clamp(24px, 4vw, 40px);
-        }
-        .pddb-grid {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          gap: clamp(20px, 3vw, 32px);
-        }
-        .pddb-left {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: clamp(20px, 3vw, 32px);
-        }
-        .pddb-thumbs {
-          display: flex;
-          gap: 12px;
-        }
-        .pddb-thumb {
-          position: relative;
-          flex-shrink: 0;
-          width: clamp(72px, 9vw, 100px);
-          height: clamp(72px, 9vw, 100px);
-          background-color: #fff;
-          border-radius: 8px;
-          overflow: hidden;
-          /* Previous padding: 12px; commented out as requested */
-          box-sizing: border-box;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-        .pddb-text {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-        }
-        .pddb-label {
-          font-size: clamp(15px, 1.3vw, 16px);
-          font-weight: 500;
-          color: #6b5a1f;
-        }
-        .pddb-heading {
-          font-size: clamp(20px, 2.2vw, 26px);
-          font-weight: 700;
-          color: #171717;
-          line-height: 1.2;
-        }
-        .pddb-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          font-size: clamp(14px, 1.2vw, 15px);
-          font-weight: 500;
-          color: #171717;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-          margin-top: 2px;
-        }
-        .pddb-countdown {
-          display: flex;
-          gap: clamp(10px, 1.6vw, 16px);
-        }
-        .pddb-cd-cell {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          border: 1.5px solid rgba(23, 23, 23, 0.3);
-          border-radius: 6px;
-          width: clamp(60px, 7vw, 78px);
-          height: clamp(60px, 7vw, 78px);
-          box-sizing: border-box;
-        }
-        .pddb-cd-val {
-          font-size: clamp(20px, 2.2vw, 26px);
-          font-weight: 700;
-          color: #171717;
-          line-height: 1;
-          font-variant-numeric: tabular-nums;
-        }
-        .pddb-cd-lbl {
-          font-size: 13px;
-          color: #6b5a1f;
-          margin-top: 6px;
-        }
-
-        @media (min-width: 992px) {
-          .pddb-panel {
-            height: 190px;
-            display: flex;
-            align-items: center;
-            padding: 0 clamp(28px, 3.4vw, 48px);
-          }
-          .pddb-grid {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            text-align: left;
-            width: 100%;
-            gap: clamp(28px, 3.4vw, 48px);
-          }
-          /* Content sits directly beside the thumbnails (not spread across
-             the whole row) and is vertically centered against them. */
-          .pddb-left {
-            flex-direction: row;
-            align-items: center;
-            gap: clamp(20px, 2.4vw, 32px);
-          }
-          .pddb-thumbs { gap: 16px; }
-          .pddb-thumb { width: 110px; height: 110px; padding: 14px; border-radius: 10px; }
-          .pddb-text { align-items: flex-start; gap: 6px; }
-          .pddb-label { font-size: clamp(14px, 1.4vw, 16px); }
-          .pddb-heading { font-size: clamp(21px, 2.3vw, 26px); }
-          .pddb-link { font-size: clamp(13px, 1.2vw, 15px); }
-          .pddb-countdown { gap: clamp(14px, 2vw, 22px); }
-          .pddb-cd-cell { width: 92px; height: 92px; border-radius: 8px; }
-          .pddb-cd-val { font-size: clamp(22px, 2.4vw, 26px); }
-          .pddb-cd-lbl { font-size: 12px; margin-top: 6px; }
-        }
-      `}</style>
     </section>
   );
 }

@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import ProductModel from '@/models/Product';
 import { formatMongoProduct } from '@/lib/formatProduct';
-import { podProducts } from '@/data/pod-products';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +18,6 @@ export async function GET(request: NextRequest) {
       status: { $ne: 'archived' },
     };
 
-    // Exclude specific product IDs (e.g. currently viewed product)
     if (excludeParam) {
       const excludeIds = excludeParam
         .split(',')
@@ -32,7 +30,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Category filter
     if (category && category !== 'all') {
       if (mongoose.Types.ObjectId.isValid(category)) {
         matchQuery.category = new mongoose.Types.ObjectId(category);
@@ -65,28 +62,12 @@ export async function GET(request: NextRequest) {
       matchQuery.subcategory = { $regex: new RegExp(`^${subcategory}$`, 'i') };
     }
 
-    // Use MongoDB's native $sample aggregation for random selection
     const randomDocs = await ProductModel.aggregate([
       { $match: matchQuery },
       { $sample: { size: limit } },
     ]);
 
-    let products = (randomDocs || []).map(formatMongoProduct);
-
-    // Fallback if DB is empty
-    if (products.length === 0) {
-      let pool = [...podProducts];
-      if (category && category !== 'all') {
-        pool = pool.filter((p) => p.category.toLowerCase().includes(category.toLowerCase()));
-      }
-      if (excludeParam) {
-        const excludedSet = new Set(excludeParam.split(',').map((s) => s.trim()));
-        pool = pool.filter((p) => !excludedSet.has(p.id));
-      }
-      // Shuffle array randomly
-      const shuffled = [...pool].sort(() => 0.5 - Math.random());
-      products = shuffled.slice(0, limit);
-    }
+    const products = (randomDocs || []).map(formatMongoProduct);
 
     return NextResponse.json({
       success: true,

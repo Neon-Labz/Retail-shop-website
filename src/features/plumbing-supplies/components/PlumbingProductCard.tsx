@@ -142,12 +142,14 @@ export function PlumbingProductCard({
             </button>
             <span className="plpc-tooltip">{inWishlist ? 'Wishlisted' : 'Wishlist'}</span>
           </div>
+          {/* Compare button removed/commented out as requested:
           <div className="plpc-tooltip-wrap">
             <button aria-label="Compare" className={`plpc-action-btn ${inCompare ? 'is-on' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(product); }}>
               <IconCompare size={18} />
             </button>
             <span className="plpc-tooltip">{inCompare ? 'Added' : 'Compare'}</span>
           </div>
+          */}
           <div className="plpc-tooltip-wrap plpc-qv-wrap">
             <button aria-label="Quick view" className="plpc-action-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}>
               <IconEye size={18} />

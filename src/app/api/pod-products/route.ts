@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import ProductModel from '@/models/Product';
 import { formatMongoProduct } from '@/lib/formatProduct';
-import { podProducts } from '@/data/pod-products';
 import type { Product } from '@/types/product';
 import type { FilterCounts } from '@/types/common';
 
@@ -52,22 +51,19 @@ export async function GET(request: NextRequest) {
   const availability = searchParams.get('availability') || searchParams.get('inStock');
   const query = (searchParams.get('q') || searchParams.get('search') || '').trim();
 
-  let allPodProducts = [...podProducts];
+  let allPodProducts: Product[] = [];
   try {
     await connectDB();
     const mongoDocs = await ProductModel.find({ status: { $ne: 'archived' } }).lean();
     if (mongoDocs && mongoDocs.length > 0) {
-      const formatted = mongoDocs.map(formatMongoProduct);
-      // Place MongoDB products first
-      allPodProducts = [...formatted, ...podProducts];
+      allPodProducts = mongoDocs.map(formatMongoProduct);
     }
   } catch (err) {
-    console.warn('MongoDB query warning in /api/pod-products:', err);
+    console.error('MongoDB query error in /api/pod-products:', err);
   }
 
   let filtered = [...allPodProducts];
 
-  // Search filter
   if (query) {
     const q = query.toLowerCase();
     filtered = filtered.filter(
@@ -81,7 +77,6 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Subcategory filter
   if (subcategory && subcategory !== 'all') {
     const subList = subcategory.toLowerCase().split(',').map((s) => s.trim());
     filtered = filtered.filter((p) =>
@@ -94,27 +89,22 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Category filter
   if (category && category !== 'all') {
     filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
   }
 
-  // Brand filter
   if (brand && brand !== 'all') {
     filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
   }
 
-  // Color filter
   if (color) {
     filtered = filtered.filter((p) => p.colors.some((c) => c.name.toLowerCase() === color.toLowerCase()));
   }
 
-  // Size filter
   if (size) {
     filtered = filtered.filter((p) => p.sizes.some((s) => s.toLowerCase() === size.toLowerCase()));
   }
 
-  // Price filter
   if (minPrice !== undefined && !isNaN(minPrice)) {
     filtered = filtered.filter((p) => p.price >= minPrice);
   }
@@ -122,7 +112,6 @@ export async function GET(request: NextRequest) {
     filtered = filtered.filter((p) => p.price <= maxPrice);
   }
 
-  // Availability filter
   if (availability) {
     const avail = availability.toLowerCase();
     if (avail === 'in-stock' || avail === 'in_stock' || avail === 'true') {
@@ -163,12 +152,6 @@ export async function GET(request: NextRequest) {
     case 'oldest':
       filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       break;
-    /*
-    // Best selling option removed/commented out as requested
-    case 'best-selling':
-      filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-      break;
-    */
     case 'rating':
     case 'popular':
       filtered.sort((a, b) => b.rating - a.rating);
@@ -200,7 +183,7 @@ export async function GET(request: NextRequest) {
       colors,
       sizes,
       priceRange: {
-        min: allPodProducts.length ? Math.min(...allPodProducts.map((p) => p.price)) : 0,
+        min: 0,
         max: allPodProducts.length ? Math.max(...allPodProducts.map((p) => p.price)) : 0,
       },
     },

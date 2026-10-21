@@ -4,12 +4,6 @@ export function formatPrice(price: number | null | undefined, currency: string =
   const num = Number(price);
 
   if (currency === 'LKR' || currency === 'Rs' || currency === 'RS') {
-    /* Previous Rs. formatting commented out as requested
-    return `Rs. ${num.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-    */
     return `LKR ${num.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,

@@ -36,7 +36,7 @@ function formatDate(dateStr: string) {
 export function BlogPageContent() {
   return (
     <>
-      <div className="container-main" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
+      <div className="container-main pt-[50px] pb-[80px]">
         <h1 className="bp-page-heading">Blog</h1>
 
         <div className="bp-grid">
@@ -49,8 +49,8 @@ export function BlogPageContent() {
                   src={post.image}
                   alt={post.title}
                   fill
-                  className="bp-img"
-                  style={{ objectFit: 'cover', transition: 'transform 500ms ease' }}
+                  className="bp-img object-cover transition-transform duration-[500ms] ease-in-out"
+
                   sizes="(max-width: 749px) 100vw, (max-width: 991px) 50vw, 33vw"
                 />
               </Link>

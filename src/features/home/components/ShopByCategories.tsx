@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -37,20 +37,50 @@ function IconArrowRightLong({ size = 20 }: { size?: number }) {
 
 /* ── Category Data ── */
 
-const categories = [
-  { id: 'knit', label: 'Knit Wears', items: 17, image: '/fashion/categories-mega-menu/categories-mega-menu1.webp', href: '/shop?category=Knitwear' },
-  { id: 'glasses', label: 'Glasses', items: 11, image: '/fashion/categories-mega-menu/categories-mega-menu2.webp', href: '/shop?category=Accessories' },
-  { id: 'sweaters', label: 'Sweaters', items: 19, image: '/fashion/categories-mega-menu/categories-mega-menu3.webp', href: '/shop?category=Knitwear' },
-  { id: 'formal', label: 'Formal Wear', items: 16, image: '/fashion/categories-mega-menu/categories-mega-menu4.webp', href: '/shop?category=Dresses' },
-  { id: 'activewear', label: 'Activewear', items: 12, image: '/fashion/categories-mega-menu/categories-mega-menu5.webp', href: '/shop?category=Activewear' },
-  { id: 'tops', label: 'Tops', items: 14, image: '/fashion/categories-mega-menu/categories-mega-menu1.webp', href: '/shop?category=Tops' },
-  { id: 'dresses', label: 'Dresses', items: 22, image: '/fashion/categories-mega-menu/categories-mega-menu3.webp', href: '/shop?category=Dresses' },
-];
+interface CategoryItem {
+  id: string;
+  label: string;
+  items: number;
+  image: string;
+  href: string;
+}
 
 /* ── Component ── */
 
 export function ShopByCategories() {
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.categories && Array.isArray(data.categories)) {
+          const mapped: CategoryItem[] = data.categories.map((c: { id: string; name: string; slug: string; image?: string; productCount?: number }, idx: number) => ({
+            id: c.id || c.slug,
+            label: c.name,
+            items: c.productCount ?? 0,
+            image: c.image || `/fashion/categories-mega-menu/categories-mega-menu${(idx % 5) + 1}.webp`,
+            href: `/shop?category=${encodeURIComponent(c.name)}`,
+          }));
+          setCategoriesList(mapped);
+        }
+      })
+      .catch((err) => console.error('Error fetching live categories in ShopByCategories:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const displayCategories = categoriesList.length > 0 ? categoriesList : [
+    { id: 'electronics', label: 'Electronics', items: 11, image: '/fashion/categories-mega-menu/categories-mega-menu1.webp', href: '/shop?category=Electronics' },
+    { id: 'fashion', label: 'Fashion', items: 9, image: '/fashion/categories-mega-menu/categories-mega-menu2.webp', href: '/shop?category=Fashion' },
+    { id: 'home', label: 'Home & Kitchen', items: 8, image: '/fashion/categories-mega-menu/categories-mega-menu3.webp', href: '/shop?category=Home%20%26%20Kitchen' },
+    { id: 'sports', label: 'Sports & Outdoors', items: 7, image: '/fashion/categories-mega-menu/categories-mega-menu4.webp', href: '/shop?category=Sports%20%26%20Outdoors' },
+  ];
 
   return (
     <section className="shop-categories-section">
@@ -80,7 +110,7 @@ export function ShopByCategories() {
             speed={600}
             style={{ overflow: 'hidden' }}
           >
-            {categories.map((cat) => (
+            {displayCategories.map((cat) => (
               <SwiperSlide key={cat.id}>
                 <div style={{ textAlign: 'left' }} className="cat-card">
                   {/* Image */}

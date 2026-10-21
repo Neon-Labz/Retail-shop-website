@@ -9,8 +9,6 @@ import { useCartStore } from '@/store/cartStore';
 import { formatPrice } from '@/utils/formatPrice';
 import { getStorefrontOfProductId, isSameStoreScope, productHrefBaseFor, shopHrefFor, type Storefront } from '@/utils/storefront';
 
-/* ── Icons ── */
-
 function IconEye({ size = 16 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
@@ -52,8 +50,6 @@ function IconChevronRight({ size = 18 }: { size?: number }) {
   );
 }
 
-/* ── Component ── */
-
 export function ComparePageContent({ storefront }: { storefront?: Storefront } = {}) {
   const [mounted, setMounted] = useState(false);
   const [allItems, setAllItems] = useState<ReturnType<typeof useCompareStore.getState>['items']>([]);
@@ -67,7 +63,6 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
     return unsub;
   }, []);
 
-  /* Update visibleCount on resize */
   useEffect(() => {
     function update() {
       const w = window.innerWidth;
@@ -82,7 +77,6 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
     ? allItems.filter((p) => isSameStoreScope(getStorefrontOfProductId(p.id), storefront))
     : allItems;
 
-  /* Clamp slideIndex when items are removed or visibleCount changes */
   useEffect(() => {
     if (items.length === 0) return;
     const maxIndex = Math.max(0, items.length - visibleCount);
@@ -117,7 +111,6 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
 
   if (!mounted) return null;
 
-  /* Slider calculations */
   const visibleItems = items.slice(slideIndex, slideIndex + visibleCount);
   const showSlider = items.length > visibleCount;
   const canPrev = slideIndex > 0;
@@ -125,13 +118,12 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
   const labelWidth = visibleCount >= 4 ? '200px' : visibleCount === 2 ? '160px' : '120px';
   const gridCols = `${labelWidth} repeat(${visibleItems.length}, 1fr)`;
 
-  /* ── Empty state ── */
   if (items.length === 0) {
     return (
-      <div className="container-main" style={{ paddingTop: '80px', paddingBottom: '80px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 600, color: '#222', marginBottom: '16px' }}>Compare Products</h1>
-        <p style={{ fontSize: '16px', color: '#777', marginBottom: '30px' }}>No products to compare. Add products using the compare button.</p>
-        <Link href={shopHref} style={{ display: 'inline-block', padding: '14px 36px', backgroundColor: '#000', color: '#fff', fontSize: '16px', fontWeight: 600, textDecoration: 'none' }}>
+      <div className="container-main pt-[80px] pb-[80px] text-center">
+        <h1 className="text-[36px] font-semibold text-[#222] mb-[16px]">Compare Products</h1>
+        <p className="text-[16px] text-[#777] mb-[30px]">No products to compare. Add products using the compare button.</p>
+        <Link href={shopHref} className="inline-block py-[14px] px-[36px] bg-[#000] text-[#fff] text-[16px] font-semibold no-underline">
           Browse Products
         </Link>
       </div>
@@ -140,12 +132,10 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
 
   return (
     <>
-      <div className="container-main" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="container-main pt-[40px] pb-[80px]">
 
-        {/* Title */}
         <h1 className="cp-h1">Compare Products</h1>
 
-        {/* Slider navigation */}
         {showSlider && (
           <div className="cp-slider-nav">
             <span className="cp-nav-info">
@@ -170,64 +160,52 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
           </div>
         )}
 
-        {/* Compare Table */}
-        <div style={{ border: '1px solid #e5e5e5', overflow: 'hidden' }}>
+        <div className="border border-[#e5e5e5] overflow-hidden">
 
-          {/* ── Product Cards Row ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: gridCols, borderBottom: '1px solid #e5e5e5' }}>
-            {/* Empty label cell */}
-            <div style={{ padding: '20px', borderRight: '1px solid #e5e5e5' }} />
+          <div className="grid border-b border-[#e5e5e5]" style={{ gridTemplateColumns: gridCols }}>
+            <div className="p-[20px] border-r border-[#e5e5e5]" />
 
             {visibleItems.map((product) => (
-              <div key={product.id} className="cp-product-card" style={{ borderRight: '1px solid #e5e5e5' }}>
-                {/* Remove */}
+              <div key={product.id} className="cp-product-card border-r border-[#e5e5e5]">
                 <button
                   onClick={() => handleRemove(product.id)}
-                  style={{ fontSize: '14px', color: '#F15B41', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px', display: 'block', margin: '0 auto 16px' }}
+                  className="text-[14px] text-[#F15B41] bg-transparent border-none cursor-pointer underline underline-offset-[3px] block mx-auto mb-[16px]"
                 >
                   Remove
                 </button>
 
-                {/* Image */}
                 <Link
                   href={`${productHrefBase}/${product.slug}`}
-                  className="cp-product-img-link"
-                  style={{ display: 'block', position: 'relative', width: '100%', maxWidth: '200px', height: '260px', margin: '0 auto 16px', backgroundColor: '#f5f5f5', overflow: 'hidden' }}
+                  className="cp-product-img-link block relative w-full max-w-[200px] h-[260px] mx-auto mb-[16px] bg-[#f5f5f5] overflow-hidden"
                 >
-                  <Image src={product.images[0]?.src || ''} alt={product.name} fill style={{ objectFit: 'cover' }} sizes="(max-width: 749px) 50vw, 200px" />
+                  <Image src={product.images[0]?.src || ''} alt={product.name} fill className="object-cover" sizes="(max-width: 749px) 50vw, 200px" />
                 </Link>
 
-                {/* Name */}
                 <Link
                   href={`${productHrefBase}/${product.slug}`}
-                  className="cp-product-name"
-                  style={{ fontSize: '16px', fontWeight: 500, color: '#222', textDecoration: 'none', display: 'block', marginBottom: '6px', transition: 'color 200ms ease' }}
+                  className="cp-product-name text-[16px] font-medium text-[#222] no-underline block mb-[6px] transition-colors duration-[200ms] ease-in-out"
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#F15B41'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#222'; }}
                 >
                   {product.name}
                 </Link>
 
-                {/* Price */}
-                <p className="cp-product-price" style={{ fontSize: '16px', fontWeight: 600, color: '#F15B41', marginBottom: '16px' }}>
+                <p className="cp-product-price text-[16px] font-semibold text-[#F15B41] mb-[16px]">
                   {formatPrice(product.price)}
                 </p>
 
-                {/* Action buttons */}
-                <div className="cp-action-btns" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                <div className="cp-action-btns flex items-center justify-center gap-[10px]">
                   <button
-                    className="cp-action-btn"
+                    className="cp-action-btn inline-flex items-center gap-[6px] py-[10px] px-[18px] text-[13px] font-semibold text-[#222] border border-[#e0e0e0] bg-[#fff] cursor-pointer uppercase tracking-[0.5px] transition-all duration-[200ms] ease-in-out"
                     onClick={() => openQuickView(product)}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', fontSize: '13px', fontWeight: 600, color: '#222', border: '1px solid #e0e0e0', background: '#fff', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px', transition: 'all 200ms ease' }}
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#222'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; e.currentTarget.style.borderColor = '#e0e0e0'; }}
                   >
                     <IconEye size={15} /> QUICK VIEW
                   </button>
                   <button
-                    className="cp-action-btn"
+                    className="cp-action-btn inline-flex items-center gap-[6px] py-[10px] px-[18px] text-[13px] font-semibold text-[#222] border border-[#e0e0e0] bg-[#fff] cursor-pointer uppercase tracking-[0.5px] transition-all duration-[200ms] ease-in-out"
                     onClick={() => handleAddToCart(product)}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', fontSize: '13px', fontWeight: 600, color: '#222', border: '1px solid #e0e0e0', background: '#fff', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px', transition: 'all 200ms ease' }}
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#222'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; e.currentTarget.style.borderColor = '#e0e0e0'; }}
                   >
@@ -238,12 +216,11 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
             ))}
           </div>
 
-          {/* ── Comparison Rows ── */}
           {[
             {
               label: 'Availability',
               render: (p: typeof items[0]) => (
-                <span className="cp-value-span" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#22c55e' }}>
+                <span className="cp-value-span inline-flex items-center gap-[6px] text-[14px] text-[#22c55e]">
                   <IconCheckCircle /> In Stock
                 </span>
               ),
@@ -251,13 +228,13 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
             {
               label: 'Vendor',
               render: (p: typeof items[0]) => (
-                <span className="cp-value-span" style={{ fontSize: '14px', color: '#555' }}>{p.vendor}</span>
+                <span className="cp-value-span text-[14px] text-[#555]">{p.vendor}</span>
               ),
             },
             {
               label: 'Color',
               render: (p: typeof items[0]) => (
-                <span className="cp-value-span" style={{ fontSize: '14px', color: '#555' }}>
+                <span className="cp-value-span text-[14px] text-[#555]">
                   {p.colors.map((c, i) => (
                     <span key={c.name}>
                       <span style={{ color: c.value === '#FFFFFF' ? '#999' : c.value }}>{c.name}</span>
@@ -270,36 +247,32 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
             {
               label: 'Size',
               render: (p: typeof items[0]) => (
-                <span className="cp-value-span" style={{ fontSize: '14px', color: '#555' }}>{p.sizes.join(', ')}</span>
+                <span className="cp-value-span text-[14px] text-[#555]">{p.sizes.join(', ')}</span>
               ),
             },
             {
               label: 'Category',
               render: (p: typeof items[0]) => (
-                <span className="cp-value-span" style={{ fontSize: '14px', color: '#555' }}>{p.category}</span>
+                <span className="cp-value-span text-[14px] text-[#555]">{p.category}</span>
               ),
             },
             {
               label: 'Brand',
               render: (p: typeof items[0]) => (
-                <span className="cp-value-span" style={{ fontSize: '14px', color: '#555' }}>{p.brand}</span>
+                <span className="cp-value-span text-[14px] text-[#555]">{p.brand}</span>
               ),
             },
           ].map((row, rowIdx) => (
             <div
               key={row.label}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: gridCols,
-                borderBottom: '1px solid #e5e5e5',
-                backgroundColor: rowIdx % 2 === 0 ? '#f9f9fb' : '#fff',
-              }}
+              className={`grid border-b border-[#e5e5e5] ${rowIdx % 2 === 0 ? 'bg-[#f9f9fb]' : 'bg-[#fff]'}`}
+              style={{ gridTemplateColumns: gridCols }}
             >
-              <div className="cp-label-cell" style={{ padding: '16px 20px', fontWeight: 600, fontSize: '15px', color: '#222', borderRight: '1px solid #e5e5e5', display: 'flex', alignItems: 'center' }}>
+              <div className="cp-label-cell py-[16px] px-[20px] font-semibold text-[15px] text-[#222] border-r border-[#e5e5e5] flex items-center">
                 {row.label}
               </div>
               {visibleItems.map((product) => (
-                <div key={product.id} className="cp-value-cell" style={{ padding: '16px 20px', textAlign: 'center', borderRight: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div key={product.id} className="cp-value-cell py-[16px] px-[20px] text-center border-r border-[#e5e5e5] flex items-center justify-center">
                   {row.render(product)}
                 </div>
               ))}
@@ -310,10 +283,10 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
       </div>
 
       <style>{`
-        /* ─── title ─── */
+        
         .cp-h1 { font-size: 36px; font-weight: 600; color: #222; text-align: center; margin-bottom: 40px; }
 
-        /* ─── slider nav ─── */
+        
         .cp-slider-nav {
           display: flex;
           align-items: center;
@@ -338,10 +311,10 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
         .cp-nav-btn:hover:not(:disabled) { background: #222; color: #fff; border-color: #222; }
         .cp-nav-btn:disabled { opacity: 0.3; cursor: default; }
 
-        /* ─── product card ─── */
+        
         .cp-product-card { padding: 20px; text-align: center; }
 
-        /* ─── ≤1199px: tablet — 2-item slider ─── */
+        
         @media (max-width: 1199px) {
           .cp-h1 { font-size: clamp(22px, 3vw, 36px); margin-bottom: clamp(20px, 3vw, 40px); }
           .cp-product-card { padding: clamp(12px, 1.8vw, 20px); }
@@ -364,7 +337,7 @@ export function ComparePageContent({ storefront }: { storefront?: Storefront } =
           .cp-nav-info { font-size: clamp(12px, 1.4vw, 14px); }
         }
 
-        /* ─── ≤749px: mobile — 1-item slider ─── */
+        
         @media (max-width: 749px) {
           .cp-h1 { font-size: clamp(20px, 5.5vw, 28px); margin-bottom: clamp(14px, 4vw, 22px); }
           .cp-product-card { padding: clamp(10px, 3vw, 16px); }

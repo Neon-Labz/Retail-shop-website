@@ -5,15 +5,9 @@ import { Logo } from './Logo';
 import { DesktopNav } from './DesktopNav';
 import { HeaderActions } from './HeaderActions';
 import { MobileNav } from './MobileNav';
+import { HeaderCategoriesButton } from './HeaderCategoriesButton';
+import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
 import { useUIStore } from '@/store/uiStore';
-
-/* POD header — single-row layout matching the screenshot:
-   logo (left) · primary nav (center) · search/account/wishlist/cart (right).
-   This is the Default Fashion header structure with a #111 announcement bar
-   and the shared ambaz logo (/pod/logo/logo1.webp is the same wordmark).
-   DesktopNav / HeaderActions / MobileNav are the shared, storefront-aware
-   components, so nav data (navigation-pod.json), drawers and counts scope
-   to POD automatically via getStorefrontFromPath. */
 
 function IconMenu() {
   return (
@@ -28,7 +22,6 @@ export function PodHeader() {
 
   return (
     <>
-      <AnnouncementBar backgroundColor="#111" />
 
       <header
         className="pd-main-header"
@@ -50,7 +43,6 @@ export function PodHeader() {
             alignItems: 'center',
           }}
         >
-          {/* Column 1: Hamburger (mobile) + Logo (desktop) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifySelf: 'start' }}>
             <button
               onClick={openMobileMenu}
@@ -73,28 +65,38 @@ export function PodHeader() {
             <div className="pd-logo-desktop">
               <Logo href="/home/pod-shop" />
             </div>
+
+            <div className="pd-header-categories-desktop">
+              <HeaderCategoriesButton />
+            </div>
           </div>
 
-          {/* Column 2: Desktop Navigation */}
           <div className="pd-desktop-nav-wrapper">
             <DesktopNav />
           </div>
 
-          {/* Mobile-only centered logo */}
           <div className="pd-logo-mobile">
             <Logo href="/home/pod-shop" />
           </div>
 
-          {/* Column 3: Action Icons */}
-          <HeaderActions />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '22px', justifySelf: 'end' }}>
+            <div className="pd-header-lang-desktop">
+              <HeaderLanguageCurrency />
+            </div>
+            <HeaderActions />
+          </div>
         </div>
       </header>
 
       <MobileNav />
 
-      <style jsx global>{`
+      <style>{`
         .pd-main-header {
           border-bottom: 1px solid #e5e5e5;
+        }
+        .pd-header-lang-desktop {
+          display: flex;
+          align-items: center;
         }
         @media (min-width: 992px) {
           .pd-main-header {
@@ -107,6 +109,14 @@ export function PodHeader() {
         }
         .pd-logo-mobile {
           display: none;
+        }
+        @media (max-width: 991px) {
+          .pd-header-lang-desktop {
+            display: none !important;
+          }
+          .pd-header-categories-desktop {
+            display: none !important;
+          }
         }
         @media (max-width: 715px) {
           .pd-mobile-menu-btn {

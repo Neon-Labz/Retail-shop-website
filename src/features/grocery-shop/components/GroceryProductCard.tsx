@@ -179,6 +179,7 @@ export function GroceryProductCard({
             </button>
             <span className="gfp-tooltip">{inWishlist ? 'Already Wishlisted' : 'Wishlist'}</span>
           </div>
+          {/* Compare button removed/commented out as requested:
           <div className="gfp-tooltip-wrap">
             <button
               aria-label="Compare"
@@ -193,6 +194,7 @@ export function GroceryProductCard({
             </button>
             <span className="gfp-tooltip">{inCompare ? 'Added' : 'Add to compare'}</span>
           </div>
+          */}
           <div className="gfp-tooltip-wrap gfp-qv-wrap">
             <button
               aria-label="Quick view"

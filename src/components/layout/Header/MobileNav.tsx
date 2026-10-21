@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,6 +10,8 @@ import { useWishlistStore } from '@/store/wishlistStore';
 import { getStorefrontFromPath, isGrocerySlug, isPetFoodSlug, isNutritionSlug, isMegastoreSlug, isPhoneCaseSlug, isSmartWatchesSlug, type Storefront } from '@/utils/storefront';
 import { ALL_CATEGORIES } from './AllCategoriesButton';
 import { MEGASTORE_CATEGORIES } from './MegastoreAllCategoriesButton';
+import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
+import { formatPrice } from '@/utils/formatPrice';
 
 import navigationFashion from '@/data/navigation.json';
 import navigationGrocery from '@/data/navigation-grocery.json';
@@ -32,8 +34,6 @@ import { HOME_DEMO_COLUMNS } from '@/data/homeDemoMenu';
 
 import type { NavigationItem, MegaMenuColumn } from '@/types/common';
 
-/* ── Icons ── */
-
 function IconPlus({ open }: { open: boolean }) {
   return (
     <svg
@@ -44,12 +44,9 @@ function IconPlus({ open }: { open: boolean }) {
       viewBox="0 0 10 10"
       width="16"
       height="16"
-      style={{
-        position: 'absolute',
-        transition: 'opacity 350ms ease, transform 350ms ease',
-        opacity: open ? 0 : 1,
-        transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-      }}
+      className={`absolute transition-[opacity,transform] duration-350 ease-in-out ${
+        open ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'
+      }`}
     >
       <path
         fillRule="evenodd"
@@ -71,12 +68,9 @@ function IconMinus({ open }: { open: boolean }) {
       viewBox="0 0 10 2"
       width="16"
       height="16"
-      style={{
-        position: 'absolute',
-        transition: 'opacity 350ms ease, transform 350ms ease',
-        opacity: open ? 1 : 0,
-        transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
-      }}
+      className={`absolute transition-[opacity,transform] duration-350 ease-in-out ${
+        open ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'
+      }`}
     >
       <path
         fillRule="evenodd"
@@ -111,8 +105,6 @@ function IconClose({ size = 22 }: { size?: number }) {
     </svg>
   );
 }
-
-/* ── Helpers ── */
 
 function pickNav(storefront: Storefront): NavigationItem[] {
   switch (storefront) {
@@ -177,8 +169,6 @@ function filterWishlistForStorefront(items: { slug: string }[], storefront: Stor
   );
 }
 
-/* Per-storefront colors for the Categories tab — replaces the hard-coded grocery values
-   that used to live inline in the Categories render block. */
 function categoriesTheme(storefront: Storefront) {
   if (storefront === 'megastore') {
     return {
@@ -190,7 +180,6 @@ function categoriesTheme(storefront: Storefront) {
       l2ToggleColor: '#555',
     };
   }
-  /* grocery defaults */
   return {
     iconCircleBg: '#f0f5f0',
     labelColor: '#1B8057',
@@ -201,46 +190,29 @@ function categoriesTheme(storefront: Storefront) {
   };
 }
 
-/* ── Collapse — grid-template-rows 0fr→1fr, auto-sizes around nested content ── */
-
 function Collapse({ open, children }: { open: boolean; children: React.ReactNode }) {
   return (
     <div
-      style={{
-        display: 'grid',
-        gridTemplateRows: open ? '1fr' : '0fr',
-        opacity: open ? 1 : 0,
-        transition:
-          'grid-template-rows 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      }}
+      className={`grid transition-[grid-template-rows_500ms_cubic-bezier(0.25,0.46,0.45,0.94),opacity_400ms_cubic-bezier(0.25,0.46,0.45,0.94)] ${
+        open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+      }`}
     >
-      <div style={{ overflow: 'hidden', minHeight: 0 }}>{children}</div>
+      <div className="overflow-hidden min-h-0">{children}</div>
     </div>
   );
 }
 
-/* ── Toggle icon wrapper (shared between Menu and Categories accordions) ── */
-
 function ToggleIcon({ open, color = '#555' }: { open: boolean; color?: string }) {
   return (
     <span
-      style={{
-        position: 'relative',
-        width: '16px',
-        height: '16px',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color,
-      }}
+      className="relative w-[16px] h-[16px] inline-flex items-center justify-center"
+      style={{ color }}
     >
       <IconPlus open={open} />
       <IconMinus open={open} />
     </span>
   );
 }
-
-/* ── AccordionRow — used by the Menu tab ── */
 
 interface AccordionRowProps {
   label: string;
@@ -256,22 +228,24 @@ interface AccordionRowProps {
 function AccordionRow({
   label, href, isOpen, onToggle, onNavigate, accent, depth = 0, hasChildren,
 }: AccordionRowProps) {
-  const paddingInline = depth === 0 ? '20px' : '36px';
-  const fontSize     = depth === 0 ? '15px' : '14px';
-  const color        = depth === 0 ? accent.text : accent.primary;
+  const rowItemClass = `flex-1 flex items-center py-[16px] font-medium ${
+    depth === 0 ? 'px-[20px] text-[15px]' : 'px-[36px] text-[14px]'
+  }`;
+  const color = depth === 0 ? accent.text : accent.primary;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', borderBottom: '1px solid #eee' }}>
+    <div className="flex items-stretch justify-between border-b border-[#eee]">
       {href ? (
         <Link
           href={href}
           onClick={onNavigate}
-          style={{ flex: 1, display: 'flex', alignItems: 'center', padding: `16px ${paddingInline}`, fontSize, fontWeight: 500, color, textDecoration: 'none' }}
+          className={`${rowItemClass} no-underline`}
+          style={{ color }}
         >
           {label}
         </Link>
       ) : (
-        <span style={{ flex: 1, display: 'flex', alignItems: 'center', padding: `16px ${paddingInline}`, fontSize, fontWeight: 500, color }}>
+        <span className={rowItemClass} style={{ color }}>
           {label}
         </span>
       )}
@@ -280,7 +254,7 @@ function AccordionRow({
           onClick={onToggle}
           aria-expanded={isOpen}
           aria-label={isOpen ? `Collapse ${label}` : `Expand ${label}`}
-          style={{ width: '54px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+          className="w-[54px] shrink-0 flex items-center justify-center bg-transparent border-none cursor-pointer p-0"
         >
           <ToggleIcon open={isOpen} color={accent.text} />
         </button>
@@ -288,8 +262,6 @@ function AccordionRow({
     </div>
   );
 }
-
-/* ── Main component ── */
 
 export function MobileNav() {
   const { mobileMenuOpen, closeMobileMenu } = useUIStore();
@@ -301,13 +273,68 @@ export function MobileNav() {
   const wishlistItems  = useWishlistStore((s) => s.items);
   const visibleWishlist = filterWishlistForStorefront(wishlistItems, storefront);
 
-  /* Menu tab accordion state */
   const [openTop, setOpenTop] = useState<Record<string, boolean>>({});
   const [openCol, setOpenCol] = useState<Record<string, boolean>>({});
   const toggleTop = (id: string)  => setOpenTop((p) => ({ ...p, [id]: !p[id] }));
   const toggleCol = (key: string) => setOpenCol((p) => ({ ...p, [key]: !p[key] }));
 
-  /* Grocery Categories tab state */
+  const [dbCategories, setDbCategories] = useState<Array<{ id: string; name: string; slug: string; subcategories: string[] }>>([]);
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; slug: string; price: number; compareAtPrice?: number | null; image: string }>>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch('/api/categories')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+          setDbCategories(
+            data.categories.map((c: any) => ({
+              id: c.id || c._id || c.name,
+              name: c.name,
+              slug: c.slug || c.name,
+              subcategories: Array.isArray(c.subcategories) ? c.subcategories : [],
+            }))
+          );
+        }
+      })
+      .catch((err) => console.error('Error fetching categories for MobileNav:', err));
+
+    fetch('/api/products?limit=10')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+          setDbProducts(
+            data.products.map((p: any) => {
+              const rawImg = p.images?.[0];
+              const imgSrc = (typeof rawImg === 'string' ? rawImg : rawImg?.src) || '';
+              return {
+                id: p.id || p._id || p.slug,
+                name: p.name,
+                slug: p.slug,
+                price: p.price,
+                compareAtPrice: p.compareAtPrice,
+                image: imgSrc,
+              };
+            })
+          );
+        }
+      })
+      .catch((err) => console.error('Error fetching products for MobileNav:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const [activeTab,  setActiveTab]  = useState<'menu' | 'categories'>('menu');
   const [openCatL1,  setOpenCatL1]  = useState<Record<string, boolean>>({});
   const [openCatL2,  setOpenCatL2]  = useState<Record<string, boolean>>({});
@@ -323,14 +350,8 @@ export function MobileNav() {
     }, 400);
   };
 
-  /* Storefronts that ship a Categories tab (grocery + megastore today). */
   const hasCategoriesTab = storefront === 'grocery' || storefront === 'megastore';
 
-  /* Pick the categories dataset for the current storefront. The two arrays have
-     slightly different icon shapes — grocery uses `icon: string` (image path),
-     megastore uses `iconNode: ReactNode` — but the rest of the CategoryEntry
-     shape (id/label/href/megaColumns/subItems) matches, so we use a structural
-     union below in the render block. */
   type AnyCategoryEntry = {
     id: string;
     label: string;
@@ -344,7 +365,6 @@ export function MobileNav() {
     storefront === 'megastore' ? (MEGASTORE_CATEGORIES as AnyCategoryEntry[]) : (ALL_CATEGORIES as AnyCategoryEntry[]);
   const catTheme = categoriesTheme(storefront);
 
-  /* Build flat L2 list from a category entry */
   function getCatL2(cat: AnyCategoryEntry) {
     if (cat.megaColumns) {
       return cat.megaColumns.map((col, i) => ({
@@ -368,86 +388,97 @@ export function MobileNav() {
   return (
     <Drawer isOpen={mobileMenuOpen} onClose={close} side="start" width="55rem">
 
-      {/* ── Header ── */}
       {hasCategoriesTab ? (
-        /* Storefronts with a Categories tab (grocery, megastore): [Menu] [Categories] × */
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 16px', borderBottom: '1px solid #eee', flexShrink: 0 }}>
+        <div className="flex items-center gap-[10px] py-[14px] px-[16px] border-b border-[#eee] shrink-0">
           <button
             onClick={() => setActiveTab('menu')}
-            style={{
-              padding: '8px 20px',
-              fontSize: '14px',
-              fontWeight: 600,
-              borderRadius: '40px',
-              border: activeTab === 'menu' ? 'none' : '1.5px solid #d0d0d0',
-              background: activeTab === 'menu' ? '#222' : 'transparent',
-              color: activeTab === 'menu' ? '#fff' : '#222',
-              cursor: 'pointer',
-              transition: 'background 200ms ease, color 200ms ease',
-              WebkitTapHighlightColor: 'transparent',
-            }}
+            className={`py-[8px] px-[20px] text-[14px] font-semibold rounded-[40px] cursor-pointer transition-[background,color] duration-200 ease-in-out [-webkit-tap-highlight-color:transparent] ${
+              activeTab === 'menu'
+                ? 'border-none bg-[#222] text-white'
+                : 'border-[1.5px] border-[#d0d0d0] bg-transparent text-[#222]'
+            }`}
           >
             Menu
           </button>
           <button
             onClick={() => setActiveTab('categories')}
-            style={{
-              padding: '8px 20px',
-              fontSize: '14px',
-              fontWeight: 600,
-              borderRadius: '40px',
-              border: activeTab === 'categories' ? 'none' : '1.5px solid #d0d0d0',
-              background: activeTab === 'categories' ? '#222' : 'transparent',
-              color: activeTab === 'categories' ? '#fff' : '#222',
-              cursor: 'pointer',
-              transition: 'background 200ms ease, color 200ms ease',
-              WebkitTapHighlightColor: 'transparent',
-            }}
+            className={`py-[8px] px-[20px] text-[14px] font-semibold rounded-[40px] cursor-pointer transition-[background,color] duration-200 ease-in-out [-webkit-tap-highlight-color:transparent] ${
+              activeTab === 'categories'
+                ? 'border-none bg-[#222] text-white'
+                : 'border-[1.5px] border-[#d0d0d0] bg-transparent text-[#222]'
+            }`}
           >
             Categories
           </button>
           <button
             onClick={close}
             aria-label="Close menu"
-            style={{ marginLeft: 'auto', width: '44px', height: '44px', border: 'none', background: 'transparent', color: '#222', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            className="ml-auto w-[44px] h-[44px] border-none bg-transparent text-[#222] cursor-pointer flex items-center justify-center"
           >
             <IconClose size={26} />
           </button>
         </div>
       ) : (
-        /* Other storefronts: logo + close */
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 12px 18px 20px', borderBottom: '1px solid #eee' }}>
-          <Link href="/" onClick={close} style={{ display: 'inline-flex' }}>
-            <Image src="/fashion/logo/logo1.webp" alt="Ambaz" width={100} height={28} style={{ objectFit: 'contain' }} />
+        <div className="flex items-center justify-between py-[14px] pr-[12px] pl-[20px] border-b border-[#eee]">
+          <Link href="/" onClick={close} className="inline-flex items-center">
+            <Image src="/rkf-logo.png" alt="RKF Distributer" width={110} height={54} className="object-contain h-[48px] w-auto" />
           </Link>
           <button
             onClick={close}
             aria-label="Close menu"
-            style={{ width: '44px', height: '44px', marginRight: '-4px', border: 'none', background: 'transparent', color: accent.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            className="w-[44px] h-[44px] mr-[-4px] border-none bg-transparent cursor-pointer flex items-center justify-center"
+            style={{ color: accent.text }}
           >
             <IconClose size={30} />
           </button>
         </div>
       )}
 
-      {/* ── Menu tab ── */}
       {(!hasCategoriesTab || activeTab === 'menu') && (
         <>
           <nav>
             {navItems.map((item) => {
-              const rawColumns: MegaMenuColumn[] = item.megaMenu ?? [];
-              const isDemoMenu = rawColumns.some((c) => c.title && c.title.toLowerCase().startsWith('demo list'));
-              const columns = isDemoMenu ? HOME_DEMO_COLUMNS : rawColumns;
-              const flatChildren = item.children ?? [];
-              const categoryCards = item.megaCategoryCards ?? [];
-              const hasChildren = columns.length > 0 || flatChildren.length > 0 || categoryCards.length > 0;
+              if (item.id === 'nav-shop') return null;
+
+              if (item.id === 'nav-blog') return null;
+
+              const isAboutUs = item.id === 'nav-pages';
+              const isCategoriesItem = item.id === 'nav-categories';
+              const isProductsItem = item.id === 'nav-products';
+              const itemLabel = isAboutUs ? 'About us' : item.label;
+              const linkHref = isAboutUs
+                ? '/pages/about'
+                : isProductsItem
+                  ? '/products'
+                  : (item.href && item.href !== '#' ? item.href : undefined);
+
+              const columns: MegaMenuColumn[] = isAboutUs
+                ? []
+                : isCategoriesItem
+                  ? dbCategories.map((cat) => ({
+                      title: cat.name,
+                      links: cat.subcategories.map((sub, idx) => ({
+                        id: `${cat.id}-sub-${idx}`,
+                        label: sub,
+                        href: `/products?category=${encodeURIComponent(cat.name)}&subcategory=${encodeURIComponent(sub)}`,
+                      })),
+                    }))
+                  : isProductsItem
+                    ? []
+                    : (item.megaMenu ?? []);
+              const flatChildren = isAboutUs ? [] : (item.children ?? []);
+              const categoryCards = isAboutUs || isCategoriesItem ? [] : (item.megaCategoryCards ?? []);
+              const hasChildren =
+                columns.length > 0 ||
+                flatChildren.length > 0 ||
+                categoryCards.length > 0 ||
+                (isProductsItem && dbProducts.length > 0);
               const isTopOpen = !!openTop[item.id];
-              const linkHref = item.href && item.href !== '#' ? item.href : undefined;
 
               return (
                 <div key={item.id}>
                   <AccordionRow
-                    label={item.label}
+                    label={itemLabel}
                     href={linkHref}
                     isOpen={isTopOpen}
                     onToggle={() => toggleTop(item.id)}
@@ -462,10 +493,14 @@ export function MobileNav() {
                         const colKey = `${item.id}::${ci}`;
                         const isColOpen = !!openCol[colKey];
                         const hasLinks = col.links.length > 0;
+                        const colHref = isCategoriesItem
+                          ? `/products?category=${encodeURIComponent(col.title)}`
+                          : undefined;
                         return (
                           <div key={colKey}>
                             <AccordionRow
                               label={col.title}
+                              href={colHref}
                               isOpen={isColOpen}
                               onToggle={() => toggleCol(colKey)}
                               onNavigate={close}
@@ -487,11 +522,14 @@ export function MobileNav() {
                                         window.scrollTo({ top: 0, behavior: 'instant' });
                                       }
                                     }}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '14px 52px', fontSize: '14px', fontWeight: 500, color: accent.text, textDecoration: 'none', borderBottom: '1px solid #f0f0f0', cursor: l.comingSoon ? 'default' : undefined }}
+                                    className={`flex items-center gap-[8px] py-[14px] px-[52px] text-[14px] font-medium no-underline border-b border-[#f0f0f0] ${
+                                      l.comingSoon ? 'cursor-default' : ''
+                                    }`}
+                                    style={{ color: accent.text }}
                                   >
                                     {l.label}
                                     {l.comingSoon && (
-                                      <span style={{ fontSize: '10px', fontWeight: 600, color: '#fff', backgroundColor: 'rgba(107, 114, 128, 0.8)', padding: '2px 6px', borderRadius: '4px', letterSpacing: '0.3px', lineHeight: 1.4, flexShrink: 0 }}>
+                                      <span className="text-[10px] font-semibold text-white bg-[rgba(107,114,128,0.8)] py-[2px] px-[6px] rounded-[4px] tracking-[0.3px] leading-[1.4] shrink-0">
                                         Coming Soon
                                       </span>
                                     )}
@@ -502,12 +540,57 @@ export function MobileNav() {
                           </div>
                         );
                       })}
+                      {isProductsItem && dbProducts.length > 0 && (
+                        <div>
+                          {dbProducts.map((prod) => (
+                            <Link
+                              key={prod.id}
+                              href={`/products/${prod.slug}`}
+                              onClick={() => {
+                                close();
+                                window.scrollTo({ top: 0, behavior: 'instant' });
+                              }}
+                              className="flex items-center gap-[12px] py-[10px] pr-[20px] pl-[32px] no-underline border-b border-[#f0f0f0]"
+                              style={{ color: accent.text }}
+                            >
+                              <div className="relative w-[44px] h-[44px] rounded-[6px] overflow-hidden bg-[#f7f7f7] shrink-0 border border-[#eee]">
+                                {prod.image ? (
+                                  <Image
+                                    src={prod.image}
+                                    alt={prod.name}
+                                    fill
+                                    className="object-cover"
+                                    sizes="44px"
+                                    unoptimized
+                                  />
+                                ) : null}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[14px] font-medium text-[#222] mt-0 mx-0 mb-[2px] whitespace-nowrap overflow-hidden text-ellipsis">
+                                  {prod.name}
+                                </p>
+                                <span className="product-price-text text-[13px] font-bold text-[#F15B41]">
+                                  {formatPrice(prod.price)}
+                                </span>
+                              </div>
+                            </Link>
+                          ))}
+                          <Link
+                            href="/products"
+                            onClick={close}
+                            className="block py-[14px] px-[32px] text-[14px] font-semibold text-[#F15B41] no-underline border-b border-[#eee]"
+                          >
+                            View All Products →
+                          </Link>
+                        </div>
+                      )}
                       {flatChildren.map((c) => (
                         <Link
                           key={c.id}
                           href={c.href}
                           onClick={close}
-                          style={{ display: 'block', padding: '14px 36px', fontSize: '14px', fontWeight: 500, color: accent.text, textDecoration: 'none', borderBottom: '1px solid #f0f0f0' }}
+                          className="block py-[14px] px-[36px] text-[14px] font-medium no-underline border-b border-[#f0f0f0]"
+                          style={{ color: accent.text }}
                         >
                           {c.label}
                         </Link>
@@ -517,7 +600,8 @@ export function MobileNav() {
                           key={c.id}
                           href={c.href}
                           onClick={close}
-                          style={{ display: 'block', padding: '14px 36px', fontSize: '14px', fontWeight: 500, color: accent.text, textDecoration: 'none', borderBottom: '1px solid #f0f0f0' }}
+                          className="block py-[14px] px-[36px] text-[14px] font-medium no-underline border-b border-[#f0f0f0]"
+                          style={{ color: accent.text }}
                         >
                           {c.label}
                         </Link>
@@ -529,16 +613,17 @@ export function MobileNav() {
             })}
           </nav>
 
-          {/* Wishlist row */}
           <Link
             href={wishlistHref}
             onClick={close}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '18px 20px', borderBottom: '1px solid #eee', color: accent.text, textDecoration: 'none', fontSize: '15px', fontWeight: 500 }}
+            className="flex items-center gap-[10px] py-[18px] px-[20px] border-b border-[#eee] no-underline text-[15px] font-medium"
+            style={{ color: accent.text }}
           >
-            <span style={{ position: 'relative', display: 'inline-flex' }}>
+            <span className="relative inline-flex">
               <IconHeart size={22} />
               <span
-                style={{ position: 'absolute', top: '-8px', right: '-10px', minWidth: '18px', height: '18px', padding: '0 5px', borderRadius: '9999px', background: accent.primary, color: '#fff', fontSize: '10px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff', lineHeight: 1 }}
+                className="absolute top-[-8px] right-[-10px] min-w-[18px] h-[18px] px-[5px] py-0 rounded-full text-white text-[10px] font-bold inline-flex items-center justify-center border-[2px] border-white leading-none"
+                style={{ background: accent.primary }}
               >
                 {visibleWishlist.length}
               </span>
@@ -546,13 +631,13 @@ export function MobileNav() {
             Wishlist
           </Link>
 
-          {/* My account block */}
-          <div style={{ padding: '28px 20px 20px' }}>
-            <h4 style={{ fontSize: '22px', fontWeight: 700, color: accent.text, margin: '0 0 18px' }}>My account</h4>
+          <div className="pt-[28px] px-[20px] pb-[20px]">
+            <h4 className="text-[22px] font-bold mt-0 mx-0 mb-[18px]" style={{ color: accent.text }}>My account</h4>
             <button
               type="button"
               onClick={close}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', background: accent.primary, color: '#fff', border: 'none', borderRadius: '40px', padding: '15px 24px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginBottom: '12px' }}
+              className="flex items-center justify-center gap-[10px] w-full text-white border-none rounded-[40px] py-[15px] px-[24px] text-[15px] font-semibold cursor-pointer mb-[12px]"
+              style={{ background: accent.primary }}
             >
               <IconUser size={18} />
               Log in
@@ -560,15 +645,19 @@ export function MobileNav() {
             <button
               type="button"
               onClick={close}
-              style={{ display: 'block', width: '100%', background: 'transparent', color: accent.text, border: `1.5px solid ${accent.primary}`, borderRadius: '40px', padding: '14px 24px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
+              className="block w-full bg-transparent border-[1.5px] rounded-[40px] py-[14px] px-[24px] text-[15px] font-semibold cursor-pointer mb-[20px]"
+              style={{ color: accent.text, borderColor: accent.primary }}
             >
               Register
             </button>
+
+            <div className="pt-[16px] border-t border-[#eee] flex items-center justify-start">
+              <HeaderLanguageCurrency />
+            </div>
           </div>
         </>
       )}
 
-      {/* ── Categories tab (grocery + megastore) ── */}
       {hasCategoriesTab && activeTab === 'categories' && (
         <div>
           {categoriesData.map((cat) => {
@@ -577,43 +666,40 @@ export function MobileNav() {
             const l2Items   = getCatL2(cat);
 
             const iconCell = (
-              <span style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', background: catTheme.iconCircleBg, overflow: 'hidden', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: catTheme.labelColor }}>
+              <span
+                className="relative w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 inline-flex items-center justify-center"
+                style={{ background: catTheme.iconCircleBg, color: catTheme.labelColor }}
+              >
                 {cat.iconNode
                   ? cat.iconNode
                   : cat.icon
-                    ? <Image src={cat.icon} alt={cat.label} fill style={{ objectFit: 'contain' }} sizes="32px" />
+                    ? <Image src={cat.icon} alt={cat.label} fill className="object-contain" sizes="32px" />
                     : null}
               </span>
             );
 
             const labelCell = (
-              <span style={{ fontSize: '15px', fontWeight: 600, color: catTheme.labelColor, flex: 1, minWidth: 0 }}>
+              <span
+                className="text-[15px] font-semibold flex-1 min-w-0"
+                style={{ color: catTheme.labelColor }}
+              >
                 {cat.label}
               </span>
             );
 
-            const innerStyle: React.CSSProperties = {
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-              padding: '12px 16px',
-              minHeight: '56px',
-              textDecoration: 'none',
-            };
+            const innerClass = 'flex-1 flex items-center gap-[14px] py-[12px] px-[16px] min-h-[56px] no-underline';
 
             return (
-              <div key={cat.id} style={{ borderBottom: '1px solid #eee' }}>
+              <div key={cat.id} className="border-b border-[#eee]">
 
-                {/* L1 row */}
-                <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                <div className="flex items-stretch">
                   {hasChildren ? (
-                    <span style={innerStyle}>
+                    <span className={innerClass}>
                       {iconCell}
                       {labelCell}
                     </span>
                   ) : (
-                    <Link href={cat.href} onClick={close} style={innerStyle}>
+                    <Link href={cat.href} onClick={close} className={innerClass}>
                       {iconCell}
                       {labelCell}
                     </Link>
@@ -623,14 +709,13 @@ export function MobileNav() {
                       onClick={() => setOpenCatL1((p) => ({ ...p, [cat.id]: !p[cat.id] }))}
                       aria-expanded={isL1Open}
                       aria-label={isL1Open ? `Collapse ${cat.label}` : `Expand ${cat.label}`}
-                      style={{ width: '52px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+                      className="w-[52px] shrink-0 flex items-center justify-center bg-transparent border-none cursor-pointer [-webkit-tap-highlight-color:transparent]"
                     >
                       <ToggleIcon open={isL1Open} color={catTheme.l1ToggleColor} />
                     </button>
                   )}
                 </div>
 
-                {/* L2 + L3 */}
                 {hasChildren && (
                   <Collapse open={isL1Open}>
                     {l2Items.map((l2) => {
@@ -640,14 +725,13 @@ export function MobileNav() {
                       return (
                         <div key={l2.key} style={{ background: catTheme.l2RowBg }}>
 
-                          {/* L2 row */}
-                          <div style={{ display: 'flex', alignItems: 'stretch', borderTop: '1px solid #efefef' }}>
+                          <div className="flex items-stretch border-t border-[#efefef]">
                             {hasL3 ? (
-                              <span style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '14px 16px 14px 50px', fontSize: '14px', fontWeight: 500, color: '#333', minHeight: '50px' }}>
+                              <span className="flex-1 flex items-center py-[14px] pr-[16px] pl-[50px] text-[14px] font-medium text-[#333] min-h-[50px]">
                                 {l2.label}
                               </span>
                             ) : (
-                              <Link href={l2.href} onClick={close} style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '14px 16px 14px 50px', fontSize: '14px', fontWeight: 500, color: '#333', minHeight: '50px', textDecoration: 'none' }}>
+                              <Link href={l2.href} onClick={close} className="flex-1 flex items-center py-[14px] pr-[16px] pl-[50px] text-[14px] font-medium text-[#333] min-h-[50px] no-underline">
                                 {l2.label}
                               </Link>
                             )}
@@ -656,14 +740,13 @@ export function MobileNav() {
                                 onClick={() => setOpenCatL2((p) => ({ ...p, [l2.key]: !p[l2.key] }))}
                                 aria-expanded={isL2Open}
                                 aria-label={isL2Open ? `Collapse ${l2.label}` : `Expand ${l2.label}`}
-                                style={{ width: '52px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+                                className="w-[52px] shrink-0 flex items-center justify-center bg-transparent border-none cursor-pointer [-webkit-tap-highlight-color:transparent]"
                               >
                                 <ToggleIcon open={isL2Open} color={catTheme.l2ToggleColor} />
                               </button>
                             )}
                           </div>
 
-                          {/* L3 links */}
                           {hasL3 && (
                             <Collapse open={isL2Open}>
                               {l2.l3.map((l3, idx) => (
@@ -671,7 +754,8 @@ export function MobileNav() {
                                   key={`${l2.key}-l3-${idx}`}
                                   href={l3.href}
                                   onClick={close}
-                                  style={{ display: 'block', padding: '12px 16px 12px 66px', fontSize: '13px', fontWeight: 400, color: '#666', textDecoration: 'none', borderTop: '1px solid #efefef', background: catTheme.l3RowBg }}
+                                  className="block py-[12px] pr-[16px] pl-[66px] text-[13px] font-normal text-[#666] no-underline border-t border-[#efefef]"
+                                  style={{ background: catTheme.l3RowBg }}
                                 >
                                   {l3.label}
                                 </Link>

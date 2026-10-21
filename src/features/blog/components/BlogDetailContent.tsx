@@ -79,14 +79,14 @@ export function BlogDetailContent({ post, prevPost, nextPost }: Props) {
           src={post.image}
           alt={post.title}
           fill
-          style={{ objectFit: 'cover' }}
+          className="object-cover"
           priority
           sizes="100vw"
         />
       </div>
 
       {/* ── Content ── */}
-      <div className="container-main" style={{ paddingTop: '4rem', paddingBottom: '8rem' }}>
+      <div className="container-main pt-[40px] pb-[80px]">
         <div className="bd-content">
 
           {/* Title + date */}
