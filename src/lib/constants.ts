@@ -45,27 +45,37 @@ export const TRUST_BADGES = [
   { icon: 'headphones', title: 'Dedicated Support', description: 'Wholesale & retail buyer assistance' },
 ] as const;
 
+export const STORE_EMAIL = 'rkfdistributors2002@gmail.com';
+export const STORE_PHONE = '+94 78 991 5587';
+export const STORE_ADDRESS = 'Play Ground Road, Kopay South, Jaffna';
+export const STORE_HOURS = '9:00 AM – 6:00 PM (All Days)';
+export const STORE_FACEBOOK = 'https://web.facebook.com/profile.php?id=61587176139721';
+export const STORE_INSTAGRAM = 'https://www.instagram.com/rkfdistributorspvtltd/?hl=en';
+export const STORE_TIKTOK = 'https://www.tiktok.com/@rkf.distributors.p';
+
 export const SOCIAL_LINKS = [
-  { name: 'Twitter', href: '#', icon: 'twitter' },
-  { name: 'Facebook', href: '#', icon: 'facebook' },
-  { name: 'Instagram', href: '#', icon: 'instagram' },
-  { name: 'TikTok', href: '#', icon: 'tiktok' },
-  { name: 'LinkedIn', href: '#', icon: 'linkedin' },
+  { name: 'Facebook', href: STORE_FACEBOOK, icon: 'facebook' },
+  { name: 'Instagram', href: STORE_INSTAGRAM, icon: 'instagram' },
+  { name: 'TikTok', href: STORE_TIKTOK, icon: 'tiktok' },
 ] as const;
 
 export const FOOTER_LINKS = {
   quickLinks: [
-    { label: 'FAQ', href: '/pages/faq' },
-    { label: 'Find store location', href: '/pages/store-location' },
-    { label: 'Privacy Policy', href: '/pages/privacy-policy' },
-    { label: 'Refund Policy', href: '/pages/refund-policy' },
-    { label: 'Terms of Service', href: '/pages/terms-of-service' },
+    { label: 'Home', href: '/' },
+    { label: 'Categories', href: '/categories' },
+    { label: 'Products', href: '/products' },
   ],
   company: [
     { label: 'Wishlist', href: '/wishlist' },
-    { label: 'My account', href: '/login' },
+    { label: 'My account', href: '/profile' },
     { label: 'Cart', href: '/cart' },
     { label: 'About us', href: '/pages/about' },
+  ],
+  support: [
+    { label: 'Privacy Policy', href: '/pages/privacy-policy' },
+    { label: 'Terms of Service', href: '/pages/terms-of-service' },
+    { label: 'Shipping Policy', href: '/pages/shipping-policy' },
+    { label: 'Contact Us', href: '/pages/contact' },
   ],
 } as const;
 

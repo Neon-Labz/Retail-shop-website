@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useUIStore } from '@/store/uiStore';
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice } from '@/utils/formatPrice';
@@ -37,8 +38,9 @@ function IconArrowRight({ size = 14 }: { size?: number }) {
 /* ── Component ── */
 
 export function QuickViewModal() {
+  const router = useRouter();
   const { quickViewProduct, closeQuickView } = useUIStore();
-  const { addItem } = useCartStore();
+  const { addItem, closeDrawer } = useCartStore();
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -47,8 +49,8 @@ export function QuickViewModal() {
 
   useEffect(() => {
     if (product) {
-      setSelectedColor(product.colors[0]?.name || '');
-      setSelectedSize(product.sizes[0] || '');
+      setSelectedColor(product.colors?.[0]?.name || '');
+      setSelectedSize(product.sizes?.[0] || '');
       setQuantity(1);
     }
   }, [product]);
@@ -71,22 +73,57 @@ export function QuickViewModal() {
 
   if (!product) return null;
 
-  const activeColor = selectedColor || product.colors[0]?.name || '';
-  const activeSize = selectedSize || product.sizes[0] || '';
+  const activeColor = selectedColor || product.colors?.[0]?.name || '';
+  const activeSize = selectedSize || product.sizes?.[0] || '';
 
   const handleAddToCart = () => {
-    const variant = product.variants.find(
+    const variant = product.variants?.find(
       (v) => v.color === activeColor && v.size === activeSize
-    ) || product.variants[0];
-    if (!variant) return;
+    ) || product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
+
     addItem({
-      productId: product.id, variantId: variant.id,
-      name: product.name, slug: product.slug, image: variant.image,
-      color: activeColor, size: activeSize,
-      price: product.price, compareAtPrice: product.compareAtPrice,
-      quantity, vendor: product.vendor,
+      productId: product.id,
+      variantId,
+      name: product.name,
+      slug: product.slug,
+      image,
+      color: activeColor,
+      size: activeSize,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      quantity,
+      vendor: product.vendor,
+      weight: product.weight || 0,
     });
     closeQuickView();
+  };
+
+  const handleBuyNow = () => {
+    const variant = product.variants?.find(
+      (v) => v.color === activeColor && v.size === activeSize
+    ) || product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
+
+    addItem({
+      productId: product.id,
+      variantId,
+      name: product.name,
+      slug: product.slug,
+      image,
+      color: activeColor,
+      size: activeSize,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      quantity,
+      vendor: product.vendor,
+      weight: product.weight || 0,
+    });
+    closeQuickView();
+    closeDrawer();
+    router.push('/checkout');
   };
 
   return (
@@ -249,6 +286,8 @@ export function QuickViewModal() {
 
           {/* Buy it now */}
           <button
+            type="button"
+            onClick={handleBuyNow}
             className="qv-buy-now"
             style={{
               width: '100%', padding: '16px 0', backgroundColor: '#fff', color: '#222',

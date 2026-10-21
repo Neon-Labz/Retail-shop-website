@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 
 export default function RefundPolicyPage() {
@@ -7,7 +5,7 @@ export default function RefundPolicyPage() {
     <>
       <div className="fa-rp-page-header">
         <div className="container-main">
-          <div className="flex items-center justify-center gap-[8px] text-[14px] mb-[12px]">
+          <div className="flex items-center justify-center gap-[8px] text-[14px] mb-[16px]">
             <Link href="/" className="text-[#777] underline underline-offset-[3px]">Home</Link>
             <span className="text-[#bbb]">/</span>
             <span className="text-[#222]">Refund policy</span>
@@ -18,12 +16,11 @@ export default function RefundPolicyPage() {
 
       <div className="container-main fa-rp-content-wrap">
         <div className="fa-rp-prose">
-
           <p className="mb-[20px]">We have a 30-day return policy, which means you have 30 days after receiving your item to request a return.</p>
           <p className="mb-[20px]">To be eligible for a return, your item must be in the same condition that you received it, unworn or unused, with tags, and in its original packaging. You&apos;ll also need the receipt or proof of purchase.</p>
-          <p className="mb-[20px]">To start a return, you can contact us at support@ambaz.com. Please note that returns will need to be sent to the following address: [INSERT RETURN ADDRESS]</p>
-          <p className="mb-[20px]">If your return is accepted, we&apos;ll send you a return shipping label, as well as instructions on how and where to send your package. Items sent back to us without first requesting a return will not be accepted.</p>
-          <p className="mb-[20px]">You can always contact us for any return question at support@ambaz.com.</p>
+          <p className="mb-[20px]">To start a return, you can contact us at <a href="mailto:rkfdistributors2002@gmail.com" className="underline text-inherit">rkfdistributors2002@gmail.com</a>. Please note that returns will need to be sent to our store address: Play Ground Road, Kopay South, Jaffna.</p>
+          <p className="mb-[20px]">If your return is accepted, we&apos;ll send you instructions on how and where to send your package. Items sent back to us without first requesting a return will not be accepted.</p>
+          <p className="mb-[20px]">You can always contact us for any return question at <a href="mailto:rkfdistributors2002@gmail.com" className="underline text-inherit">rkfdistributors2002@gmail.com</a>.</p>
 
           <h2 className="fa-rp-h2">Damages and issues</h2>
           <p className="mb-[20px]">Please inspect your order upon reception and contact us immediately if the item is defective, damaged or if you receive the wrong item, so that we can evaluate the issue and make it right.</p>
@@ -40,23 +37,20 @@ export default function RefundPolicyPage() {
 
           <h2 className="fa-rp-h2">Refunds</h2>
           <p className="mb-[20px]">We will notify you once we&apos;ve received and inspected your return, and let you know if the refund was approved or not. If approved, you&apos;ll be automatically refunded on your original payment method within 10 business days. Please remember it can take some time for your bank or credit card company to process and post the refund too.</p>
-          <p className="mb-0">If more than 15 business days have passed since we&apos;ve approved your return, please contact us at support@ambaz.com.</p>
-
+          <p className="mb-0">If more than 15 business days have passed since we&apos;ve approved your return, please contact us at <a href="mailto:rkfdistributors2002@gmail.com" className="underline text-inherit">rkfdistributors2002@gmail.com</a>.</p>
         </div>
       </div>
 
       <style>{`
         .fa-rp-page-header { background-color: rgb(247, 248, 252); padding: 40px 0 50px; text-align: center; }
         .fa-rp-h1 { font-size: 40px; font-weight: 600; color: #222; }
-        .fa-rp-content-wrap { padding-block: 60px 100px; }
-        .fa-rp-prose { max-width: 680px; margin: 0 auto; font-size: 15px; color: #555; line-height: 1.8; }
-        .fa-rp-h2 { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 14px; margin-top: 40px; }
+        .fa-rp-content-wrap { padding: 60px 0 80px; }
+        .fa-rp-prose { max-width: 900px; margin: 0 auto; font-size: 15px; line-height: 1.8; color: #555; }
+        .fa-rp-h2 { font-size: clamp(20px, 3vw, 24px); font-weight: 600; color: #222; margin-top: 36px; margin-bottom: 12px; }
         @media (max-width: 749px) {
           .fa-rp-page-header { padding: clamp(28px, 6vw, 40px) 0 clamp(30px, 7vw, 50px); }
           .fa-rp-h1 { font-size: clamp(26px, 6.5vw, 40px); }
-          .fa-rp-content-wrap { padding-block: clamp(36px, 7vw, 60px) clamp(60px, 12vw, 100px); }
-          .fa-rp-prose { font-size: clamp(13px, 3.8vw, 15px); }
-          .fa-rp-h2 { font-size: clamp(17px, 4.5vw, 22px); margin-top: clamp(28px, 6vw, 40px); }
+          .fa-rp-content-wrap { padding: clamp(36px, 6vw, 60px) 0; }
         }
       `}</style>
     </>

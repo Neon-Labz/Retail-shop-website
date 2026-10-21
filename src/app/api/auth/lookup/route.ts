@@ -32,14 +32,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      customer: {
-        firstName: user.firstName || (user.name ? user.name.split(' ')[0] : ''),
-        lastName: user.lastName || (user.name ? user.name.split(' ').slice(1).join(' ') : ''),
-        email: user.email,
-        phone: user.phone || '',
-        addresses: user.addresses || [],
-        defaultAddress: defaultAddress || null,
-      },
+      exists: true,
     });
   } catch (error: unknown) {
     console.error('Customer lookup error:', error);

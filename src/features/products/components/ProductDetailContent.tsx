@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -481,13 +482,13 @@ export function ProductDetailContent({
   productHrefBase = '/products',
   cardVariant = 'home',
 }: ProductDetailContentProps) {
+  const router = useRouter();
   const { data, isLoading } = useProduct(slug, { endpoint: apiEndpoint });
   const { data: relatedData } = useProducts({
     limit: 12,
     category: data?.product?.category || undefined,
   }, { endpoint: relatedEndpoint ?? apiEndpoint });
   const { addItem, closeDrawer } = useCartStore();
-  const router = useRouter();
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlistStore();
   const { toggleItem: toggleCompare, isInCompare } = useCompareStore();
 
@@ -560,8 +561,8 @@ export function ProductDetailContent({
 
   useEffect(() => {
     if (product) {
-      setSelectedColor(product.colors[0]?.name || '');
-      setSelectedSize(product.sizes[0] || '');
+      setSelectedColor(product.colors?.[0]?.name || '');
+      setSelectedSize(product.sizes?.[0] || '');
 
       if (product.id && product.id.length === 24) {
         fetch('/api/recommendations/recently-viewed', {
@@ -615,8 +616,8 @@ export function ProductDetailContent({
     return (<div className="container-main py-[60px] px-0 text-center text-[16px] text-[#888]">Loading product...</div>);
   }
 
-  const activeColor = selectedColor || product.colors[0]?.name || '';
-  const activeSize = selectedSize || product.sizes[0] || '';
+  const activeColor = selectedColor || product.colors?.[0]?.name || '';
+  const activeSize = selectedSize || product.sizes?.[0] || '';
   const discount = calculateDiscount(product.price, product.compareAtPrice);
   const inWishlist = isInWishlist(product.id);
   const inCompare = isInCompare(product.id);
@@ -627,7 +628,7 @@ export function ProductDetailContent({
   const handleWishlistClick = () => {
     setWishlistLoading(true);
     setTimeout(() => {
-      toggleWishlist({ productId: product.id, name: product.name, price: product.price, compareAtPrice: product.compareAtPrice, image: product.images[0]?.src || '', image2: product.images[1]?.src || '', slug: product.slug, badge: product.badge, colors: product.colors.map(c => ({ name: c.name, value: c.value })), vendor: product.vendor });
+      toggleWishlist({ productId: product.id, name: product.name, price: product.price, compareAtPrice: product.compareAtPrice, image: product.images?.[0]?.src || '', image2: product.images?.[1]?.src || '', slug: product.slug, badge: product.badge, colors: product.colors?.map(c => ({ name: c.name, value: c.value })) || [], vendor: product.vendor });
       setWishlistLoading(false);
     }, 500);
   };
@@ -660,24 +661,49 @@ export function ProductDetailContent({
   const handleAddToCart = () => {
     if (!product) return;
     const variant = getActiveVariant();
-    if (!variant) return;
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
     setAddingToCart(true);
     setTimeout(() => {
       addItem({
         productId: product.id,
-        variantId: variant.id,
+        variantId,
         name: product.name,
         slug: product.slug,
-        image: variant.image || product.images?.[0]?.src || '',
+        image,
         color: activeColor,
         size: activeSize,
         price: product.price,
         compareAtPrice: product.compareAtPrice,
         quantity,
         vendor: product.vendor,
+        weight: product.weight || 0,
       });
       setAddingToCart(false);
-    }, 800);
+    }, 400);
+  };
+
+  const handleBuyNow = () => {
+    const variant = product.variants?.find(v => v.color === activeColor && v.size === activeSize) || product.variants?.[0];
+    const variantId = variant?.id || product.id || 'default';
+    const image = variant?.image || product.images?.[0]?.src || '';
+
+    addItem({
+      productId: product.id,
+      variantId,
+      name: product.name,
+      slug: product.slug,
+      image,
+      color: activeColor,
+      size: activeSize,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      quantity,
+      vendor: product.vendor,
+      weight: product.weight || 0,
+    });
+    closeDrawer();
+    router.push('/checkout');
   };
 
   const handleBuyNow = () => {
@@ -833,9 +859,13 @@ export function ProductDetailContent({
                 </div>
               </div>
 
-              <button
+<button
+                type="button"
                 onClick={handleBuyNow}
                 className="pdp-buy-now-btn w-full py-[14px] px-0 bg-[#fff] text-[#222] text-[16px] font-semibold border-[1.5px] border-solid border-[#222] rounded-none cursor-pointer mb-[20px] transition-all duration-[250ms] ease-in-out"
+              >
+                Buy it now
+              </button>
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#222'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#222'; }}
               >Buy it now</button>
@@ -1302,9 +1332,11 @@ export function ProductDetailContent({
             disabled={addingToCart}
           >{addingToCart ? 'Adding...' : 'Add to cart'}</button>
 
-          <button
+<button
+            type="button"
             onClick={handleBuyNow}
             className="pdp-sticky-buy bg-[#fff] hover:bg-[#222] text-[#222] hover:text-[#fff] text-[clamp(12px,1.2vw,14px)] font-semibold border-[1.5px] border-solid border-[#222] cursor-pointer transition-all duration-200 ease-in-out whitespace-nowrap"
+          >Buy it now</button>
           >Buy it now</button>
         </div>
       </div>

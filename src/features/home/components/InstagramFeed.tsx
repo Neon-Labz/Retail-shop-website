@@ -1,10 +1,12 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
+
+import { STORE_INSTAGRAM } from '@/lib/constants';
 
 import 'swiper/css';
 
@@ -48,7 +50,20 @@ export function InstagramFeed({ title, subtitle }: { title?: string; subtitle?: 
           <h2 style={{ fontSize: '32px', fontWeight: 600, color: '#222', marginBottom: '8px' }}>{title || 'Instagram shop'}</h2>
           {subtitle !== '' && (
             <p style={{ fontSize: '15px', color: '#777' }}>
-              {subtitle || (<>Become a member of the <a href="#" style={{ color: '#F15B41', textDecoration: 'underline' }}>@ambazshop</a> community</>)}
+              {subtitle || (
+                <>
+                  Become a member of the{' '}
+                  <a
+                    href={STORE_INSTAGRAM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#F15B41', textDecoration: 'underline' }}
+                  >
+                    @rkfdistributorspvtltd
+                  </a>{' '}
+                  community
+                </>
+              )}
             </p>
           )}
         </div>
@@ -71,7 +86,13 @@ export function InstagramFeed({ title, subtitle }: { title?: string; subtitle?: 
           >
             {images.map((src, i) => (
               <SwiperSlide key={i}>
-                <a href="#" className="ig-card" style={{ display: 'block', position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden', borderRadius: '6px', backgroundColor: '#f5f5f5' }}>
+                <a
+                  href={STORE_INSTAGRAM}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ig-card"
+                  style={{ display: 'block', position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden', borderRadius: '6px', backgroundColor: '#f5f5f5' }}
+                >
                   <Image src={src} alt={`Instagram ${i + 1}`} fill className="ig-card-img" style={{ objectFit: 'cover', transition: 'transform 500ms ease' }} sizes="20vw" />
                   {/* Overlay + icon */}
                   <div className="ig-overlay" style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 300ms ease', zIndex: 2 }}>

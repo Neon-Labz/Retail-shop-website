@@ -124,9 +124,6 @@ export function AccountDropdown({
         style={iconColor !== '#222' ? { color: iconColor } : undefined}
       >
         <IconUser />
-        {isAuthenticated && (
-          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border-[1.5px] border-white" />
-        )}
       </button>
 
       {/* Dropdown Menu */}

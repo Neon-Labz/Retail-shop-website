@@ -11,6 +11,7 @@ import {
 
 export interface AuthUser {
   id: string;
+  name?: string;
   firstName?: string;
   lastName?: string;
   email: string;
@@ -50,6 +51,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       deleteClientCookie(USER_COOKIE_NAME);
       try {
         localStorage.removeItem('customer_user');
+        localStorage.removeItem('customer_checkout_details');
       } catch {}
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
@@ -81,6 +83,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
       if (!res.ok) {
         // If server says 401 or token expired after 1 day, clear cookie and session
         deleteClientCookie(USER_COOKIE_NAME);
+        try {
+          localStorage.removeItem('customer_checkout_details');
+        } catch {}
         set({ user: null, isAuthenticated: false, isLoading: false });
         return;
       }
@@ -93,6 +98,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
         }
       } else {
         deleteClientCookie(USER_COOKIE_NAME);
+        try {
+          localStorage.removeItem('customer_checkout_details');
+        } catch {}
         set({ user: null, isAuthenticated: false, isLoading: false });
       }
     } catch {
@@ -109,6 +117,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       deleteClientCookie(USER_COOKIE_NAME);
       try {
         localStorage.removeItem('customer_user');
+        localStorage.removeItem('customer_checkout_details');
       } catch {}
       set({ user: null, isAuthenticated: false, isLoading: false });
     }

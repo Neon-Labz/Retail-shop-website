@@ -18,6 +18,7 @@ export interface IProductDocument extends Document {
   imageKeys?: string[];
   specifications?: ISpecification[];
   stock: number;
+  weight?: number;
   lowStockThreshold?: number;
   status: 'active' | 'draft' | 'archived';
   isFeatured?: boolean;
@@ -45,6 +46,7 @@ const ProductSchema = new Schema<IProductDocument>(
       },
     ],
     stock: { type: Number, default: 0 },
+    weight: { type: Number, default: 0 },
     lowStockThreshold: { type: Number, default: 5 },
     status: { type: String, enum: ['active', 'draft', 'archived'], default: 'active' },
     isFeatured: { type: Boolean, default: false },

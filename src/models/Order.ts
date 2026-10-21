@@ -14,6 +14,7 @@ export interface IOrderItem {
   quantity: number;
   subtotal?: number;
   vendor?: string;
+  weight?: number;
 }
 
 export interface IOrderAddress {
@@ -49,6 +50,7 @@ export interface IOrder extends Document {
   shippingFee: number;
   tax: number;
   total: number;
+  totalWeight?: number;
   paymentStatus: string;
   paymentMethod: string;
   status: string;
@@ -90,6 +92,7 @@ const OrderItemSchema = new Schema<IOrderItem>(
     quantity: { type: Number, required: true, min: 1 },
     subtotal: { type: Number, default: 0 },
     vendor: { type: String, default: '' },
+    weight: { type: Number, default: 0 },
   },
   { _id: false }
 );
@@ -111,6 +114,7 @@ const OrderSchema = new Schema<IOrder>(
     shippingFee: { type: Number, default: 0 },
     tax: { type: Number, default: 0 },
     total: { type: Number, required: true, default: 0 },
+    totalWeight: { type: Number, default: 0 },
     paymentStatus: { type: String, default: 'pending' },
     paymentMethod: { type: String, default: 'cod' },
     status: { type: String, default: 'pending' },

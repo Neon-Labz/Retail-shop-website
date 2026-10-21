@@ -10,4 +10,5 @@ export interface CartItem {
   compareAtPrice: number | null;
   quantity: number;
   vendor: string;
+  weight?: number;
 }
