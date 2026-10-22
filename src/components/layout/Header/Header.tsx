@@ -7,7 +7,6 @@ import { DesktopNav } from './DesktopNav';
 import { HeaderActions } from './HeaderActions';
 import { MobileNav } from './MobileNav';
 import { HeaderCategoriesButton } from './HeaderCategoriesButton';
-import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
 import { GroceryHeader } from './GroceryHeader';
 import { PetFoodHeader } from './PetFoodHeader';
 import { NutritionHeader } from './NutritionHeader';
@@ -256,9 +255,6 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-[22px] justify-self-end">
-            <div className="fashion-header-lang-desktop flex items-center max-[991px]:!hidden">
-              <HeaderLanguageCurrency />
-            </div>
             <HeaderActions />
           </div>
         </div>

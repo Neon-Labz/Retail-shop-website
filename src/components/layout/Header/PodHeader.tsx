@@ -6,7 +6,6 @@ import { DesktopNav } from './DesktopNav';
 import { HeaderActions } from './HeaderActions';
 import { MobileNav } from './MobileNav';
 import { HeaderCategoriesButton } from './HeaderCategoriesButton';
-import { HeaderLanguageCurrency } from './HeaderLanguageCurrency';
 import { useUIStore } from '@/store/uiStore';
 
 function IconMenu() {
@@ -22,7 +21,6 @@ export function PodHeader() {
 
   return (
     <>
-
       <header
         className="pd-main-header"
         style={{
@@ -80,9 +78,6 @@ export function PodHeader() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '22px', justifySelf: 'end' }}>
-            <div className="pd-header-lang-desktop">
-              <HeaderLanguageCurrency />
-            </div>
             <HeaderActions />
           </div>
         </div>
@@ -93,10 +88,6 @@ export function PodHeader() {
       <style>{`
         .pd-main-header {
           border-bottom: 1px solid #e5e5e5;
-        }
-        .pd-header-lang-desktop {
-          display: flex;
-          align-items: center;
         }
         @media (min-width: 992px) {
           .pd-main-header {
@@ -111,9 +102,6 @@ export function PodHeader() {
           display: none;
         }
         @media (max-width: 991px) {
-          .pd-header-lang-desktop {
-            display: none !important;
-          }
           .pd-header-categories-desktop {
             display: none !important;
           }

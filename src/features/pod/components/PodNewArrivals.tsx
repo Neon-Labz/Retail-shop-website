@@ -58,9 +58,9 @@ export function PodNewArrivals() {
               slidesPerView={2}
               breakpoints={{
                 750: { slidesPerView: 3 },
-                992: { slidesPerView: 4 },
+                1024: { slidesPerView: 5 },
               }}
-              spaceBetween={20}
+              spaceBetween={16}
               loop
               speed={600}
               className="overflow-hidden"
@@ -90,19 +90,16 @@ export function PodNewArrivals() {
         }
         .pdna-grid > * { min-width: 0; }
         @media (min-width: 750px) {
-          .pdna-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+          .pdna-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        }
+        @media (min-width: 1024px) {
+          .pdna-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
         }
 
-        
         .pdna-section .fc-card > a:first-child {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
-        }
-        .pdna-section .fc-card > a:first-child img {
-          object-fit: cover !important;
-          background-color: #fff;
-          padding: 0 !important;
         }
 
         .pdna-nav-prev, .pdna-nav-next {
