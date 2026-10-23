@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
@@ -86,7 +85,7 @@ export function PodTopCategories() {
                 480: { slidesPerView: 2, spaceBetween: 16 },
                 750: { slidesPerView: 3, spaceBetween: 20 },
                 992: { slidesPerView: 4, spaceBetween: 20 },
-                1350: { slidesPerView: 5, spaceBetween: 24 },
+                1200: { slidesPerView: 5, spaceBetween: 24 },
               }}
               spaceBetween={14}
               loop
@@ -96,14 +95,18 @@ export function PodTopCategories() {
               {categoryItems.map((cat, idx) => (
                 <SwiperSlide key={`${cat.id}-${idx}`}>
                   <Link href={cat.href} className="pd-cat-item">
-                    <div className="pd-cat-circle">
-                      <Image
-                        src={cat.image}
-                        alt={cat.label}
-                        fill
-                        className="pd-cat-img object-cover"
-                        sizes="272px"
-                      />
+                    <div className="pd-cat-circle bg-[#ebf0f5]" style={{ backgroundColor: "#ebf0f5" }}>
+                      {cat.image ? (
+                        <img
+                          src={cat.image}
+                          alt=""
+                          className="pd-cat-img"
+                          loading="eager"
+                          decoding="async"
+                        />
+                      ) : (
+                        <span className="pd-cat-fallback-icon">📁</span>
+                      )}
                     </div>
                     <span className="pd-cat-label">{cat.label}</span>
                   </Link>
@@ -134,22 +137,46 @@ export function PodTopCategories() {
         .pd-cat-circle {
           position: relative;
           width: 100%;
-          max-width: 250px;
+          max-width: 220px;
           aspect-ratio: 1 / 1;
           height: auto;
           border-radius: 50%;
           overflow: hidden;
-          background-color: #f0f0f0;
-          border: 2px solid #cbd5e1;
-          box-shadow: 0 4px 14px rgba(11, 28, 61, 0.08);
+          background-color: #ebf0f5;
+          border: none;
+          box-shadow: 0 8px 16px -2px rgba(24, 62, 132, 0.12), 4px 6px 10px -2px rgba(24, 62, 132, 0.04), -4px 6px 10px -2px rgba(24, 62, 132, 0.04);
           margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          transition: transform 300ms ease, box-shadow 300ms ease, background-color 300ms ease;
         }
-        .pd-cat-img { transition: transform 400ms ease; }
+        .pd-cat-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center;
+          transition: transform 400ms ease;
+          display: block;
+        }
         .pd-cat-item:hover .pd-cat-img { transform: scale(1.08); }
+        .pd-cat-item:hover .pd-cat-circle {
+          background-color: #e2e8f0;
+          box-shadow: 0 10px 20px -2px rgba(24, 62, 132, 0.18), 4px 6px 12px -2px rgba(24, 62, 132, 0.06), -4px 6px 12px -2px rgba(24, 62, 132, 0.06);
+          transform: translateY(-2px);
+        }
+        .pd-cat-fallback-icon {
+          font-size: 38px;
+        }
         .pd-cat-label {
           font-size: clamp(13px, 1.2vw, 15px);
           font-weight: 500;
           color: #222;
+          transition: color 200ms ease;
+        }
+        .pd-cat-item:hover .pd-cat-label {
+          color: #183e84;
         }
 
         

@@ -15,9 +15,9 @@ function ProductCardSkeleton() {
 }
 
 export function PodFeaturedProducts() {
-  const { data, isLoading } = useProducts({ limit: 8 }, { endpoint: '/api/pod-products' });
+  const { data, isLoading } = useProducts({ limit: 10 }, { endpoint: '/api/pod-products' });
 
-  const products = data?.products.slice(0, 8) || [];
+  const products = data?.products.slice(0, 10) || [];
 
   return (
     <section>
@@ -28,7 +28,7 @@ export function PodFeaturedProducts() {
 
         <div className="pdfp-grid">
           {isLoading
-            ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            ? Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : products.map((product, i) => (
                 <HomeProductCard key={product.id} product={product} index={i} />
               ))
@@ -49,19 +49,17 @@ export function PodFeaturedProducts() {
         .pdfp-grid > * { min-width: 0; }
 
         @media (min-width: 750px) {
-          .pdfp-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+          .pdfp-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
         }
 
-        
+        @media (min-width: 1024px) {
+          .pdfp-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        }
+
         .pdfp-grid .fc-card > a:first-child {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
-        }
-        .pdfp-grid .fc-card > a:first-child img {
-          object-fit: cover !important;
-          background-color: #fff;
-          padding: 0 !important;
         }
 
         .pdfp-shop-now {

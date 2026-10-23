@@ -136,6 +136,9 @@ export function HomeProductCard({
   const hasCountdown = showCountdown ?? false;
   const hasScrollText = showScrollText ?? false;
   const productHref = `${hrefBase}/${product.slug}`;
+  const discount = product.compareAtPrice && product.compareAtPrice > product.price
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+    : 0;
 
   const colorImages = product.colors.reduce<Record<string, string>>((acc, c) => {
     const variant = product.variants.find(v => v.color === c.name);
@@ -158,29 +161,31 @@ export function HomeProductCard({
     >
       <Link
         href={productHref}
-        className={`fc-card-img-link block relative overflow-hidden bg-[#f6f7f9] rounded-[8px] border border-solid border-[#ededf0] mb-[14px]${imageHeight ? '' : ' aspect-square'}`}
+        className={`fc-card-img-link block relative overflow-hidden bg-[#eef2f6] rounded-[8px] border border-solid border-[#ededf0] mb-[14px] shadow-[0_8px_16px_-2px_rgba(24,62,132,0.12),4px_6px_10px_-2px_rgba(24,62,132,0.04),-4px_6px_10px_-2px_rgba(24,62,132,0.04)]${imageHeight ? '' : ' aspect-square'}`}
         style={imageHeight ? { height: imageHeight } : undefined}
       >
-        <Image
-          src={defaultImg1}
-          alt={product.name}
-          fill
-          className={`object-cover object-center transition-opacity duration-300 ease-in-out ${activeColorImage ? 'opacity-0' : 'opacity-100'}`}
-          sizes="(max-width: 749px) 50vw, 25vw"
-        />
-
-        {Object.entries(colorImages).map(([colorName, imgSrc]) => (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <Image
-            key={colorName}
-            src={imgSrc}
-            alt={`${product.name} ${colorName}`}
+            src={defaultImg1}
+            alt={product.name}
             fill
-            className={`object-cover object-center transition-opacity duration-150 ease-in-out ${
-              hoveredColor === colorName ? 'opacity-100 z-[2]' : 'opacity-0 z-[1]'
-            }`}
+            className={`object-contain object-center transition-[opacity,transform] duration-500 ease-out ${hovered ? 'scale-108' : 'scale-100'} ${activeColorImage ? 'opacity-0' : 'opacity-100'}`}
             sizes="(max-width: 749px) 50vw, 25vw"
           />
-        ))}
+
+          {Object.entries(colorImages).map(([colorName, imgSrc]) => (
+            <Image
+              key={colorName}
+              src={imgSrc}
+              alt={`${product.name} ${colorName}`}
+              fill
+              className={`object-contain object-center transition-[opacity,transform] duration-500 ease-out ${hovered ? 'scale-108' : 'scale-100'} ${
+                hoveredColor === colorName ? 'opacity-100 z-[2]' : 'opacity-0 z-[1]'
+              }`}
+              sizes="(max-width: 749px) 50vw, 25vw"
+            />
+          ))}
+        </div>
 
         {product.badge && (
           <span
@@ -207,6 +212,10 @@ export function HomeProductCard({
             <button aria-label="Quick view" className="fc-action-btn fc-action-btn-light" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}><IconEye size={18} /></button>
             <span className="fc-tooltip">Quick view</span>
           </div>
+          <div className="fc-tooltip-wrap fc-quickadd-wrap relative">
+            <button aria-label="Quick Add" className="fc-action-btn fc-action-btn-light" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}><IconBag size={18} /></button>
+            <span className="fc-tooltip">Quick Add</span>
+          </div>
         </div>
 
         {hasCountdown && (
@@ -229,13 +238,6 @@ export function HomeProductCard({
           </div>
         )}
 
-        <div
-          className={`fc-quick-add-overlay absolute bottom-[14px] left-[16px] right-[16px] z-[4] transition-[opacity,transform] duration-300 ease-in-out ${
-            hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[16px]'
-          }`}
-        >
-          <button className="fc-quick-add-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}><IconBag size={18} /> Quick Add</button>
-        </div>
       </Link>
 
       <div className="text-center min-w-0 w-full overflow-hidden">
@@ -251,9 +253,20 @@ export function HomeProductCard({
             {product.name}
           </Link>
         </div>
-        <div className="mt-[6px] flex items-center justify-center gap-[8px]">
-          {product.compareAtPrice && <span className="text-[14px] text-[#999] line-through">{formatPrice(product.compareAtPrice)}</span>}
-          <span className="product-price-text text-[15px] font-semibold" style={{ color: priceColor }}>{formatPrice(product.price)}</span>
+        <div className="mt-[6px] flex items-baseline justify-center gap-[6px] flex-wrap">
+          <span className="product-price-text text-[15px] font-bold" style={{ color: priceColor }}>
+            {formatPrice(product.price)}
+          </span>
+          {discount > 0 && (
+            <span className="text-[#F15B41] bg-[#fff0ed] text-[11px] font-bold px-[5px] py-[1px] rounded-[3px] leading-none">
+              -{discount}%
+            </span>
+          )}
+          {product.compareAtPrice && (
+            <span className="text-[13px] text-[#999] line-through font-normal">
+              {formatPrice(product.compareAtPrice)}
+            </span>
+          )}
         </div>
         {product.colors.length > 0 && (
           <div className="mt-[8px] flex items-center justify-center gap-[6px] relative">
@@ -362,28 +375,6 @@ export function HomeProductCard({
           transform: translateX(-50%) translateY(0);
         }
 
-        .fc-quick-add-btn {
-          width: 100% !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          background-color: #fff !important;
-          color: #222 !important;
-          font-size: 16px !important;
-          font-weight: 500 !important;
-          padding: 13px 0 !important;
-          border: none !important;
-          border-radius: 6px !important;
-          cursor: pointer !important;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
-          transition: background-color 250ms ease, color 250ms ease, box-shadow 250ms ease !important;
-        }
-        .fc-quick-add-btn:hover {
-          background-color: #000 !important;
-          color: #fff !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.15) !important;
-        }
 
         
         .fc-mobile-actions {
@@ -396,10 +387,8 @@ export function HomeProductCard({
             opacity: 1 !important;
             transform: none !important;
           }
-          .fc-card--compact .fc-quickview-wrap {
-            display: none !important;
-          }
-          .fc-card--compact .fc-quick-add-overlay {
+          .fc-card--compact .fc-quickview-wrap,
+          .fc-card--compact .fc-quickadd-wrap {
             display: none !important;
           }
           .fc-card--compact .fc-mobile-actions {
@@ -451,10 +440,8 @@ export function HomeProductCard({
             transform: none !important;
           }
           
-          .fc-quickview-wrap {
-            display: none !important;
-          }
-          .fc-quick-add-overlay {
+          .fc-quickview-wrap,
+          .fc-quickadd-wrap {
             display: none !important;
           }
           .fc-mobile-actions {
@@ -493,11 +480,6 @@ export function HomeProductCard({
           .fc-action-btn-dark:hover {
             background-color: #222 !important;
             color: #fff !important;
-          }
-          .fc-quick-add-btn:hover {
-            background-color: #fff !important;
-            color: #222 !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
           }
           .fc-tooltip-wrap:hover .fc-tooltip {
             opacity: 0 !important;

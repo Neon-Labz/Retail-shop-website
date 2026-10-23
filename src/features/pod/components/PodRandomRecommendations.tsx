@@ -21,7 +21,7 @@ export function PodRandomRecommendations() {
 
   const fetchRandomProducts = () => {
     setIsLoading(true);
-    fetch('/api/recommendations/random?limit=4')
+    fetch('/api/recommendations/random?limit=5', { cache: 'no-store' })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
@@ -57,7 +57,7 @@ export function PodRandomRecommendations() {
 
         <div className="pod-random-grid">
           {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            ? Array.from({ length: 5 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : products.map((product, i) => (
                 <HomeProductCard key={product.id} product={product} index={i} />
               ))}
@@ -82,19 +82,17 @@ export function PodRandomRecommendations() {
         .pod-random-grid > * { min-width: 0; }
 
         @media (min-width: 750px) {
-          .pod-random-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+          .pod-random-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
         }
 
-        
+        @media (min-width: 1024px) {
+          .pod-random-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        }
+
         .pod-random-grid .fc-card > a:first-child {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: 0 auto 14px;
-        }
-        .pod-random-grid .fc-card > a:first-child img {
-          object-fit: cover !important;
-          background-color: #fff;
-          padding: 0 !important;
         }
 
         .pod-refresh-btn:hover {

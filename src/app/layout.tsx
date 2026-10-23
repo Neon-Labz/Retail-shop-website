@@ -9,7 +9,7 @@ import { CartDrawer } from '@/features/cart/components/CartDrawer';
 import { SearchDrawer } from '@/features/search/components/SearchDrawer';
 import { QuickViewModal } from '@/features/quickview/components/QuickViewModal';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/constants';
-import { ScrollToTop } from '@/components/shared/ScrollToTop';
+import { WhatsAppButton } from '@/components/shared/WhatsAppButton';
 import { CompareBar } from '@/components/shared/CompareBar';
 import { PageLoader } from '@/components/shared/PageLoader';
 import { NewsletterPopup } from '@/components/shared/NewsletterPopup';
@@ -55,7 +55,7 @@ export default function RootLayout({
           <SearchDrawer />
           <QuickViewModal />
           <CompareBar />
-          <ScrollToTop />
+          <WhatsAppButton />
           <NewsletterPopup />
         </Providers>
       </body>
