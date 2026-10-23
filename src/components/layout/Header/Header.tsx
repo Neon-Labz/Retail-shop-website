@@ -226,7 +226,7 @@ export function Header() {
   return (
     <>
 
-      <header className="main-header sticky top-0 z-[200] bg-white h-[90px] overflow-visible border-b border-[#e5e5e5] min-[992px]:!sticky min-[992px]:!top-0 min-[992px]:!z-[200] min-[992px]:will-change-transform">
+      <header className="main-header sticky top-0 z-[200] bg-white h-[90px] max-[715px]:!h-[72px] overflow-visible border-b border-[#e5e5e5] min-[992px]:!sticky min-[992px]:!top-0 min-[992px]:!z-[200] min-[992px]:will-change-transform">
         <div className="container-main h-full grid grid-cols-[1fr_auto_1fr] items-center">
           <div className="flex items-center gap-[12px] justify-self-start">
             <button
@@ -250,7 +250,7 @@ export function Header() {
             <DesktopNav />
           </div>
 
-          <div className="fashion-logo-mobile hidden max-[715px]:flex max-[715px]:justify-center max-[715px]:items-center">
+          <div className="fashion-logo-mobile hidden max-[715px]:flex max-[715px]:justify-center max-[715px]:items-center max-[715px]:[&_img]:!h-[50px]">
             <Logo />
           </div>
 

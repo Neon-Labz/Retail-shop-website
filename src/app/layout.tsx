@@ -13,6 +13,7 @@ import { WhatsAppButton } from '@/components/shared/WhatsAppButton';
 import { CompareBar } from '@/components/shared/CompareBar';
 import { PageLoader } from '@/components/shared/PageLoader';
 import { NewsletterPopup } from '@/components/shared/NewsletterPopup';
+import { ImageSkeletonProvider } from '@/components/shared/ImageSkeletonProvider';
 
 const albertSans = Albert_Sans({
   subsets: ['latin'],
@@ -44,6 +45,7 @@ export default function RootLayout({
     <html lang="en" dir="ltr" className={albertSans.variable}>
       <body className="min-h-screen flex flex-col">
         <PageLoader />
+        <ImageSkeletonProvider />
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
