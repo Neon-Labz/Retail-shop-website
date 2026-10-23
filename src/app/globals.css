@@ -103,8 +103,8 @@ html {
   scroll-behavior: smooth;
   overflow-x: clip;
   --color-foreground: 17, 17, 17;
-  /* Global Product Price Color — RKF Logo Dark Blue (comment out to revert to default #222) */
-  --color-product-price: #183e84;
+  /* Global Product Price Color — RKF Logo Red (comment out to revert to default #222) */
+  --color-product-price: #e01117;
 }
 
 body {
@@ -879,7 +879,7 @@ body.scroll-locked {
    ========================================================================== */
 
 /* 1. Universal Product Cards: Clean Studio Light-Gray Backdrop on Product Card Image ONLY */
-.fc-card .fc-card-img-link,
+.fc-card:not(.fc-unified-card) .fc-card-img-link,
 .product-card-image,
 .grocery-card-img-wrap {
   background-color: #eef2f6 !important;
@@ -888,7 +888,7 @@ body.scroll-locked {
   box-shadow: 0 8px 16px -2px rgba(24, 62, 132, 0.12), 4px 6px 10px -2px rgba(24, 62, 132, 0.04), -4px 6px 10px -2px rgba(24, 62, 132, 0.04) !important;
 }
 
-.fc-card:hover .fc-card-img-link,
+.fc-card:not(.fc-unified-card):hover .fc-card-img-link,
 .collection-card:hover .collection-card-img-wrap {
   background-color: #e5ebf2 !important;
   border-color: #e2e5ea !important;
@@ -1180,5 +1180,5 @@ body.scroll-locked {
 .pdp-info-price,
 .pdp-sticky-price,
 .qv-price-current {
-  color: var(--color-product-price, #183e84) !important;
+  color: #e01117 !important;
 }
